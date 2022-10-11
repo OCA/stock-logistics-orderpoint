@@ -9,8 +9,9 @@ class StockWarehouseOrderpoint(models.Model):
     _inherit = "stock.warehouse.orderpoint"
 
     def action_view_stock_picking(self):
-        action = self.env.ref("stock.action_picking_tree_all")
-        result = action.read()[0]
+        result = self.env["ir.actions.act_window"]._for_xml_id(
+            "stock.action_picking_tree_all"
+        )
         result["context"] = {}
         picking_ids = (
             self.env["stock.move"]
