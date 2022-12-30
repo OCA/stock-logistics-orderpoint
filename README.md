@@ -17,7 +17,11 @@ This repository contains modules to extend reordering rules (available on wareho
 
 [//]: # (addons)
 
-This part will be replaced when running the oca-gen-addons-table script from OCA/maintainer-tools.
+Available addons
+----------------
+addon | version | maintainers | summary
+--- | --- | --- | ---
+[stock_orderpoint_move_link](stock_orderpoint_move_link/) | 16.0.1.0.0 |  | Link Reordering rules to stock moves
 
 [//]: # (end addons)
 
