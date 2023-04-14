@@ -22,6 +22,7 @@ Available addons
 addon | version | maintainers | summary
 --- | --- | --- | ---
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 16.0.1.0.0 |  | Link Reordering rules to stock moves
+[stock_orderpoint_purchase_link](stock_orderpoint_purchase_link/) | 16.0.1.0.0 |  | Link Reordering rules to purchase orders
 
 [//]: # (end addons)
 
