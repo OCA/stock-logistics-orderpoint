@@ -17,6 +17,12 @@
         "views/stock_location.xml",
         "views/menu.xml",
     ],
+    "demo": [
+        "demo/stock_location.xml",
+        "demo/stock_picking_type.xml",
+        "demo/stock_route.xml",
+        "demo/stock_location_orderpoint.xml",
+    ],
     "depends": [
         "stock_helper",
         "queue_job",
