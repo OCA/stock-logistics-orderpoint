@@ -15,9 +15,9 @@ class StockLocationOrderpoint(models.Model):
     _name = "stock.location.orderpoint"
     _description = "Stock location orderpoint"
     _order = "priority desc, sequence"
+    _check_company_auto = True
 
     name = fields.Char(
-        "Name",
         copy=False,
         required=True,
         readonly=True,
@@ -37,11 +37,9 @@ class StockLocationOrderpoint(models.Model):
         ondelete="cascade",
         required=True,
         check_company=True,
-        domain='[("company_id", "=", company_id)]',
     )
     trigger = fields.Selection(
         [("auto", "Auto/realtime"), ("manual", "Manual"), ("cron", "Scheduled")],
-        "Trigger",
         default="auto",
         required=True,
         help="Auto/realtime orderpoints are triggered on new moves\n"
@@ -59,11 +57,11 @@ class StockLocationOrderpoint(models.Model):
         "but will be limited to what is available at the source location "
         "to plan only reservable replenishment moves",
     )
-    sequence = fields.Integer("Sequence", default=10)
+    sequence = fields.Integer(default=10)
     route_id = fields.Many2one(
-        "stock.location.route",
+        "stock.route",
         string="Preferred Route",
-        domain="[('rule_ids.location_id', 'in', [location_id])]",
+        domain="[('rule_ids.location_dest_id', 'in', [location_id])]",
     )
     group_id = fields.Many2one(
         "procurement.group",
@@ -77,10 +75,9 @@ class StockLocationOrderpoint(models.Model):
     location_src_id = fields.Many2one(
         "stock.location", compute="_compute_location_src_id", store=True
     )
-    active = fields.Boolean("Active", default=True)
+    active = fields.Boolean(default=True)
     priority = fields.Selection(
         PROCUREMENT_PRIORITIES,
-        "Priority",
         default="0",
     )
 
@@ -97,7 +94,8 @@ class StockLocationOrderpoint(models.Model):
         for orderpoint in self:
             if (
                 not orderpoint.route_id
-                or orderpoint.location_id in orderpoint.route_id.rule_ids.location_id
+                or orderpoint.location_id
+                in orderpoint.route_id.rule_ids.location_dest_id
             ):
                 continue
             raise ValidationError(
@@ -145,7 +143,7 @@ class StockLocationOrderpoint(models.Model):
         return {
             "route_ids": self.route_id,
             "date_deadline": False,
-            "warehouse_id": self.location_id.get_closest_warehouse(),
+            "warehouse_id": self.location_id.warehouse_id,
             "group_id": self.group_id,
             "priority": self.priority or "0",
             "location_orderpoint_id": self.id,
@@ -202,7 +200,9 @@ class StockLocationOrderpoint(models.Model):
         for location in locations:
             qties_on_location = qties.setdefault(location, {})
             products = products.with_context(location=location.id)
-            for product_id, qties_dict in products._product_available().items():
+            for product_id, qties_dict in products._compute_quantities_dict(
+                None, None, None
+            ).items():
                 product = products.browse(product_id)
                 qties_on_location[product] = qties_dict
         return qties

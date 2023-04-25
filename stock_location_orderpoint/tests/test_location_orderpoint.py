@@ -72,7 +72,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         )
         self._create_outgoing_move(12)
 
-        self.product.invalidate_cache()
+        self.product.invalidate_recordset()
         cron.method_direct_trigger()
 
         replenish_move = self._get_replenishment_move(orderpoint)
@@ -80,7 +80,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
 
         self._create_quants(self.product, location_src, 12)
 
-        self.product.invalidate_cache()
+        self.product.invalidate_recordset()
         cron.method_direct_trigger()
 
         replenish_move = self._get_replenishment_move(orderpoint)
@@ -108,14 +108,14 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             move = self._create_outgoing_move(move_qty)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.run_auto_replenishment,
+                orderpoint.browse([]).run_auto_replenishment,
                 args=(move.product_id, move.location_id, "location_id"),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
                 ),
             )
-            self.product.invalidate_cache()
+            self.product.invalidate_recordset()
             trap.perform_enqueued_jobs()
             replenish_move = self._get_replenishment_move(orderpoint)
             self.assertFalse(replenish_move)
@@ -124,14 +124,14 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             move = self._create_incoming_move(move_qty, location_src)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.run_auto_replenishment,
+                orderpoint.browse([]).run_auto_replenishment,
                 args=(move.product_id, move.location_dest_id, "location_src_id"),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
                 ),
             )
-            self.product.invalidate_cache()
+            self.product.invalidate_recordset()
             trap.perform_enqueued_jobs()
             replenish_move = self._get_replenishment_move(orderpoint)
             self._check_replenishment_move(replenish_move, move_qty, orderpoint)
@@ -142,14 +142,14 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             move = self._create_outgoing_move(move_qty)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.run_auto_replenishment,
+                orderpoint.browse([]).run_auto_replenishment,
                 args=(move.product_id, move.location_id, "location_id"),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
                 ),
             )
-            self.product.invalidate_cache()
+            self.product.invalidate_recordset()
             trap.perform_enqueued_jobs()
             replenish_move_new = self._get_replenishment_move(orderpoint)
             self.assertEqual(replenish_move, replenish_move_new)

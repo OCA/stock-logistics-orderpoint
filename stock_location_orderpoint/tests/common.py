@@ -2,10 +2,10 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from datetime import datetime
 
-from odoo.tests.common import Form, SavepointCase
+from odoo.tests.common import Form, TransactionCase
 
 
-class TestLocationOrderpointCommon(SavepointCase):
+class TestLocationOrderpointCommon(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -34,7 +34,7 @@ class TestLocationOrderpointCommon(SavepointCase):
         )
 
     def _create_route(self, name, picking_type, location_src, location_dest, warehouse):
-        return self.env["stock.location.route"].create(
+        return self.env["stock.route"].create(
             {
                 "name": name,
                 "sequence": 0,
@@ -45,7 +45,7 @@ class TestLocationOrderpointCommon(SavepointCase):
                         {
                             "name": name,
                             "action": "pull",
-                            "location_id": location_dest.id,
+                            "location_dest_id": location_dest.id,
                             "location_src_id": location_src.id,
                             "picking_type_id": picking_type.id,
                             "warehouse_id": warehouse.id,
@@ -127,7 +127,7 @@ class TestLocationOrderpointCommon(SavepointCase):
         )
 
     def _run_replenishment(self, orderpoints):
-        self.product.invalidate_cache()
+        self.product.invalidate_recordset()
         orderpoints.run_replenishment()
 
     def _get_replenishment_move(self, orderpoints):
