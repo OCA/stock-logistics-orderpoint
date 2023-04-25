@@ -29,5 +29,5 @@
     ],
     "license": "AGPL-3",
     "maintainers": ["mt-software-de"],
-    "website": "https://github.com/OCA/stock-logistics-warehouse",
+    "website": "https://github.com/OCA/stock-logistics-orderpoint",
 }
