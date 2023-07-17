@@ -84,8 +84,8 @@ class StockLocationOrderpoint(models.Model):
     _sql_constraints = [
         (
             "location_route_unique",
-            "unique(location_id, route_id)",
-            "The combination of Company, Location and Route must be unique",
+            "unique(location_id, route_id, company_id, replenish_method)",
+            "The combination of Company, Location, Route and Replenish method must be unique",
         )
     ]
 
