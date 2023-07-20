@@ -100,12 +100,13 @@ class StockLocationOrderpoint(models.Model):
                 continue
             raise ValidationError(
                 _(
-                    "The selected route {} must contain "
-                    "a rule where the Destination Location is {}"
-                ).format(
-                    orderpoint.route_id.display_name,
-                    orderpoint.location_id.display_name,
+                    "The selected route %(route_name)s must contain "
+                    "a rule where the Destination Location is %(location_name)s"
                 )
+                % {
+                    "route_name": orderpoint.route_id.display_name,
+                    "location_name": orderpoint.location_id.display_name,
+                }
             )
 
     @api.depends("location_id", "route_id")
