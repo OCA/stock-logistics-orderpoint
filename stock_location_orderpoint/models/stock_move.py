@@ -21,29 +21,23 @@ class StockMove(models.Model):
             self.filtered(lambda move: move.product_id == product).mapped("date")
         )
 
-    def _prepare_auto_replenishment_for_waiting_moves(self):
-        self._prepare_auto_replenishment(
-            "location_id",
-            self.env["stock.location.orderpoint"]._get_waiting_move_domain(),
-        )
+    def _prepare_auto_replenishment_for_outgoing_moves(self):
+        self._prepare_auto_replenishment("location_id")
 
-    def _prepare_auto_replenishment_for_done_moves(self):
-        self._prepare_auto_replenishment(
-            "location_dest_id",
-            [
-                ("move_dest_ids", "=", False),
-                ("procure_method", "=", "make_to_stock"),
-                ("state", "=", "done"),
-            ],
-        )
+    def _prepare_auto_replenishment_for_incoming_moves(self):
+        self._prepare_auto_replenishment("location_dest_id")
 
-    def _prepare_auto_replenishment(self, location_field, domain):
-        if self.env.context.get("skip_auto_replenishment"):
+    def _prepare_auto_replenishment(self, location_field):
+        if not self or self.env.context.get("skip_auto_replenishment"):
             return
         locations_products = defaultdict(set)
         location_ids = set()
         product_obj = self.env["product.product"]
-        for move in self.filtered_domain(domain):
+
+        moves = self.env[
+            "stock.location.orderpoint"
+        ]._filter_moves_triggering_orderpoints(self, trigger="auto")
+        for move in moves:
             location = getattr(move, location_field)
             locations_products[location].add(move.product_id.id)
             location_ids.add(location.id)
@@ -52,12 +46,9 @@ class StockMove(models.Model):
         location_field = (
             location_field == "location_id" and location_field or "location_src_id"
         )
-        orderpoints = self.env["stock.location.orderpoint"]._get_orderpoints(
-            "auto", list(location_ids), location_field
-        )
         for location, products in locations_products.items():
-            if not orderpoints._is_location_parent_of(location, location_field):
-                continue
+            # if not orderpoints._is_location_parent_of(location, location_field):
+            #    continue
             for product in product_obj.browse(products):
                 self._enqueue_auto_replenishment(
                     location, product, location_field
@@ -99,7 +90,11 @@ class StockMove(models.Model):
     def _action_assign(self, *args, **kwargs):
         """This triggers the replenishment for new moves which are waiting for stock"""
         res = super()._action_assign(*args, **kwargs)
-        self._prepare_auto_replenishment_for_waiting_moves()
+        # When a move is assigned, it means that the stock is available on the
+        # location is decreased. So we need to trigger a check for replenishment
+        # on this location IOW if an orderpoint exists for this location as
+        # target location and the move has the expected characteristics (state, ...)
+        self._prepare_auto_replenishment_for_outgoing_moves()
         return res
 
     def _action_done(self, *args, **kwargs):
@@ -108,5 +103,10 @@ class StockMove(models.Model):
         when the stock increases on a source location of an orderpoint
         """
         moves = super()._action_done(*args, **kwargs)
-        moves._prepare_auto_replenishment_for_done_moves()
+        # When a move is done, it means that the stock at the target location
+        # is increased. So we need to trigger a check for replenishment
+        # on this location IOW if an orderpoint exists for this location
+        # as source location and the move has the expected characteristics
+        # (state, ...)
+        moves._prepare_auto_replenishment_for_incoming_moves()
         return moves
