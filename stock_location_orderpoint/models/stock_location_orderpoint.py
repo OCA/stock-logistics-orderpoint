@@ -2,8 +2,9 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from collections import defaultdict
 from copy import copy
+from datetime import timedelta
 
-from odoo import _, api, fields, models
+from odoo import _, api, fields, models, tools
 from odoo.exceptions import ValidationError
 from odoo.osv import expression
 from odoo.tools import float_compare, split_every
@@ -39,7 +40,11 @@ class StockLocationOrderpoint(models.Model):
         check_company=True,
     )
     trigger = fields.Selection(
-        [("auto", "Auto/realtime"), ("manual", "Manual"), ("cron", "Scheduled")],
+        [
+            ("auto", "Auto/realtime"),
+            ("manual", "Manual"),
+            ("cron", "Scheduled"),
+        ],
         default="auto",
         required=True,
         help="Auto/realtime orderpoints are triggered on new moves\n"
@@ -76,6 +81,11 @@ class StockLocationOrderpoint(models.Model):
         "stock.location", compute="_compute_location_src_id", store=True
     )
     active = fields.Boolean(default=True)
+
+    last_cron_execution = fields.Datetime(
+        help="Last time this orderpoint was processed by the cron",
+    )
+
     priority = fields.Selection(
         PROCUREMENT_PRIORITIES,
         default="0",
@@ -150,34 +160,110 @@ class StockLocationOrderpoint(models.Model):
             "location_orderpoint_id": self.id,
         }
 
-    def _get_waiting_move_domain(self):
+    def _get_group_by_domain_config(self):
+        """Returns a list of orederpoints fields for which orderpoints
+        with the same value will generate the same domain for the moves
+        The location_id should be excluded. The location domain will be applied
+        to each group of orderpoints.
         """
-        Returns a domain which selects waiting moves
-        which should be replenished by given orderpoints
+        return ["last_cron_execution", "trigger", "replenish_method"]
+
+    def _group_by_domain_config(self):
+        """Returns an iterator of orderpoints for which the values of the fields
+        returned by _get_group_by_domain_config will be the same.
         """
+        groups = defaultdict(list)
+        for orderpoint in self:
+            group_key = tuple(
+                getattr(orderpoint, field)
+                for field in orderpoint._get_group_by_domain_config()
+            )
+            groups[group_key].append(orderpoint.id)
+        for group in groups.values():
+            yield self.browse(group)
+
+    def _get_consuming_moves_domain_for_group(self):
+        """Returns a domain which selects moves the outgoings that could
+        introduce a shortage at the location for a list of orderpoints
+        with the same characteristics except the location_id
+        """
+        first = self[0]
         domain = [
-            ("state", "in", ["confirmed", "partially_available"]),
+            ("location_id", "child_of", self.location_id.ids),
+        ]
+        if first.trigger == "cron":
+            if not first.last_cron_execution:
+                # initialize a date 1 week ago to avoid selecting all moves
+                # when the cron is executed for the first time
+                first.last_cron_execution = self.env.cr.now() - timedelta(days=7)
+            domain.append(("write_date", ">=", first.last_cron_execution))
+        if first.replenish_method == "fill_up":
+            # with fillup, we know that a replenishment is required when
+            # move are waiting availability
+            domain.append(("state", "in", ["confirmed", "partially_available"]))
+        return domain
+
+    def _get_consuming_moves_domain(self):
+        """Returns a domain which selects moves the outgoings that could
+        introduce a shortage at the location"""
+        domain = [
             ("move_orig_ids", "=", False),
             ("procure_method", "=", "make_to_stock"),
         ]
-        location_domains = []
-        for orderpoint in self:
-            location_domains.append(
-                [
-                    ("location_id", "child_of", orderpoint.location_id.ids),
-                    "!",
-                    ("location_dest_id", "child_of", orderpoint.location_id.ids),
-                ]
-            )
-        if location_domains:
-            domain = expression.AND([domain, expression.OR(location_domains)])
+        groups = []
+        for orderpoints in self._group_by_domain_config():
+            groups.append(orderpoints._get_consuming_moves_domain_for_group())
+        if not groups:
+            return domain
+        return expression.AND([domain, expression.OR(groups)])
+
+    def _get_replenishment_moves_domain(self):
+        """Returns a domain which selects moves that could replenish
+        the location"""
+        domain = [
+            ("move_dest_ids", "=", False),
+            ("procure_method", "=", "make_to_stock"),
+            ("state", "=", "done"),
+        ]
+        if self:
+            domain.append(("location_dest_id", "child_of", self.location_src_id.ids))
         return domain
+
+    @api.model
+    @tools.ormcache("ids")
+    def _get_consuming_moves_domain_for_ids(self, ids=None):
+        """Returns a domain which selects moves the outgoings that could
+        introduce a shortage at the location for a list of orderpoints"""
+        orderpoints = self.browse(ids) if ids else self.search([])
+        return orderpoints._get_consuming_moves_domain()
+
+    @api.model
+    @tools.ormcache("ids")
+    def _get_replenishment_moves_domain_for_ids(self, ids=None):
+        """Returns a domain which selects moves that could replenish
+        the location for a list of orderpoints"""
+        orderpoints = self.browse(ids) if ids else self.search([])
+        return orderpoints._get_replenishment_moves_domain()
+
+    @api.model
+    def _get_moves_domain(self, ids):
+        """
+        Returns a domain which selects moves replenishing or consuming
+        the locations of orderpoints with given ids
+        """
+        ids = tuple(ids)
+        return expression.OR(
+            [
+                self._get_replenishment_moves_domain_for_ids(ids),
+                self._get_consuming_moves_domain_for_ids(ids),
+            ]
+        )
 
     def _find_potential_moves_to_replenish_by_location(self, products=False):
         """Return a dictionary of products per location that potentially require a replenishment
         based on the fact there are moves not reserved for those products.
         This reduces the list of products for which the quantity will be computed"""
-        domain = self._get_waiting_move_domain()
+        domain = self._get_moves_domain(self.ids)
         if products:
             domain = expression.AND([domain, [("product_id", "in", products.ids)]])
         moves_grouped = self.env["stock.move"].read_group(
@@ -233,7 +319,9 @@ class StockLocationOrderpoint(models.Model):
         virtual_available_on_dest = qties_on_dest["virtual_available"]
         if (
             float_compare(
-                virtual_available_on_dest, 0, precision_rounding=product.uom_id.rounding
+                virtual_available_on_dest,
+                0,
+                precision_rounding=product.uom_id.rounding,
             )
             >= 0
         ):
@@ -282,7 +370,9 @@ class StockLocationOrderpoint(models.Model):
                 )
                 if (
                     float_compare(
-                        qty_to_replenish, 0, precision_rounding=product.uom_id.rounding
+                        qty_to_replenish,
+                        0,
+                        precision_rounding=product.uom_id.rounding,
                     )
                     > 0
                 ):
@@ -295,7 +385,10 @@ class StockLocationOrderpoint(models.Model):
             moves_by_location
         )
         procurements = []
-        for orderpoint, qties_to_replenish in qties_to_replenish_by_orderpoint.items():
+        for (
+            orderpoint,
+            qties_to_replenish,
+        ) in qties_to_replenish_by_orderpoint.items():
             proc_vals = orderpoint._prepare_procurement_values()
             for product, qty in qties_to_replenish:
                 date_planned = moves_by_location[
@@ -345,7 +438,6 @@ class StockLocationOrderpoint(models.Model):
     def _after_replenishment(self):
         self._assign_replenishment_moves()
 
-    @api.model
     def _prepare_orderpoint_domain_location(self, location_ids, location_field=False):
         """
         Returns the domain part of the location selection of _get_orderpoints
@@ -375,10 +467,31 @@ class StockLocationOrderpoint(models.Model):
         return domain
 
     @api.model
-    def _get_orderpoints(self, trigger, locations=False, location_field=False):
+    @tools.ormcache("trigger", "location_field")
+    def _get_ids_by_parent_path(self, trigger, location_field):
+        """Returns a dict of orderpoint ids by their parent paths for the given
+        trigger and location_field
+        """
+        orderpoints = self.search(self._prepare_orderpoint_domain(trigger))
+        result = defaultdict(list)
+        for orderpoint in orderpoints:
+            result[orderpoint[location_field].parent_path].append(orderpoint.id)
+        return result
+
+    @api.model
+    def _get_orderpoints(self, trigger, locations=False, location_field="location_id"):
         """Returns orderpoints selected by trigger, locations and location_field"""
-        domain = self._prepare_orderpoint_domain(trigger, locations, location_field)
-        return self.search(domain)
+        ids_by_parent_paths = self._get_ids_by_parent_path(trigger, location_field)
+        ids = set()
+        if locations:
+            for location in locations:
+                for parent_path in ids_by_parent_paths:
+                    if location.parent_path.startswith(parent_path):
+                        ids.update(ids_by_parent_paths[parent_path])
+        else:
+            # ids_by_parent_paths.values() is a list of ids. We need to flatten it
+            ids = set().union(*ids_by_parent_paths.values())
+        return self.browse(list(ids))
 
     def _is_location_parent_of(self, location, location_field):
         """
@@ -392,6 +505,22 @@ class StockLocationOrderpoint(models.Model):
         for parent_location in getattr(self, location_field):
             if location.parent_path.startswith(parent_location.parent_path):
                 return True
+
+    @api.model
+    def _filter_moves_triggering_orderpoints(self, moves, trigger="auto"):
+        """Filters moves that trigger orderpoints"""
+        # move from location consume order point location -> DO I've to replenish?
+        orderpoints = self._get_orderpoints(
+            trigger, locations=moves.location_id, location_field="location_id"
+        )
+        # move to src location replenish order point source location -> DO I've to replenish?
+        orderpoints = orderpoints | self._get_orderpoints(
+            trigger, locations=moves.location_dest_id, location_field="location_src_id"
+        )
+        if not orderpoints:
+            return self.env["stock.move"]
+        moves = moves.filtered_domain(self._get_moves_domain(orderpoints.ids))
+        return moves
 
     @api.model
     def run_auto_replenishment(self, products, locations, location_field=False):
@@ -412,3 +541,31 @@ class StockLocationOrderpoint(models.Model):
     def run_cron_replenishment(self, location_ids=False):
         self = self._get_orderpoints("cron", location_ids)
         self.run_replenishment()
+        # use the current transaction date to ensure that orderpoints run
+        # in the same transaction have the same last_cron_execution and are
+        # always grouped together
+        self.write({"last_cron_execution": self.env.cr.now()})
+
+    def _clear_caches(self):
+        self._get_ids_by_parent_path.clear_cache(self)
+        self._get_consuming_moves_domain_for_ids.clear_cache(self)
+        self._get_replenishment_moves_domain_for_ids.clear_cache(self)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        self._clear_caches()
+        return super().create(vals_list)
+
+    def write(self, vals):
+        # if we only update values that change the group_by_domain
+        moves_domain_caches_update_fields = self._get_group_by_domain_config()
+        if any(field in vals for field in moves_domain_caches_update_fields):
+            self._get_consuming_moves_domain_for_ids.clear_cache(self)
+            self._get_replenishment_moves_domain_for_ids.clear_cache(self)
+        else:
+            self._clear_caches()
+        return super().write(vals)
+
+    def unlink(self):
+        self._clear_caches()
+        return super().unlink()
