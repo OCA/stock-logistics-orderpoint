@@ -32,6 +32,32 @@ class StockLocationOrderpoint(models.Model):
             qty_already_replenished=qty_already_replenished,
         )
 
+    def _compute_quantities_dict(self, locations, products):
+        res = super()._compute_quantities_dict(locations, products)
+        if "average_daily_sale" in self.mapped("replenish_method"):
+            self._add_recommended_qty_to_qties_dict(res, products)
+        return res
+
+    def _add_recommended_qty_to_qties_dict(self, qties_on_locations, products):
+        # we add by warehouse the recommended_qty for each product
+        wh_ids = {location.warehouse_id.id for location in qties_on_locations}
+        recommended_qty = {wh_id: {} for wh_id in wh_ids}
+        qties_on_locations["recommended_qty"] = recommended_qty
+        product_ids = {p.id for p in products}
+        for wh_id in wh_ids:
+            not_processed_product_ids = list(product_ids)
+            reports = self.env["stock.average.daily.sale"].search(
+                [
+                    ("product_id", "in", list(product_ids)),
+                    ("warehouse_id", "=", wh_id),
+                ]
+            )
+            for report in reports:
+                recommended_qty[wh_id][report.product_id] = report.recommended_qty
+                not_processed_product_ids.remove(report.product_id.id)
+            for product_id in not_processed_product_ids:
+                recommended_qty[wh_id][products.browse(product_id)] = 0
+
     def _get_qty_to_replenish_average_daily_sale(
         self, product, qties_on_locations, qty_already_replenished=0
     ):
@@ -51,22 +77,17 @@ class StockLocationOrderpoint(models.Model):
             qties_on_src["virtual_available"] - qties_on_src["incoming_qty"]
         )
 
-        reports = self.env["stock.average.daily.sale"].search(
-            [
-                ("product_id", "=", product.id),
-                ("warehouse_id", "=", self.location_id.warehouse_id.id),
-            ]
-        )
-        if not reports:
+        recommended_qty = qties_on_locations["recommended_qty"][
+            self.location_id.warehouse_id.id
+        ][product]
+        if not recommended_qty:
             return 0
 
         # We need to fill the missing quantity between the buffer
         # need value, the existing quantity on destination and the already replenished
         # quantity
         needed_quantity = (
-            reports.recommended_qty
-            - virtual_available_on_dest
-            - qty_already_replenished
+            recommended_qty - virtual_available_on_dest - qty_already_replenished
         )
         qty_to_replenish = min(virtual_available_on_src, needed_quantity)
 
