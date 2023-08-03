@@ -36,7 +36,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
 
         self._run_replenishment(orderpoints)
         replenish_move = self._get_replenishment_move(orderpoints)
-        self._check_replenishment_move(replenish_move, 12, orderpoint)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
 
         replenish_move._action_cancel()
 
@@ -50,10 +50,10 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         move = replenish_moves.filtered(
             lambda _move: _move.rule_id == orderpoint.route_id.rule_ids
         )
-        self._check_replenishment_move(move, 12, orderpoint)
+        self._assert_replenishment_move(move, 12, orderpoint)
 
         move = replenish_moves - move
-        self._check_replenishment_move(move, 1, orderpoint2)
+        self._assert_replenishment_move(move, 1, orderpoint2)
 
     def test_check_unique(self):
         orderpoint, location_src = self._create_orderpoint_complete("Stock2")
@@ -84,7 +84,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         cron.method_direct_trigger()
 
         replenish_move = self._get_replenishment_move(orderpoint)
-        self._check_replenishment_move(replenish_move, 12, orderpoint)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
 
     def test_auto_replenishment(self):
         job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
@@ -134,7 +134,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             self.product.invalidate_recordset()
             trap.perform_enqueued_jobs()
             replenish_move = self._get_replenishment_move(orderpoint)
-            self._check_replenishment_move(replenish_move, move_qty, orderpoint)
+            self._assert_replenishment_move(replenish_move, move_qty, orderpoint)
 
         # Create a second incoming move so that the qty_available would be 24
         move = self._create_incoming_move(move_qty, location_src)
@@ -153,7 +153,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             trap.perform_enqueued_jobs()
             replenish_move_new = self._get_replenishment_move(orderpoint)
             self.assertEqual(replenish_move, replenish_move_new)
-            self._check_replenishment_move(replenish_move, move_qty * 2, orderpoint)
+            self._assert_replenishment_move(replenish_move, move_qty * 2, orderpoint)
 
     def test_auto_no_replenishment(self):
         """
