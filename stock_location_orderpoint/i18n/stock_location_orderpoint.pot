@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 14.0\n"
+"Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -16,6 +16,11 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__active
 msgid "Active"
+msgstr ""
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
+msgid "Archived"
 msgstr ""
 
 #. module: stock_location_orderpoint
@@ -54,10 +59,7 @@ msgid ""
 msgstr ""
 
 #. module: stock_location_orderpoint
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__display_name
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__display_name
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_move__display_name
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_rule__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -67,10 +69,7 @@ msgid "Fill up"
 msgstr ""
 
 #. module: stock_location_orderpoint
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__id
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__id
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_move__id
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_rule__id
 msgid "ID"
 msgstr ""
 
@@ -80,10 +79,7 @@ msgid "Inventory Locations"
 msgstr ""
 
 #. module: stock_location_orderpoint
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location____last_update
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint____last_update
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_move____last_update
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_rule____last_update
 msgid "Last Modified on"
 msgstr ""
 
@@ -169,7 +165,6 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.actions.server,name:stock_location_orderpoint.ir_cron_location_replenishment_ir_actions_server
 #: model:ir.cron,cron_name:stock_location_orderpoint.ir_cron_location_replenishment
-#: model:ir.cron,name:stock_location_orderpoint.ir_cron_location_replenishment
 msgid "Procurement: run location replenishment"
 msgstr ""
 
@@ -179,7 +174,7 @@ msgid "Replenish Method"
 msgstr ""
 
 #. module: stock_location_orderpoint
-#: model:stock.location.route,name:stock_location_orderpoint.stock_route_replenish
+#: model:stock.route,name:stock_location_orderpoint.stock_route_replenish
 msgid "Replenishment Route"
 msgstr ""
 
@@ -209,11 +204,6 @@ msgid "Sequence"
 msgstr ""
 
 #. module: stock_location_orderpoint
-#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.view_stock_location_orderpoint_tree_editable
-msgid "Stock Location Oderpoints"
-msgstr ""
-
-#. module: stock_location_orderpoint
 #: model:ir.actions.act_window,name:stock_location_orderpoint.action_stock_location_orderpoint
 #: model:ir.ui.menu,name:stock_location_orderpoint.menu_stock_location_orderpoint
 msgid "Stock Location Orderpoint"
@@ -232,21 +222,23 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_move__location_orderpoint_id
-#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_reservation__location_orderpoint_id
 msgid "Stock location orderpoint"
 msgstr ""
 
 #. module: stock_location_orderpoint
 #: model:ir.model.constraint,message:stock_location_orderpoint.constraint_stock_location_orderpoint_location_route_unique
-msgid "The combination of Company, Location and Route must be unique"
+msgid ""
+"The combination of Company, Location, Route and Replenish method must be "
+"unique"
 msgstr ""
 
 #. module: stock_location_orderpoint
+#. odoo-python
 #: code:addons/stock_location_orderpoint/models/stock_location_orderpoint.py:0
 #, python-format
 msgid ""
-"The selected route {} must contain a rule where the Destination Location is "
-"{}"
+"The selected route %(route_name)s must contain a rule where the Destination "
+"Location is %(location_name)s"
 msgstr ""
 
 #. module: stock_location_orderpoint
@@ -255,12 +247,29 @@ msgid "Trigger"
 msgstr ""
 
 #. module: stock_location_orderpoint
+#. odoo-python
 #: code:addons/stock_location_orderpoint/models/stock_move.py:0
 #, python-format
-msgid "Try to replenish quantities for location {} and product {}"
+msgid ""
+"Try to replenish quantities %(in_or_out)s location %(location_name)s for "
+"product %(product_name)s"
 msgstr ""
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__1
 msgid "Urgent"
+msgstr ""
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid "from"
+msgstr ""
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid "in"
 msgstr ""
