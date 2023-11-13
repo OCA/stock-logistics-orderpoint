@@ -49,3 +49,7 @@ Location Orderpoint configuration
    the route value.
 #. Define a procurement group if you want to group some movements together.
 #. Define a priority for the created moves.
+#. If you want to filter the stock locations that should be taken in consideration
+   for product available quantities when triggering a replenishment (e.g.: Supplier locations - 
+   to avoid confirmed receptions taken into account), fill in the 
+   'Domain to filter locations' field.

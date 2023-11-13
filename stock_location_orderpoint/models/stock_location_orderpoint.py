@@ -14,6 +14,7 @@ from odoo.addons.stock.models.stock_move import PROCUREMENT_PRIORITIES
 
 class StockLocationOrderpoint(models.Model):
     _name = "stock.location.orderpoint"
+    _inherit = ["stock.exclude.location.mixin"]
     _description = "Stock location orderpoint"
     _order = "priority desc, sequence"
     _check_company_auto = True
@@ -349,13 +350,17 @@ class StockLocationOrderpoint(models.Model):
         products = set()
         for moves in moves_by_location.values():
             products.update(moves.product_id.ids)
-        qties_on_locations = self._compute_quantities_dict(
-            (self.location_id | self.location_src_id),
-            self.env["product.product"].browse(products),
-        )
         qties_replenished = defaultdict(lambda: defaultdict(lambda: 0))
         qties_to_replenish = defaultdict(list)
         for orderpoint in self:
+            qties_on_locations = self._compute_quantities_dict(
+                (self.location_id | self.location_src_id),
+                self.env["product.product"]
+                .browse(products)
+                .with_context(
+                    excluded_location_domain=orderpoint.stock_excluded_location_domain
+                ),
+            )
             if orderpoint.location_id not in moves_by_location:
                 continue
 
