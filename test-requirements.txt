@@ -1,0 +1,1 @@
+odoo-addon-stock-available-base-exclude-location @ git+https://github.com/OCA/stock-logistics-availability.git@refs/pull/15/head#subdirectory=setup/stock_available_base_exclude_location
