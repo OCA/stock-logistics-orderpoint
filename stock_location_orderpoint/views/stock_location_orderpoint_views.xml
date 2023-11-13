@@ -64,6 +64,14 @@
                     <field name="group_id" />
                     <field name="priority" />
                 </group>
+                <group name="exclude_locations" string="Exclude Locations">
+                    <field name="stock_excluded_location_ids" widget="many2many_tags" />
+                    <field
+                            name="stock_excluded_location_domain_char"
+                            widget="domain"
+                            options="{'model': 'stock.quant'}"
+                        />
+                </group>
             </sheet>
         </form>
     </field>
