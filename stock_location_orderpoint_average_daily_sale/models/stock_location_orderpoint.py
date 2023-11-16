@@ -32,8 +32,8 @@ class StockLocationOrderpoint(models.Model):
             qty_already_replenished=qty_already_replenished,
         )
 
-    def _compute_quantities_dict(self, locations, products):
-        res = super()._compute_quantities_dict(locations, products)
+    def _compute_quantities_dict(self, products):
+        res = super()._compute_quantities_dict(products)
         if "average_daily_sale" in self.mapped("replenish_method"):
             self._add_recommended_qty_to_qties_dict(res, products)
         return res
