@@ -79,6 +79,11 @@ msgid "Inventory Locations"
 msgstr ""
 
 #. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
+msgid "Last Cron Execution"
+msgstr ""
+
+#. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint____last_update
 msgid "Last Modified on"
 msgstr ""
@@ -91,6 +96,11 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_date
 msgid "Last Updated on"
+msgstr ""
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
+msgid "Last time this orderpoint was processed by the cron"
 msgstr ""
 
 #. module: stock_location_orderpoint
