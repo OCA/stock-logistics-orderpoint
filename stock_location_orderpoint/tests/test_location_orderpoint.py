@@ -1,8 +1,12 @@
 # Copyright 2023 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+from contextlib import contextmanager
+from unittest.mock import patch
 
+import freezegun
 from psycopg2 import IntegrityError
 
+from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tools import mute_logger
 
@@ -36,7 +40,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
 
         self._run_replenishment(orderpoints)
         replenish_move = self._get_replenishment_move(orderpoints)
-        self._check_replenishment_move(replenish_move, 12, orderpoint)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
 
         replenish_move._action_cancel()
 
@@ -50,10 +54,17 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         move = replenish_moves.filtered(
             lambda _move: _move.rule_id == orderpoint.route_id.rule_ids
         )
-        self._check_replenishment_move(move, 12, orderpoint)
+        self._assert_replenishment_move(move, 12, orderpoint)
 
         move = replenish_moves - move
-        self._check_replenishment_move(move, 1, orderpoint2)
+        self._assert_replenishment_move(move, 1, orderpoint2)
+
+    @contextmanager
+    def _freeze_time(self, now):
+        with freezegun.freeze_time(now), patch.object(
+            self.env.cr.__class__, "now", return_value=now
+        ):
+            yield
 
     def test_check_unique(self):
         orderpoint, location_src = self._create_orderpoint_complete("Stock2")
@@ -70,21 +81,33 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2", trigger="cron"
         )
+        # at this point the orderpoint has no last_cron_execution
+        self.assertFalse(orderpoint.last_cron_execution)
         self._create_outgoing_move(12)
 
+        # outgoing move but without available quantity -> no replenishment
         self.product.invalidate_recordset()
-        cron.method_direct_trigger()
+        now = fields.Datetime.now()
+        with self._freeze_time(now):
+            cron.method_direct_trigger()
+        self.assertEqual(orderpoint.last_cron_execution, now)
 
         replenish_move = self._get_replenishment_move(orderpoint)
         self.assertFalse(replenish_move)
 
-        self._create_quants(self.product, location_src, 12)
+        # create the available quantity -> replenishment
+        tomorrow = now.replace(day=now.day + 1)
+        with self._freeze_time(tomorrow):
+            self._set_qty_in_location(self.product, location_src, 12)
 
         self.product.invalidate_recordset()
-        cron.method_direct_trigger()
+        day_after_tomorrow = tomorrow.replace(day=tomorrow.day + 1)
+        with self._freeze_time(day_after_tomorrow):
+            cron.method_direct_trigger()
 
         replenish_move = self._get_replenishment_move(orderpoint)
-        self._check_replenishment_move(replenish_move, 12, orderpoint)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
+        self.assertEqual(orderpoint.last_cron_execution, day_after_tomorrow)
 
     def test_auto_replenishment(self):
         job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
@@ -134,7 +157,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             self.product.invalidate_recordset()
             trap.perform_enqueued_jobs()
             replenish_move = self._get_replenishment_move(orderpoint)
-            self._check_replenishment_move(replenish_move, move_qty, orderpoint)
+            self._assert_replenishment_move(replenish_move, move_qty, orderpoint)
 
         # Create a second incoming move so that the qty_available would be 24
         move = self._create_incoming_move(move_qty, location_src)
@@ -153,7 +176,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             trap.perform_enqueued_jobs()
             replenish_move_new = self._get_replenishment_move(orderpoint)
             self.assertEqual(replenish_move, replenish_move_new)
-            self._check_replenishment_move(replenish_move, move_qty * 2, orderpoint)
+            self._assert_replenishment_move(replenish_move, move_qty * 2, orderpoint)
 
     def test_auto_no_replenishment(self):
         """
