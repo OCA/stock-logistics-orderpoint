@@ -9,7 +9,6 @@ from odoo.exceptions import ValidationError
 from odoo.osv import expression
 from odoo.tools import float_compare, split_every
 
-from odoo.addons.stock.models.stock_location import Location
 from odoo.addons.stock.models.stock_move import PROCUREMENT_PRIORITIES
 
 
@@ -283,18 +282,12 @@ class StockLocationOrderpoint(models.Model):
     def _sort_orderpoints(self):
         return self.sorted()
 
-    def _get_locations_for_quantities(self) -> Location:
-        return self.location_id | self.location_src_id
-
-    def _compute_quantities_dict(self, products) -> dict:
-        self.ensure_one()
+    @api.model
+    def _compute_quantities_dict(self, locations, products):
         qties = {}
-        for location in self._get_locations_for_quantities():
+        for location in locations:
             qties_on_location = qties.setdefault(location, {})
-            products = products.with_context(
-                location=location.id,
-                excluded_location_domain=self.stock_excluded_location_domain,
-            )
+            products = products.with_context(location=location.id)
             for product_id, qties_dict in products._compute_quantities_dict(
                 None, None, None
             ).items():
@@ -360,8 +353,13 @@ class StockLocationOrderpoint(models.Model):
         qties_replenished = defaultdict(lambda: defaultdict(lambda: 0))
         qties_to_replenish = defaultdict(list)
         for orderpoint in self:
-            qties_on_locations = orderpoint._compute_quantities_dict(
-                self.env["product.product"].browse(products)
+            qties_on_locations = self._compute_quantities_dict(
+                (self.location_id | self.location_src_id),
+                self.env["product.product"]
+                .browse(products)
+                .with_context(
+                    excluded_location_domain=orderpoint.stock_excluded_location_domain
+                ),
             )
             if orderpoint.location_id not in moves_by_location:
                 continue
