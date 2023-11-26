@@ -45,4 +45,4 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         )
         self._run_replenishment(orderpoints)
         replenish_move = self._get_replenishment_move(orderpoints)
-        self._check_replenishment_move(replenish_move, 12, orderpoint)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
