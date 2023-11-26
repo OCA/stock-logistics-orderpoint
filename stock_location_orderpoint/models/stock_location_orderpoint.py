@@ -189,15 +189,13 @@ class StockLocationOrderpoint(models.Model):
         with the same characteristics except the location_id
         """
         first = self[0]
-        domain = [
-            ("location_id", "child_of", self.location_id.ids),
-        ]
+        domain = []
         if first.trigger == "cron":
             if not first.last_cron_execution:
                 # initialize a date 1 week ago to avoid selecting all moves
                 # when the cron is executed for the first time
                 first.last_cron_execution = self.env.cr.now() - timedelta(days=7)
-            domain.append(("write_date", ">=", first.last_cron_execution))
+            domain.append(("date", ">=", first.last_cron_execution))
         if first.replenish_method == "fill_up":
             # with fillup, we know that a replenishment is required when
             # move are waiting availability
@@ -211,12 +209,31 @@ class StockLocationOrderpoint(models.Model):
             ("move_orig_ids", "=", False),
             ("procure_method", "=", "make_to_stock"),
         ]
+        if self:
+            domain.append(("location_id", "child_of", self.location_id.ids))
         groups = []
         for orderpoints in self._group_by_domain_config():
-            groups.append(orderpoints._get_consuming_moves_domain_for_group())
+            group_domain = orderpoints._get_consuming_moves_domain_for_group()
+            if group_domain:
+                groups.append(group_domain)
         if not groups:
             return domain
         return expression.AND([domain, expression.OR(groups)])
+
+    def _get_replenishment_moves_domain_for_group(self):
+        """Returns a domain which selects the incomig moves that could
+        allow a replenishment at the location for a list of orderpoints
+        with the same characteristics except the location_id
+        """
+        first = self[0]
+        domain = []
+        if first.trigger == "cron":
+            if not first.last_cron_execution:
+                # initialize a date 1 week ago to avoid selecting all moves
+                # when the cron is executed for the first time
+                first.last_cron_execution = self.env.cr.now() - timedelta(days=7)
+            domain.append(("date", ">=", first.last_cron_execution))
+        return domain
 
     def _get_replenishment_moves_domain(self):
         """Returns a domain which selects moves that could replenish
@@ -228,7 +245,14 @@ class StockLocationOrderpoint(models.Model):
         ]
         if self:
             domain.append(("location_dest_id", "child_of", self.location_src_id.ids))
-        return domain
+        groups = []
+        for orderpoints in self._group_by_domain_config():
+            group_domain = orderpoints._get_replenishment_moves_domain_for_group()
+            if group_domain:
+                groups.append(group_domain)
+        if not groups:
+            return domain
+        return expression.AND([domain, expression.OR(groups)])
 
     @api.model
     @tools.ormcache("ids")
@@ -264,19 +288,32 @@ class StockLocationOrderpoint(models.Model):
         """Return a dictionary of products per location that potentially require a replenishment
         based on the fact there are moves not reserved for those products.
         This reduces the list of products for which the quantity will be computed"""
-        domain = self._get_moves_domain(self.ids)
-        if products:
-            domain = expression.AND([domain, [("product_id", "in", products.ids)]])
-        moves_grouped = self.env["stock.move"].read_group(
-            domain,
-            ["ids:array_agg(id)", "location_id"],
-            "location_id",
-        )
+        # We don't use the _get_moves_domain method because. We prefer to make
+        # 2 queries instead of 1 with a big OR statement because the query
+        # planner is not able to use the indexes properly
+        location_ids = []
+        domains = [
+            self._get_replenishment_moves_domain_for_ids(self.ids),
+            self._get_consuming_moves_domain_for_ids(self.ids),
+        ]
+        result = {}
+        for domain in domains:
+            if products:
+                domain = expression.AND([domain, [("product_id", "in", products.ids)]])
+            moves_grouped = self.env["stock.move"].read_group(
+                domain,
+                ["ids:array_agg(id)", "location_id"],
+                "location_id",
+                orderby="id",
+            )
+            for res in moves_grouped:
+                location_ids.append(res["location_id"][0])
+                result.setdefault(res["location_id"][0], []).extend(res["ids"])
         return {
             self.env["stock.location"]
-            .browse(res["location_id"][0]): self.env["stock.move"]
-            .browse(res["ids"])
-            for res in moves_grouped
+            .browse(location_ids): self.env["stock.move"]
+            .browse(mode_ids)
+            for location_ids, mode_ids in result.items()
         }
 
     def _sort_orderpoints(self):
