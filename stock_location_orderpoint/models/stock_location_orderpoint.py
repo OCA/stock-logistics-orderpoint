@@ -257,16 +257,30 @@ class StockLocationOrderpoint(models.Model):
     @api.model
     @tools.ormcache("ids")
     def _get_consuming_moves_domain_for_ids(self, ids=None):
-        """Returns a domain which selects moves the outgoings that could
-        introduce a shortage at the location for a list of orderpoints"""
+        """
+
+        Returns a domain which selects moves the outgoings that could
+        introduce a shortage at the location for a list of orderpoints
+
+        :param frozenset() ids: The orderpoint ids
+        """
+        if ids is not None:
+            ids = list(ids)
         orderpoints = self.browse(ids) if ids else self.search([])
         return orderpoints._get_consuming_moves_domain()
 
     @api.model
     @tools.ormcache("ids")
     def _get_replenishment_moves_domain_for_ids(self, ids=None):
-        """Returns a domain which selects moves that could replenish
-        the location for a list of orderpoints"""
+        """
+
+        Returns a domain which selects moves that could replenish
+        the location for a list of orderpoints
+
+        :param frozenset() ids: The orderpoint ids
+        """
+        if ids is not None:
+            ids = list(ids)
         orderpoints = self.browse(ids) if ids else self.search([])
         return orderpoints._get_replenishment_moves_domain()
 
@@ -276,7 +290,7 @@ class StockLocationOrderpoint(models.Model):
         Returns a domain which selects moves replenishing or consuming
         the locations of orderpoints with given ids
         """
-        ids = tuple(ids)
+        ids = frozenset(ids)
         return expression.OR(
             [
                 self._get_replenishment_moves_domain_for_ids(ids),
@@ -293,8 +307,8 @@ class StockLocationOrderpoint(models.Model):
         # planner is not able to use the indexes properly
         location_ids = []
         domains = [
-            self._get_replenishment_moves_domain_for_ids(self.ids),
-            self._get_consuming_moves_domain_for_ids(self.ids),
+            self._get_replenishment_moves_domain_for_ids(frozenset(self.ids)),
+            self._get_consuming_moves_domain_for_ids(frozenset(self.ids)),
         ]
         result = {}
         for domain in domains:
