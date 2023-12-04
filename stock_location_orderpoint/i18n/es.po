@@ -6,28 +6,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2023-12-04 16:57+0000\n"
+"Last-Translator: FranciscoFactorLibre <francisco.santos@factorlibre.com>\n"
 "Language-Team: none\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.17\n"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__active
 msgid "Active"
-msgstr ""
+msgstr "Activo"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
 msgid "Archived"
-msgstr ""
+msgstr "Archivar"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__auto
 msgid "Auto/realtime"
-msgstr ""
+msgstr "Automático/Tiempo real"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__trigger
@@ -40,17 +42,17 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__company_id
 msgid "Company"
-msgstr ""
+msgstr "Compañía"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Creado por"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Creado en"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
@@ -62,42 +64,42 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Nombre mostrado"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__replenish_method__fill_up
 msgid "Fill up"
-msgstr ""
+msgstr "Llena"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_location
 msgid "Inventory Locations"
-msgstr ""
+msgstr "Ubicaciones de inventario"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
 msgid "Last Cron Execution"
-msgstr ""
+msgstr "Ultima ejecución del Cron"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint____last_update
 msgid "Last Modified on"
-msgstr ""
+msgstr "Ultima modificación"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Ultima actualización de"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "Ultima actualización"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
@@ -107,7 +109,7 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_id
 msgid "Location"
-msgstr ""
+msgstr "Ubicación"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_count
@@ -128,12 +130,12 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_src_id
 msgid "Location Src"
-msgstr ""
+msgstr "Ubicación origen"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__manual
 msgid "Manual"
-msgstr ""
+msgstr "Manual"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__group_id
@@ -146,48 +148,48 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__name
 msgid "Name"
-msgstr ""
+msgstr "Nombre"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__0
 msgid "Normal"
-msgstr ""
+msgstr "Normal"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.view_location_form
 msgid "Orderpoints"
-msgstr ""
+msgstr "Punto de solicitud"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__route_id
 msgid "Preferred Route"
-msgstr ""
+msgstr "Ruta principal"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__priority
 msgid "Priority"
-msgstr ""
+msgstr "Prioridad"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__group_id
 msgid "Procurement Group"
-msgstr ""
+msgstr "Grupo de abastecimiento"
 
 #. module: stock_location_orderpoint
 #: model:ir.actions.server,name:stock_location_orderpoint.ir_cron_location_replenishment_ir_actions_server
 #: model:ir.cron,cron_name:stock_location_orderpoint.ir_cron_location_replenishment
 msgid "Procurement: run location replenishment"
-msgstr ""
+msgstr "Aprovisionamiento: ejecutar abastecimiento de la ubicación"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
 msgid "Replenish Method"
-msgstr ""
+msgstr "Método de reposición"
 
 #. module: stock_location_orderpoint
 #: model:stock.route,name:stock_location_orderpoint.stock_route_replenish
 msgid "Replenishment Route"
-msgstr ""
+msgstr "Ruta de reposición"
 
 #. module: stock_location_orderpoint
 #: model:stock.rule,name:stock_location_orderpoint.stock_rule_replenish
