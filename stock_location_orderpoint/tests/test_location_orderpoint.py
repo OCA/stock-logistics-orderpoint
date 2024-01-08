@@ -214,3 +214,80 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self.assertEqual(1, self.location_dest.location_orderpoint_count)
         _, _ = self._create_orderpoint_complete("Stock3", trigger="cron")
         self.assertEqual(2, self.location_dest.location_orderpoint_count)
+
+    def test_auto_replenishment_with_merge_and_procurement(self):
+        """
+        Add a procurement group on location orderpoint
+        Create a need for a second product too
+        Check both replenishment moves are in the same picking
+        """
+        self._create_procurement_group()
+        self.product_2 = self.env["product.product"].create(
+            {
+                "name": "Product 2",
+                "type": "product",
+            }
+        )
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        move_qty = 12
+        self._create_outgoing_move(move_qty)
+        self._create_outgoing_move(move_qty, product=self.product_2)
+
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="auto", group_id=self.procurement_group_id
+        )
+
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(move_qty, location_src)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse([]).run_auto_replenishment,
+                args=(move.product_id, move.location_dest_id, "location_src_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            self.product.invalidate_recordset()
+            trap.perform_enqueued_jobs()
+            replenish_move = self._get_replenishment_move(orderpoint)
+            self._assert_replenishment_move(replenish_move, move_qty, orderpoint)
+
+        # Create an incoming move for product 2
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(move_qty, location_src, self.product_2)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse([]).run_auto_replenishment,
+                args=(move.product_id, move.location_dest_id, "location_src_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            self.product.invalidate_recordset()
+            trap.perform_enqueued_jobs()
+            replenish_move_2 = self._get_replenishment_move(orderpoint, self.product_2)
+            self._assert_replenishment_move(replenish_move_2, move_qty, orderpoint)
+
+        # Create a second incoming move so that the qty_available would be 24
+        move = self._create_incoming_move(move_qty, location_src)
+        with trap_jobs() as trap:
+            move = self._create_outgoing_move(move_qty)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse([]).run_auto_replenishment,
+                args=(move.product_id, move.location_id, "location_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            self.product.invalidate_recordset()
+            trap.perform_enqueued_jobs()
+            replenish_move_new = self._get_replenishment_move(orderpoint)
+            self.assertEqual(replenish_move, replenish_move_new)
+            self._assert_replenishment_move(replenish_move, move_qty * 2, orderpoint)
+
+        # Check the picking of both moves is the same
+        self.assertEqual(replenish_move_2.picking_id, replenish_move_new.picking_id)
