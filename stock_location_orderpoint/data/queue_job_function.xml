@@ -5,7 +5,7 @@
         model="queue.job.function"
     >
         <field name="model_id" ref="model_stock_location_orderpoint" />
-        <field name="method">moves_auto_replenish</field>
+        <field name="method">run_auto_replenishment</field>
         <field
             name="channel_id"
             ref="channel_stock_location_orderpoint_auto_replenishment"

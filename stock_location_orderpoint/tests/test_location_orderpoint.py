@@ -178,6 +178,50 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             self.assertEqual(replenish_move, replenish_move_new)
             self._assert_replenishment_move(replenish_move, move_qty * 2, orderpoint)
 
+    def test_auto_replenishment_channel(self):
+        """
+        Check that the channel for enqueud job is
+        root.stock_location_orderpoint_auto_replenishment
+        """
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        move_qty = 12
+
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2",
+            trigger="auto",
+        )
+        with trap_jobs() as trap:
+            move = self._create_outgoing_move(move_qty)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse([]).run_auto_replenishment,
+                args=(move.product_id, move.location_id, "location_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            self.product.invalidate_recordset()
+            trap.perform_enqueued_jobs()
+            replenish_move = self._get_replenishment_move(orderpoint)
+            self.assertFalse(replenish_move)
+
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(move_qty, location_src)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse([]).run_auto_replenishment,
+                args=(move.product_id, move.location_dest_id, "location_src_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            job = trap.enqueued_jobs[0]
+            self.assertEqual(
+                job.channel, "root.stock_location_orderpoint_auto_replenishment"
+            )
+
     def test_auto_no_replenishment(self):
         """
         Create a stock move that should not create a replenishment:
