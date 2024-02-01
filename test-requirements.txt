@@ -1,0 +1,6 @@
+odoo-addon-stock-available-base-exclude-location @ git+https://github.com/OCA/stock-logistics-availability.git@refs/pull/15/head#subdirectory=setup/stock_available_base_exclude_location
+odoo-addon-stock-location-orderpoint @ git+https://github.com/OCA/stock-logistics-orderpoint.git@refs/pull/7/head#subdirectory=setup/stock_location_orderpoint
+odoo-addon-stock-average-daily-sale @ git+https://github.com/OCA/stock-logistics-reporting.git@refs/pull/257/head#subdirectory=setup/stock_average_daily_sale
+odoo-addon-product-abc-classification @ git+https://github.com/OCA/product-attribute.git@refs/pull/1192/head#subdirectory=setup/product_abc_classification
+odoo-addon-product-abc-classification-sale-stock @ git+https://github.com/OCA/product-attribute.git@refs/pull/1196/head#subdirectory=setup/product_abc_classification_sale_stock
+odoo-addon-stock-storage-type-putaway-abc @ git+https://github.com/OCA/wms.git@refs/pull/496/head#subdirectory=setup/stock_storage_type_putaway_abc
