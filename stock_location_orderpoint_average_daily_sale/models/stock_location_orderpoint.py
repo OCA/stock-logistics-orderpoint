@@ -44,17 +44,19 @@ class StockLocationOrderpoint(models.Model):
         recommended_qty = {wh_id: {} for wh_id in wh_ids}
         qties_on_locations["recommended_qty"] = recommended_qty
         product_ids = {p.id for p in products}
+        product_set = set(product_ids)
         for wh_id in wh_ids:
-            not_processed_product_ids = list(product_ids)
+            not_processed_product_ids = product_set
             reports = self.env["stock.average.daily.sale"].search(
                 [
-                    ("product_id", "in", list(product_ids)),
+                    ("product_id", "in", list(product_set)),
                     ("warehouse_id", "=", wh_id),
                 ]
             )
             for report in reports:
                 recommended_qty[wh_id][report.product_id] = report.recommended_qty
-                not_processed_product_ids.remove(report.product_id.id)
+                if report.product_id.id in not_processed_product_ids:
+                    not_processed_product_ids.remove(report.product_id.id)
             for product_id in not_processed_product_ids:
                 recommended_qty[wh_id][products.browse(product_id)] = 0
 

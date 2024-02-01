@@ -25,6 +25,20 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         #     - Shelf 2
         cls.now = Date.today()
 
+        # Create a product 3 and 4 to check multi replenishment
+        cls.product_3 = cls.env["product.product"].create(
+            {
+                "name": "Product 3",
+                "type": "product",
+            }
+        )
+        cls.product_4 = cls.env["product.product"].create(
+            {
+                "name": "Product 4",
+                "type": "product",
+            }
+        )
+
         cls.env["stock.location.orderpoint"].search([]).unlink()
         cls.area_1 = cls.env["stock.location"].create(
             {
@@ -87,6 +101,10 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
             cls._set_qty_in_location(cls.product_1, cls.shelf_1, 50.0)
         with freeze_time(cls.inventory_date):
             cls._set_qty_in_location(cls.product_2, cls.shelf_2, 60.0)
+        with freeze_time(cls.inventory_date):
+            cls._set_qty_in_location(cls.product_3, cls.shelf_1, 50.0)
+        with freeze_time(cls.inventory_date):
+            cls._set_qty_in_location(cls.product_4, cls.shelf_1, 50.0)
 
         move_1_date = Date.to_string(cls.now - relativedelta(weeks=11))
         cls._create_outgoing_move(10.0, move_1_date, cls.shelf_1, cls.product_1)
@@ -102,6 +120,18 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
 
         move_2_date = Date.to_string(cls.now - relativedelta(weeks=9))
         cls._create_outgoing_move(12.0, move_2_date, cls.shelf_2, cls.product_2)
+
+        move_3_date = Date.to_string(cls.now - relativedelta(weeks=11))
+        cls._create_outgoing_move(10.0, move_3_date, cls.shelf_1, cls.product_3)
+
+        move_3_date = Date.to_string(cls.now - relativedelta(weeks=10))
+        cls._create_outgoing_move(8.0, move_3_date, cls.shelf_1, cls.product_3)
+
+        move_3_date = Date.to_string(cls.now - relativedelta(weeks=9))
+        cls._create_outgoing_move(2.0, move_3_date, cls.shelf_1, cls.product_3)
+
+        move_3_date = Date.to_string(cls.now - relativedelta(weeks=9))
+        cls._create_outgoing_move(2.0, move_3_date, cls.shelf_1, cls.product_3)
 
         cls._refresh()
 
@@ -144,9 +174,6 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
                 move._action_done()
         return move
 
-    def setUp(self):
-        super().setUp()
-
     def test_orderpoint_average(self):
         # Run the orderpoint
         #
@@ -188,6 +215,90 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         self.assertEqual(19.0, replenish_move.product_uom_qty)
 
         self.assertEqual(missing_quantity, replenish_move.product_uom_qty)
+
+    def test_orderpoint_average_multi(self):
+        # Run the orderpoint
+        #
+        # Check there is a replenishment move with the missing quantity
+        avg_product_1 = self.env["stock.average.daily.sale"].search(
+            [("product_id", "=", self.product_1.id)]
+        )
+        self.assertTrue(avg_product_1)
+        avg_product_3 = self.env["stock.average.daily.sale"].search(
+            [("product_id", "=", self.product_3.id)]
+        )
+        self.assertTrue(avg_product_3)
+        avg_product_4 = self.env["stock.average.daily.sale"].search(
+            [("product_id", "=", self.product_4.id)]
+        )
+        self.assertFalse(avg_product_4)
+        # Void inventory on Shelf 1
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.shelf_1.id,
+                "inventory_quantity": 0.0,
+            }
+        )._apply_inventory()
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_3.id,
+                "location_id": self.shelf_1.id,
+                "inventory_quantity": 0.0,
+            }
+        )._apply_inventory()
+
+        # Set invnetory on replenishment locations
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.replenish_1.id,
+                "inventory_quantity": 50.0,
+            }
+        )._apply_inventory()
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_3.id,
+                "location_id": self.replenish_1.id,
+                "inventory_quantity": 50.0,
+            }
+        )._apply_inventory()
+        # Don't set quantity on replenishment location
+
+        self._create_outgoing_move(8, self.now, self.area_1, self.product_1, done=False)
+        self._create_outgoing_move(9, self.now, self.area_1, self.product_3, done=False)
+        self._create_outgoing_move(9, self.now, self.area_1, self.product_4, done=False)
+
+        missing_quantity = (
+            avg_product_1.recommended_qty
+            + 8.0
+            - self.product_1.with_context(location=self.shelf_1.id).virtual_available
+        )
+        missing_quantity_3 = (
+            avg_product_3.recommended_qty
+            + 9.0
+            - self.product_3.with_context(location=self.shelf_1.id).virtual_available
+        )
+
+        self._run_replenishment(self.orderpoint_1)
+
+        replenish_move_1 = self._get_replenishment_move(
+            self.orderpoint_1, self.product_1
+        )
+        replenish_move_3 = self._get_replenishment_move(
+            self.orderpoint_1, self.product_3
+        )
+        replenish_move_4 = self._get_replenishment_move(
+            self.orderpoint_1, self.product_4
+        )
+        self.assertTrue(replenish_move_1)
+        self.assertTrue(replenish_move_3)
+        self.assertFalse(replenish_move_4)
+        self.assertEqual(19.0, replenish_move_1.product_uom_qty)
+        self.assertEqual(20.0, replenish_move_3.product_uom_qty)
+
+        self.assertEqual(missing_quantity, replenish_move_1.product_uom_qty)
+        self.assertEqual(missing_quantity_3, replenish_move_3.product_uom_qty)
 
     def test_orderpoint_average_less(self):
         avg_product_1 = self.env["stock.average.daily.sale"].search(
