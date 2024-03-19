@@ -57,7 +57,7 @@ class StockMove(models.Model):
     def _enqueue_auto_replenishment(
         self, location, product, location_field, **job_options
     ):
-        """Enqueue a job stock.location.orderpoint.moves_auto_replenishment()
+        """Enqueue a job stock.location.orderpoint.run_auto_replenishment()
 
         Can be extended to pass different options to the job (priority, ...).
         The usage of `.setdefault` allows to override the options set by default.
