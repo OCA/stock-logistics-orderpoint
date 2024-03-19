@@ -24,6 +24,7 @@
         "demo/stock_location_orderpoint.xml",
     ],
     "depends": [
+        "stock_available_base_exclude_location",
         "stock_helper",
         "queue_job",
     ],
