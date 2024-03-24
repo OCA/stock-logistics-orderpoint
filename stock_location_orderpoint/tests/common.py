@@ -9,6 +9,7 @@ class TestLocationOrderpointCommon(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
         cls.uom_unit = cls.env.ref("uom.product_uom_unit")
         cls.product = cls.env["product.product"].create(
             {
@@ -19,6 +20,13 @@ class TestLocationOrderpointCommon(TransactionCase):
         cls.warehouse = cls.env.ref("stock.warehouse0")
         cls.location_dest = cls.warehouse.lot_stock_id
         cls.env["stock.location.orderpoint"].search([]).write({"active": False})
+
+    @classmethod
+    def _create_procurement_group(cls):
+        # Create Procurement Group
+        cls.procurement_group_id = cls.env["procurement.group"].create(
+            {"name": "Group for Location Orderpoints"}
+        )
 
     @classmethod
     def _create_picking_type(cls, name, location_src, location_dest, warehouse):
