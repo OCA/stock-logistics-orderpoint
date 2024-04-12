@@ -1,5 +1,3 @@
 * Akim Juillerat <akim.juillerat@camptocamp.com>
-
-Trobz:
-
+* Jacques-Etienne Baudoux (BCIM) <je@bcim.be> 
 * Dung Tran <dungtd@trobz.com>
