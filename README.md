@@ -21,7 +21,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
-[stock_location_orderpoint](stock_location_orderpoint/) | 16.0.1.1.2 | [![mt-software-de](https://github.com/mt-software-de.png?size=30px)](https://github.com/mt-software-de) | Declare orderpoint on a location allowing to replenish any product with the same criteria.
+[stock_location_orderpoint](stock_location_orderpoint/) | 16.0.2.0.0 | [![mt-software-de](https://github.com/mt-software-de.png?size=30px)](https://github.com/mt-software-de) | Declare orderpoint on a location allowing to replenish any product with the same criteria.
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 16.0.1.0.0 |  | Link Reordering rules to stock moves
 [stock_orderpoint_purchase_link](stock_orderpoint_purchase_link/) | 16.0.1.0.0 |  | Link Reordering rules to purchase orders
 
