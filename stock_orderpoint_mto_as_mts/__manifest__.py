@@ -1,7 +1,7 @@
 # Copyright 2020 Camptocamp SA
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 {
-    "name": "Sale Stock Mto As Mts Orderpoint",
+    "name": "Stock Orderpoint Mto As Mts",
     "summary": "Materialize need from MTO route through orderpoint",
     "version": "16.0.1.0.0",
     "development_status": "Alpha",
@@ -11,8 +11,13 @@
     "license": "AGPL-3",
     "application": False,
     "installable": True,
-    "depends": ["sale_stock", "stock_orderpoint_manual_procurement"],
+    "depends": [
+        "base_partition",
+        "product_route_mto",
+        "stock",
+        "stock_orderpoint_default_location",
+    ],
     "data": [
-        "data/stock_data.xml",
+        "views/stock_warehouse_views.xml",
     ],
 }
