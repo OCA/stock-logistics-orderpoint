@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2024-01-05 10:38+0000\n"
+"PO-Revision-Date: 2024-04-19 09:34+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -86,18 +86,20 @@ msgstr "Nome visualizzato"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain_char
 msgid "Domain to filter locations"
-msgstr ""
+msgstr "Dominio per filtrare le ubicazioni"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
 msgid "Exclude Locations"
-msgstr ""
+msgstr "Esclude ubicazioni"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
 msgid ""
 "Fill in this field to exclude locations for product availablequantities."
 msgstr ""
+"Compilare questo campo per escludere ubicazioni dalle quantità disponibili "
+"del prodotto."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
@@ -106,6 +108,8 @@ msgid ""
 "Fill in this with the domain you want to exclude locations for product "
 "available quantities"
 msgstr ""
+"Compilare questo campo con il dominio che si vuole utilizzare per escludere "
+"le ubicazioni per le quantià prodotto disponibili"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__replenish_method__fill_up
@@ -266,12 +270,12 @@ msgstr "Sequenza"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
 msgid "Stock Excluded Location Domain"
-msgstr ""
+msgstr "Dominio ubicazione esclusa dalla giacenza"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
 msgid "Stock Excluded Locations"
-msgstr ""
+msgstr "Ubicazioni escluse dalla giacenza"
 
 #. module: stock_location_orderpoint
 #: model:ir.actions.act_window,name:stock_location_orderpoint.action_stock_location_orderpoint
