@@ -57,11 +57,15 @@ class StockLocationOrderpoint(models.Model):
         default="fill_up",
         required=True,
         help="Defines how the qty to replenish gets computed\n"
-        "Fill up = The replenishment will be triggered when a move is waiting availability "
-        "and forecast quantity is negative at the location (i.e. min=0). "
-        "The replenished quantity will bring back the forecast quantity to 0 (i.e. max=0) "
+        "Fill up = Forecast quantity must be less then the min_qty at the location "
+        "The replenished quantity will bring back the forecast quantity to max_qty "
         "but will be limited to what is available at the source location "
         "to plan only reservable replenishment moves",
+    )
+    consuming_move_check_waiting = fields.Boolean(
+        "Check waiting moves only",
+        help="If this is checked, the replenishment will be triggered "
+        "when a move is waiting availability",
     )
     sequence = fields.Integer(default=10)
     route_id = fields.Many2one(
@@ -91,6 +95,9 @@ class StockLocationOrderpoint(models.Model):
         PROCUREMENT_PRIORITIES,
         default="0",
     )
+
+    min_qty = fields.Float(default=0)
+    max_qty = fields.Float(default=0)
 
     _sql_constraints = [
         (
@@ -167,7 +174,12 @@ class StockLocationOrderpoint(models.Model):
         The location_id should be excluded. The location domain will be applied
         to each group of orderpoints.
         """
-        return ["last_cron_execution", "trigger", "replenish_method"]
+        return [
+            "last_cron_execution",
+            "trigger",
+            "replenish_method",
+            "consuming_move_check_waiting",
+        ]
 
     def _group_by_domain_config(self):
         """Returns an iterator of orderpoints for which the values of the fields
@@ -196,10 +208,10 @@ class StockLocationOrderpoint(models.Model):
                 # when the cron is executed for the first time
                 first.last_cron_execution = self.env.cr.now() - timedelta(days=7)
             domain.append(("date", ">=", first.last_cron_execution))
-        if first.replenish_method == "fill_up":
-            # with fillup, we know that a replenishment is required when
-            # move are waiting availability
+        if first.consuming_move_check_waiting:
             domain.append(("state", "in", ["confirmed", "partially_available"]))
+        else:
+            domain.append(("state", "!=", "cancel"))
         return domain
 
     def _get_consuming_moves_domain(self):
@@ -372,14 +384,13 @@ class StockLocationOrderpoint(models.Model):
         if (
             float_compare(
                 virtual_available_on_dest,
-                0,
+                self.min_qty,
                 precision_rounding=product.uom_id.rounding,
             )
             >= 0
         ):
             return 0
 
-        virtual_available_on_dest = abs(virtual_available_on_dest)
         qties_on_src = qties_on_locations[self.location_src_id][product]
         virtual_available_on_src = (
             qties_on_src["virtual_available"] - qties_on_src["incoming_qty"]
@@ -394,7 +405,9 @@ class StockLocationOrderpoint(models.Model):
         ):
             return 0
 
-        qty_to_replenish = virtual_available_on_dest - qty_already_replenished
+        qty_to_replenish = (
+            self.max_qty - virtual_available_on_dest - qty_already_replenished
+        )
         return min(qty_to_replenish, virtual_available_on_src)
 
     def _get_qties_to_replenish(self, moves_by_location):

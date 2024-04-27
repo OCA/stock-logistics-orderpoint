@@ -19,10 +19,10 @@ from .common import TestLocationOrderpointCommon
 class TestLocationOrderpoint(TestLocationOrderpointCommon):
     def test_manual_replenishment(self):
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="manual"
+            "Stock2", trigger="manual", consuming_move_check_waiting=True
         )
         orderpoint2, location_src2 = self._create_orderpoint_complete(
-            "Stock2.2", trigger="manual"
+            "Stock2.2", trigger="manual", consuming_move_check_waiting=True
         )
 
         self.assertEqual(orderpoint.location_src_id, location_src)
@@ -67,7 +67,9 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             yield
 
     def test_check_unique(self):
-        orderpoint, location_src = self._create_orderpoint_complete("Stock2")
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", consuming_move_check_waiting=True
+        )
         with mute_logger("odoo.sql_db"):
             with self.assertRaises(IntegrityError):
                 self._create_orderpoint(route_id=orderpoint.route_id)
@@ -79,7 +81,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
     def test_cron_replenishment(self):
         cron = self.env.ref("stock_location_orderpoint.ir_cron_location_replenishment")
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="cron"
+            "Stock2", trigger="cron", consuming_move_check_waiting=True
         )
         # at this point the orderpoint has no last_cron_execution
         self.assertFalse(orderpoint.last_cron_execution)
@@ -125,7 +127,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             self.assertFalse(replenish_move)
 
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="auto"
+            "Stock2", trigger="auto", consuming_move_check_waiting=True
         )
         with trap_jobs() as trap:
             move = self._create_outgoing_move(move_qty)
@@ -189,6 +191,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2",
             trigger="auto",
+            consuming_move_check_waiting=True,
         )
         with trap_jobs() as trap:
             move = self._create_outgoing_move(move_qty)
@@ -235,7 +238,9 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
                     "location_id": self.location_dest.location_id.id,
                 }
             )
-            _, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
+            _, _ = self._create_orderpoint_complete(
+                "Stock2", trigger="auto", consuming_move_check_waiting=True
+            )
             self.location_dest = new_location
             self._create_quants(self.product, self.location_dest, 10.0)
             move = self._create_scrap_move(10.0, self.location_dest)
@@ -254,7 +259,37 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         One orderpoint has already been created in demo data.
         Check after each creation that count is increasing.
         """
-        _, _ = self._create_orderpoint_complete("Stock2", trigger="cron")
+        _, _ = self._create_orderpoint_complete(
+            "Stock2", trigger="cron", consuming_move_check_waiting=True
+        )
         self.assertEqual(1, self.location_dest.location_orderpoint_count)
-        _, _ = self._create_orderpoint_complete("Stock3", trigger="cron")
+        _, _ = self._create_orderpoint_complete(
+            "Stock3", trigger="cron", consuming_move_check_waiting=True
+        )
         self.assertEqual(2, self.location_dest.location_orderpoint_count)
+
+    def test_min_max(self):
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2",
+            trigger="manual",
+            min_qty=10,
+            max_qty=100,
+            consuming_move_check_waiting=False,
+        )
+        self.assertEqual(orderpoint.location_src_id, location_src)
+        self._create_quants(self.product, orderpoint.location_id, 10)
+        self._create_outgoing_move(15)
+
+        # Test if the complete qty of the src location is used
+        self._create_quants(self.product, location_src, 100)
+        self._run_replenishment(orderpoint)
+        replenish_move = self._get_replenishment_move(orderpoint)
+        self._assert_replenishment_move(replenish_move, 100, orderpoint)
+        replenish_move._action_cancel()
+        replenish_move.unlink()
+
+        # Test if the replenish qty is increased
+        self._create_quants(self.product, location_src, 200)
+        self._run_replenishment(orderpoint)
+        replenish_move = self._get_replenishment_move(orderpoint)
+        self._assert_replenishment_move(replenish_move, 105, orderpoint)

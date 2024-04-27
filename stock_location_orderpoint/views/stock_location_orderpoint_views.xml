@@ -63,6 +63,15 @@
                     <field name="route_id" />
                     <field name="group_id" />
                     <field name="priority" />
+                    <field name="consuming_move_check_waiting" />
+                    <field
+                            name="min_qty"
+                            attrs="{'invisible': [('replenish_method', '!=', 'fill_up')]}"
+                        />
+                    <field
+                            name="max_qty"
+                            attrs="{'invisible': [('replenish_method', '!=', 'fill_up')]}"
+                        />
                 </group>
                 <group name="exclude_locations" string="Exclude Locations">
                     <field name="stock_excluded_location_ids" widget="many2many_tags" />
