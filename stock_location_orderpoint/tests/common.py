@@ -2,10 +2,12 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from datetime import datetime
 
-from odoo.tests.common import Form, TransactionCase
+from odoo.tests.common import Form
+
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestLocationOrderpointCommon(TransactionCase):
+class TestLocationOrderpointCommon(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
