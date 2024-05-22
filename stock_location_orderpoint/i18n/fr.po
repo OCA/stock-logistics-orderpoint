@@ -6,28 +6,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2024-05-22 12:43+0000\n"
+"Last-Translator: \"Denis Roussel (ACSONE)\" <denis.roussel@acsone.eu>\n"
 "Language-Team: none\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.17\n"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__active
 msgid "Active"
-msgstr ""
+msgstr "Actif"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
 msgid "Archived"
-msgstr ""
+msgstr "Archivé"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__auto
 msgid "Auto/realtime"
-msgstr ""
+msgstr "Auto/temps réel"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__trigger
@@ -36,21 +38,26 @@ msgid ""
 "Manual orderpoints are triggered via the orderpoints' view\n"
 "Scheduled orderpoints are triggered via scheduled actions per location"
 msgstr ""
+"Les règles de réassort Auto/temps réel sont déclenchées lors de nouveaux "
+"mouvements\n"
+"Les règles de réassort Manuels sont déclenchées par la vue de ces règles\n"
+"Les règles de réassort Planifiées sont déclenchées par des actions "
+"planifiées par emplacement"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__company_id
 msgid "Company"
-msgstr ""
+msgstr "Société"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Créé par"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Créé le"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
@@ -58,6 +65,12 @@ msgid ""
 "Defines how the qty to replenish gets computed\n"
 "Fill up = The replenishment will be triggered when a move is waiting availability and forecast quantity is negative at the location (i.e. min=0). The replenished quantity will bring back the forecast quantity to 0 (i.e. max=0) but will be limited to what is available at the source location to plan only reservable replenishment moves"
 msgstr ""
+"Définit comment la quantité à réassortir est calculée\n"
+"Fill up = Le réassort sera déclenché lorsqu'un mouvement attend une quantité "
+"disponible et que la quantité attendue est négative sur l'emplacement (e.g.: "
+"min=0). La quantité réassortie ramènera la quantité attendue à 0 (e.g.: "
+"max=0) mais sera limitée à ce qui est disponible à l'emplacement source afin "
+"de planifier uniquement des mouvements sur des quantités réservables"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__display_name
@@ -67,18 +80,19 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain_char
 msgid "Domain to filter locations"
-msgstr ""
+msgstr "Domaine pour filtrer les emplacements"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
 msgid "Exclude Locations"
-msgstr ""
+msgstr "Exclure des emplacements"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
 msgid ""
 "Fill in this field to exclude locations for product availablequantities."
 msgstr ""
+"Remplissez ce champ pour exclure des emplacements des quantités disponibles."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
@@ -87,6 +101,8 @@ msgid ""
 "Fill in this with the domain you want to exclude locations for product "
 "available quantities"
 msgstr ""
+"Remplissez ceci avec le domaine qui permettra d'exclure des emplacements des "
+"quantités disponibles"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__replenish_method__fill_up
@@ -106,7 +122,7 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
 msgid "Last Cron Execution"
-msgstr ""
+msgstr "Dernière exécution du cron"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint____last_update
@@ -126,12 +142,12 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
 msgid "Last time this orderpoint was processed by the cron"
-msgstr ""
+msgstr "Dernière fois que la règle de réassort a été traitée par le cron"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_id
 msgid "Location"
-msgstr ""
+msgstr "Emplacement"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_count
@@ -141,23 +157,24 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
 msgid "Location Orderpoints"
-msgstr ""
+msgstr "Règles de réassort"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
 msgid ""
 "Location Orderpoints. Rules that allows this location to be replenished."
 msgstr ""
+"Règles de réassort. Règles qui permettent à l'emplacement d'être réassorti."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_src_id
 msgid "Location Src"
-msgstr ""
+msgstr "Emplacement source"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__manual
 msgid "Manual"
-msgstr ""
+msgstr "Manuel"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__group_id
@@ -166,11 +183,14 @@ msgid ""
 " If none is given, the moves generated by stock rules will be grouped into "
 "one big picking."
 msgstr ""
+"Les mouvements qui seront créés par cette règle de réassort seront mis dans "
+"ce groupe d'approvisionnement. Si aucun n'est donné, les mouvements générés "
+"par les règles de stock seront groupés dans un seul grand transfert."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__name
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__0
@@ -180,22 +200,22 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.view_location_form
 msgid "Orderpoints"
-msgstr ""
+msgstr "Règles de réassort"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__route_id
 msgid "Preferred Route"
-msgstr ""
+msgstr "Route préférée"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__priority
 msgid "Priority"
-msgstr ""
+msgstr "Priorité"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__group_id
 msgid "Procurement Group"
-msgstr ""
+msgstr "Groupe d'approvisionnement"
 
 #. module: stock_location_orderpoint
 #: model:ir.actions.server,name:stock_location_orderpoint.ir_cron_location_replenishment_ir_actions_server
@@ -206,32 +226,32 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
 msgid "Replenish Method"
-msgstr ""
+msgstr "Méthode de réassort"
 
 #. module: stock_location_orderpoint
 #: model:stock.route,name:stock_location_orderpoint.stock_route_replenish
 msgid "Replenishment Route"
-msgstr ""
+msgstr "Route de réassort"
 
 #. module: stock_location_orderpoint
 #: model:stock.rule,name:stock_location_orderpoint.stock_rule_replenish
 msgid "Replenishment Rule"
-msgstr ""
+msgstr "Règle de réassort"
 
 #. module: stock_location_orderpoint
 #: model:stock.picking.type,name:stock_location_orderpoint.stock_picking_type_replenish
 msgid "Replenishments"
-msgstr ""
+msgstr "Réassorts"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
 msgid "Run replenishment"
-msgstr ""
+msgstr "Lancer le réassort"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__cron
 msgid "Scheduled"
-msgstr ""
+msgstr "Planifié"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__sequence
@@ -252,7 +272,7 @@ msgstr ""
 #: model:ir.actions.act_window,name:stock_location_orderpoint.action_stock_location_orderpoint
 #: model:ir.ui.menu,name:stock_location_orderpoint.menu_stock_location_orderpoint
 msgid "Stock Location Orderpoint"
-msgstr ""
+msgstr "Règle de réassort d'emplacement"
 
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_move
@@ -268,7 +288,7 @@ msgstr ""
 #: model:ir.model,name:stock_location_orderpoint.model_stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_move__location_orderpoint_id
 msgid "Stock location orderpoint"
-msgstr ""
+msgstr "Règle de réassort d'emplacement"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.constraint,message:stock_location_orderpoint.constraint_stock_location_orderpoint_location_route_unique
@@ -276,6 +296,8 @@ msgid ""
 "The combination of Company, Location, Route and Replenish method must be "
 "unique"
 msgstr ""
+"La combinaison Société, Emplacement, Route et méthode de réassort doit être "
+"unique"
 
 #. module: stock_location_orderpoint
 #. odoo-python
@@ -285,11 +307,13 @@ msgid ""
 "The selected route %(route_name)s must contain a rule where the Destination "
 "Location is %(location_name)s"
 msgstr ""
+"La route sélectionnée %(route_name)s doit contenir une règle où "
+"l'emplacement de destination est %(location_name)s"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__trigger
 msgid "Trigger"
-msgstr ""
+msgstr "Déclencheur"
 
 #. module: stock_location_orderpoint
 #. odoo-python
@@ -299,6 +323,8 @@ msgid ""
 "Try to replenish quantities %(in_or_out)s location %(location_name)s for "
 "product %(product_name)s"
 msgstr ""
+"Essai de réassortir des quantités %(in_or_out)s emplacement  %(location_name)"
+"s pour le produit %(product_name)s"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__1
@@ -310,11 +336,11 @@ msgstr ""
 #: code:addons/stock_location_orderpoint/models/stock_move.py:0
 #, python-format
 msgid "from"
-msgstr ""
+msgstr "de"
 
 #. module: stock_location_orderpoint
 #. odoo-python
 #: code:addons/stock_location_orderpoint/models/stock_move.py:0
 #, python-format
 msgid "in"
-msgstr ""
+msgstr "dans"
