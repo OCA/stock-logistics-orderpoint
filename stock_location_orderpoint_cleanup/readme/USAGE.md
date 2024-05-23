@@ -3,3 +3,5 @@
   on the orderpoint form level:
     - Click on 'Cleanup replenishments'.
     - In the wizard, check the 'Run After' box if you want the orderpoint to be run after cleanup.
+- You can also select several orderpoints from the list view and select the action 'Cleanup Stock Location Orderpoints'
+  that will launch the wizard.
