@@ -16,14 +16,13 @@ class StockLocationOrderpoint(models.Model):
     def _get_moves_to_cleanup_domain(self) -> list:
         self.ensure_one()
         return [
-            ("location_orderpoint_id", "=", self.id),
+            ("location_orderpoint_id", "=", self.ids),
             ("state", "not in", ("done", "cancel")),
             ("quantity_done", "<=", 0),
             ("picking_id.printed", "=", False),
         ]
 
     def _get_moves_to_cleanup(self):
-        self.ensure_one()
         moves = self.env["stock.move"].search(self._get_moves_to_cleanup_domain())
         return moves
 

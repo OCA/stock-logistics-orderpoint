@@ -32,6 +32,5 @@ class StockLocationOrderpointCleanup(models.TransientModel):
 
     def doit(self):
         for wizard in self:
-            for orderpoint in wizard.orderpoint_ids:
-                orderpoint.cleanup(run_after=wizard.run_after)
+            wizard.orderpoint_ids.cleanup(run_after=wizard.run_after)
         return {"type": "ir.actions.act_window_close"}
