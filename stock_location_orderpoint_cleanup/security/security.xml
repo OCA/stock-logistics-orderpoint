@@ -5,6 +5,7 @@
 
     <record model="res.groups" id="group_location_cleanup">
         <field name="name">Location Orderpoint Cleanup Group</field>
+        <field name="category_id" ref="base.module_category_inventory_inventory" />
     </record>
     <record model="res.groups" id="stock.group_stock_manager">
         <field
@@ -12,7 +13,6 @@
             eval="[(4, ref('stock_location_orderpoint_cleanup.group_location_cleanup'))]"
         />
     </record>
-
     <record model="ir.model.access" id="stock_location_orderpoint_cleanup_access">
         <field name="name">stock.location.orderpoint.cleanup access</field>
         <field name="model_id" ref="model_stock_location_orderpoint_cleanup" />
@@ -22,5 +22,4 @@
         <field name="perm_write" eval="1" />
         <field name="perm_unlink" eval="1" />
     </record>
-
 </odoo>
