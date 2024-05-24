@@ -9,7 +9,7 @@
     "author": "Camptocamp, Tecnativa, Odoo Community Association (OCA)",
     "category": "Warehouse",
     "license": "AGPL-3",
-    "website": "https://github.com/OCA/stock-logistics-warehouse",
+    "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "depends": ["stock"],
     "data": [
         "views/orderpoint_template_views.xml",
