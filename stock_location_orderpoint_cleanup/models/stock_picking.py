@@ -22,4 +22,4 @@ class StockPicking(models.Model):
             orderpoint_name=orderpoint_name,
             moves_name=moves_name,
         )
-        self.message_post(body=message)
+        self.message_post(body=message, message_type="comment")
