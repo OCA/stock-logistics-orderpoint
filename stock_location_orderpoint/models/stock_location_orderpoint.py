@@ -466,12 +466,18 @@ class StockLocationOrderpoint(models.Model):
     def run_replenishment(self, products=False):
         """Run the replenishment for all potential products or only a selection"""
         procurements = self._prepare_procurements(products)
+        self._before_procurement_run(procurements, products)
         if not procurements:
             return
         self.env["procurement.group"].with_context(from_orderpoint=True).run(
             procurements, raise_user_error=False
         )
         self._after_replenishment()
+
+    def _before_procurement_run(self, procurements=False, products=False):
+        """
+        This method needs to be overridden
+        """
 
     def _prepare_to_assign_replenishment_move_domain(self):
         """Returns a domain which selects moves created by a replenishment"""

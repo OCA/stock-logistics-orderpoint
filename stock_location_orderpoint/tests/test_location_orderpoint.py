@@ -258,3 +258,69 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self.assertEqual(1, self.location_dest.location_orderpoint_count)
         _, _ = self._create_orderpoint_complete("Stock3", trigger="cron")
         self.assertEqual(2, self.location_dest.location_orderpoint_count)
+
+    def test_mixed_replenishment_priority(self):
+        """
+        Create a manual orderpoint with normal priority
+
+        Create moves that will generate replenishment (ougoing + quantity on Reserve).
+
+        Run the manual orderpoint
+
+        Check the move is created
+
+        Create an automatic orderpoint with Urgent priority
+
+        Change the existing outgoing move quantity (with lower need)
+
+        Create an outgoing move with the difference quantity (no move should be created)
+
+        Check that the replenishment move priority has changed to Urgent.
+        """
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        move_qty = 12
+
+        manual_orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2",
+            trigger="manual",
+        )
+        out_move = self._create_outgoing_move(move_qty)
+        self._create_incoming_move(move_qty, location_src)
+        manual_orderpoint.run_replenishment()
+        replenish_move_manual = self._get_replenishment_move(manual_orderpoint)
+
+        self.assertTrue(replenish_move_manual)
+        self.assertEqual(12.0, replenish_move_manual.product_uom_qty)
+
+        # Change the outgoing quantity
+        out_move.product_uom_qty = 6.0
+
+        self.assertEqual(6.0, out_move.product_uom_qty)
+
+        manual_orderpoint.update(
+            {
+                "trigger": "auto",
+                "priority": "1",
+            }
+        )
+
+        with trap_jobs() as trap:
+            out_move_2 = self._create_outgoing_move(2.0)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                manual_orderpoint.browse([]).run_auto_replenishment,
+                args=(out_move_2.product_id, out_move_2.location_id, "location_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            trap.perform_enqueued_jobs()
+
+        replenish_move = self._get_replenishment_move(manual_orderpoint)
+        self.assertEqual(replenish_move, replenish_move_manual)
+
+        self.assertEqual(replenish_move.product_uom_qty, 12.0)
+
+        # Check priority has been changed
+        self.assertEqual("1", replenish_move.priority)
