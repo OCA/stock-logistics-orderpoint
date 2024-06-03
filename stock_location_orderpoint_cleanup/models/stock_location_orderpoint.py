@@ -14,9 +14,8 @@ class StockLocationOrderpoint(models.Model):
     _inherit = "stock.location.orderpoint"
 
     def _get_moves_to_cleanup_domain(self) -> list:
-        self.ensure_one()
         return [
-            ("location_orderpoint_id", "=", self.ids),
+            ("location_orderpoint_id", "in", self.ids),
             ("state", "not in", ("done", "cancel")),
             ("quantity_done", "<=", 0),
             ("picking_id.printed", "=", False),
