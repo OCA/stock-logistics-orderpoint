@@ -11,6 +11,7 @@ setuptools.setup(
         'odoo-addon-stock_location_orderpoint>=16.0dev,<16.1dev',
         'odoo-addon-stock_orderpoint_default_location>=16.0dev,<16.1dev',
         'odoo-addon-stock_orderpoint_move_link>=16.0dev,<16.1dev',
+        'odoo-addon-stock_orderpoint_mto_as_mts>=16.0dev,<16.1dev',
         'odoo-addon-stock_orderpoint_purchase_link>=16.0dev,<16.1dev',
     ],
     classifiers=[
