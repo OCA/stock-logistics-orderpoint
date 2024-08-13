@@ -12,10 +12,11 @@ class PurchaseOrder(models.Model):
         "order_line.source_group_ids",
     )
     def _compute_mrp_production_count(self):
-        super()._compute_mrp_production_count()
+        res = super()._compute_mrp_production_count()
         for purchase in self:
             mos_to_add = purchase.order_line.source_group_ids.mrp_production_ids
             purchase.mrp_production_count += len(mos_to_add)
+        return res
 
     def action_view_mrp_productions(self):
         action = super().action_view_mrp_productions()
