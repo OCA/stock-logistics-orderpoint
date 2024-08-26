@@ -1,10 +1,10 @@
 # Copyright 2017 ForgeFlow S.L.
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl-3.0).
 
-from odoo.tests import common
+from odoo.tests.common import TransactionCase
 
 
-class TestStockOrderpointRoute(common.SavepointCase):
+class TestStockOrderpointRoute(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -39,7 +39,7 @@ class TestStockOrderpointRoute(common.SavepointCase):
             {"name": "Ressuply2", "location_id": cls.warehouse.view_location_id.id}
         )
 
-        cls.route = cls.env["stock.location.route"].create(
+        cls.route = cls.env["stock.route"].create(
             {
                 "name": "Transfer",
                 "product_categ_selectable": False,
@@ -48,7 +48,7 @@ class TestStockOrderpointRoute(common.SavepointCase):
                 "sequence": 10,
             }
         )
-        cls.route2 = cls.env["stock.location.route"].create(
+        cls.route2 = cls.env["stock.route"].create(
             {
                 "name": "Transfer",
                 "product_categ_selectable": False,
@@ -73,7 +73,7 @@ class TestStockOrderpointRoute(common.SavepointCase):
                 "name": "Transfer",
                 "route_id": cls.route.id,
                 "location_src_id": cls.ressuply_loc.id,
-                "location_id": cls.warehouse.lot_stock_id.id,
+                "location_dest_id": cls.warehouse.lot_stock_id.id,
                 "action": "pull",
                 "picking_type_id": cls.warehouse.int_type_id.id,
                 "procure_method": "make_to_stock",
@@ -87,7 +87,7 @@ class TestStockOrderpointRoute(common.SavepointCase):
                 "name": "Transfer 2",
                 "route_id": cls.route2.id,
                 "location_src_id": cls.ressuply_loc2.id,
-                "location_id": cls.warehouse.lot_stock_id.id,
+                "location_dest_id": cls.warehouse.lot_stock_id.id,
                 "action": "pull",
                 "picking_type_id": cls.warehouse.int_type_id.id,
                 "procure_method": "make_to_stock",

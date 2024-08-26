@@ -8,10 +8,10 @@ class StockWarehouseOrderpoint(models.Model):
     _inherit = "stock.warehouse.orderpoint"
 
     route_ids = fields.Many2many(
-        "stock.location.route", string="Allowed routes", compute="_compute_route_ids"
+        "stock.route", string="Allowed routes", compute="_compute_route_ids"
     )
     route_id = fields.Many2one(
-        "stock.location.route",
+        "stock.route",
         string="Route",
         domain="[('id', 'in', route_ids)]",
         ondelete="restrict",
@@ -19,7 +19,7 @@ class StockWarehouseOrderpoint(models.Model):
 
     @api.depends("product_id", "warehouse_id", "warehouse_id.route_ids", "location_id")
     def _compute_route_ids(self):
-        route_obj = self.env["stock.location.route"]
+        route_obj = self.env["stock.route"]
         for record in self:
             wh_routes = record.warehouse_id.route_ids
             routes = route_obj.browse()
