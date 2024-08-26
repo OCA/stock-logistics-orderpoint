@@ -3,9 +3,9 @@
 {
     "name": "Stock Orderpoint Route",
     "summary": "Allows to force a route to be used when procuring from orderpoints",
-    "version": "14.0.1.1.1",
+    "version": "16.0.1.0.0",
     "license": "LGPL-3",
-    "website": "https://github.com/OCA/stock-logistics-warehouse",
+    "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "author": "ForgeFlow, Camptocamp, Odoo Community Association (OCA)",
     "category": "Warehouse",
     "depends": ["stock"],
