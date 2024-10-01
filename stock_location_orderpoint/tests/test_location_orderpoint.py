@@ -1,6 +1,7 @@
 # Copyright 2023 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from contextlib import contextmanager
+from datetime import timedelta
 from unittest.mock import patch
 
 import freezegun
@@ -96,7 +97,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self.assertFalse(replenish_move)
 
         # create the available quantity -> replenishment
-        tomorrow = now.replace(day=now.day + 1)
+        tomorrow = now + timedelta(days=1)
         with self._freeze_time(tomorrow):
             self._set_qty_in_location(self.product, location_src, 12)
 
