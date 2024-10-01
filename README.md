@@ -26,6 +26,7 @@ addon | version | maintainers | summary
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 16.0.1.0.1 |  | Link Reordering rules to stock moves
 [stock_orderpoint_mto_as_mts](stock_orderpoint_mto_as_mts/) | 16.0.1.0.0 |  | Materialize need from MTO route through orderpoint
 [stock_orderpoint_purchase_link](stock_orderpoint_purchase_link/) | 16.0.1.0.0 |  | Link Reordering rules to purchase orders
+[stock_orderpoint_route](stock_orderpoint_route/) | 16.0.1.0.0 |  | Allows to force a route to be used when procuring from orderpoints
 
 [//]: # (end addons)
 
