@@ -1,0 +1,23 @@
+<!-- Copyright 2024 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record model="ir.ui.view" id="stock_location_orderpoint_form">
+        <field name="name">stock.location.orderpoint.form</field>
+        <field name="model">stock.location.orderpoint</field>
+        <field
+            name="inherit_id"
+            ref="stock_location_orderpoint.stock_location_orderpoint_form"
+        />
+        <field name="arch" type="xml">
+            <button name="run_replenishment" position="after">
+                <button
+                    name="get_cleanup_action"
+                    type="object"
+                    string="Cleanup replenishments"
+                    attrs="{'invisible': [('active', '=', False)] }"
+                    groups="stock_location_orderpoint_cleanup.group_location_cleanup"
+                />
+            </button>
+        </field>
+    </record>
+</odoo>
