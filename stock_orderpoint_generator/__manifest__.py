@@ -5,11 +5,11 @@
 {
     "name": "Order point generator",
     "summary": "Mass configuration of stock order points",
-    "version": "15.0.1.0.2",
+    "version": "16.0.1.0.0",
     "author": "Camptocamp, Tecnativa, Odoo Community Association (OCA)",
     "category": "Warehouse",
     "license": "AGPL-3",
-    "website": "https://github.com/OCA/stock-logistics-warehouse",
+    "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "depends": ["stock"],
     "data": [
         "views/orderpoint_template_views.xml",

@@ -21,12 +21,12 @@ class ProductProduct(models.Model):
         "the reordering rules of the product.",
     )
 
-    @api.model
-    def create(self, vals):
-        record = super().create(vals)
-        if vals.get("auto_orderpoint_template_ids"):
-            record.auto_orderpoint_template_ids.create_orderpoints(record)
-        return record
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        for rec in records.filtered("auto_orderpoint_template_ids"):
+            rec.auto_orderpoint_template_ids.create_orderpoints(rec)
+        return records
 
     def write(self, vals):
         result = super().write(vals)
