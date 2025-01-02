@@ -4,7 +4,6 @@ from odoo import models
 
 
 class SaleOrderLine(models.Model):
-
     _inherit = "sale.order.line"
 
     def _action_launch_stock_rule(self, previous_product_uom_qty=False):

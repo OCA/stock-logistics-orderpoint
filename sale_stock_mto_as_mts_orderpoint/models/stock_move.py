@@ -4,7 +4,6 @@ from odoo import fields, models
 
 
 class StockMove(models.Model):
-
     _inherit = "stock.move"
 
     is_from_mto_route = fields.Boolean(compute="_compute_is_from_mto_route")

@@ -4,7 +4,6 @@ from odoo import fields, models
 
 
 class StockWarehouse(models.Model):
-
     _inherit = "stock.warehouse"
 
     mto_as_mts = fields.Boolean(inverse="_inverse_mto_as_mts")

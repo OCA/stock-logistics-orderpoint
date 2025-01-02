@@ -4,7 +4,6 @@ from odoo import models
 
 
 class ProductTemplate(models.Model):
-
     _inherit = "product.template"
 
     def write(self, vals):
