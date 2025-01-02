@@ -2,11 +2,11 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
 from odoo.tests import Form
+
 from odoo.addons.stock_product_variant_mto.tests.common import TestMTOVariantCommon
 
 
 class TestMtoAsMtsVariant(TestMTOVariantCommon):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -49,9 +49,7 @@ class TestMtoAsMtsVariant(TestMTOVariantCommon):
         orderpoint = self.env["stock.warehouse.orderpoint"]
         if archived:
             orderpoint = orderpoint.with_context(active_test=False)
-        return orderpoint.search(
-            [("product_id", "in", products.ids)]
-        )
+        return orderpoint.search([("product_id", "in", products.ids)])
 
     def test_mto_as_mts_orderpoint(self):
         template_pen = self.template_pen
@@ -82,9 +80,7 @@ class TestMtoAsMtsVariant(TestMTOVariantCommon):
         self.assertFalse(self._get_orderpoint_for_products(black_pen))
         self.assertTrue(self._get_orderpoint_for_products(black_pen, archived=True))
         other_pens = red_pen | green_pen | blue_pen
-        self.assertEqual(
-            len(self._get_orderpoint_for_products(other_pens)), 3
-        )
+        self.assertEqual(len(self._get_orderpoint_for_products(other_pens)), 3)
 
     def test_mtp_as_mts_orderpoint_product_no_mto(self):
         template_pen = self.template_pen

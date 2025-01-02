@@ -6,7 +6,7 @@
     "version": "14.0.1.0.0",
     "development_status": "Alpha",
     "category": "Operations/Inventory/Delivery",
-    "website": "https://github.com/OCA/stock-logistics-workflow",
+    "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "author": "Camptocamp, Odoo Community Association (OCA)",
     "maintainers": ["mmequignon"],
     "license": "AGPL-3",
