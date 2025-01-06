@@ -29,11 +29,9 @@ class ProductTemplate(models.Model):
         return not self._template_is_mto()
 
     def _filter_mto_products(self, mto=True):
-        mto_route = self.env.ref("stock.route_warehouse0_mto", raise_if_not_found=False)
         if mto:
             return self.filtered(lambda t: t._template_is_mto())
-        else:
-            return self.filtered(lambda t: t._template_is_not_mto())
+        return self.filtered(lambda t: t._template_is_not_mto())
 
     def _get_orderpoints_to_archive_domain(self):
         warehouses = self.env["stock.warehouse"].search([])

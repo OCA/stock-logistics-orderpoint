@@ -3,3 +3,4 @@
 Trobz:
 
 - Dung Tran \<<dungtd@trobz.com>\>
+- Chau Le \<<chaulb@trobz.com>\>

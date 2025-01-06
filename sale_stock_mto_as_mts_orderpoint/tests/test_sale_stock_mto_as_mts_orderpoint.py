@@ -1,33 +1,35 @@
 # Copyright 2020 Camptocamp SA
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
-from odoo.tests.common import Form, SavepointCase
+from odoo.tests import Form
+
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestSaleStockMtoAsMtsOrderpoint(SavepointCase):
+class TestSaleStockMtoAsMtsOrderpoint(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
-        ref = cls.env.ref
-        cls.partner = ref("base.res_partner_2")
+        cls.partner = cls.env.ref("base.res_partner_2")
         cls.product = cls.env["product.product"].create(
-            {"name": "Test MTO", "type": "product"}
+            {"name": "Test MTO", "type": "consu", "is_storable": True}
         )
-        cls.vendor_partner = ref("base.res_partner_12")
+        cls.vendor_partner = cls.env.ref("base.res_partner_12")
         cls.env["product.supplierinfo"].create(
             {
-                "name": cls.vendor_partner.id,
+                "partner_id": cls.vendor_partner.id,
                 "product_tmpl_id": cls.product.product_tmpl_id.id,
                 "min_qty": 1.0,
                 "price": 1.0,
             }
         )
 
-        cls.warehouse = ref("stock.warehouse0")
+        cls.warehouse = cls.env.ref("stock.warehouse0")
         cls.warehouse.mto_as_mts = True
-        cls.mto_route = ref("stock.route_warehouse0_mto")
-        cls.buy_route = ref("purchase_stock.route_warehouse0_buy")
-        cls.product.write({"route_ids": [(6, 0, [cls.mto_route.id, cls.buy_route.id])]})
+        cls.mto_route = cls.env.ref("stock.route_warehouse0_mto")
+        cls.buy_route = cls.env.ref("purchase_stock.route_warehouse0_buy")
+        cls.product.product_tmpl_id.write(
+            {"route_ids": [(6, 0, [cls.mto_route.id, cls.buy_route.id])]}
+        )
 
     @classmethod
     def _create_sale_order(cls):
@@ -56,7 +58,7 @@ class TestSaleStockMtoAsMtsOrderpoint(SavepointCase):
         )
         self.assertAlmostEqual(orderpoint.product_min_qty, 0.0)
         self.assertAlmostEqual(orderpoint.product_max_qty, 0.0)
-        self.product.write({"route_ids": [(5, 0, 0)]})
+        self.product.product_tmpl_id.write({"route_ids": [(5, 0, 0)]})
         orderpoint = self.env["stock.warehouse.orderpoint"].search(
             [("product_id", "=", self.product.id)]
         )
@@ -69,7 +71,7 @@ class TestSaleStockMtoAsMtsOrderpoint(SavepointCase):
         self.assertTrue(orderpoint)
 
     def test_mtp_as_mts_orderpoint_product_no_mto(self):
-        self.product.route_ids = False
+        self.product.product_tmpl_id.route_ids = False
         order = self._create_sale_order()
         orderpoint = self.env["stock.warehouse.orderpoint"].search(
             [("product_id", "=", self.product.id)]
@@ -84,7 +86,7 @@ class TestSaleStockMtoAsMtsOrderpoint(SavepointCase):
     def test_cancel_sale_order_orderpoint(self):
         order = self._create_sale_order()
         order.action_confirm()
-        order.action_cancel()
+        order.with_context(disable_cancel_warning=True).action_cancel()
         order.action_draft()
         order.action_confirm()
         self.assertEqual(order.state, "sale")

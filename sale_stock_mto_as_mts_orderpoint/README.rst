@@ -37,10 +37,6 @@ by the stock rule linked to the standard MTO route or the MTO route is
 marked on the product, an orderpoint will be created on the Stock
 location of the warehouse, with min/max quantities of zero.
 
-This allows to regenerate procurement according to the
-procure_recommended_qty using module
-stock_orderpoint_manual_procurement.
-
 Finally, orderpoints with min/max quantities of zero will be archived if
 the MTO route is removed on the product.
 
@@ -86,6 +82,7 @@ Contributors
 Trobz:
 
 -  Dung Tran <dungtd@trobz.com>
+-  Chau Le <chaulb@trobz.com>
 
 Other credits
 -------------
