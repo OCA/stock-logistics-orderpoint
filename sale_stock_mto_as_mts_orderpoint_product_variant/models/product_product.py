@@ -1,22 +1,21 @@
 # Copyright 2023 Camptocamp SA
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl)
 
-from odoo import api, models
+from odoo import fields, models
 
 
 class ProductProduct(models.Model):
     _inherit = "product.product"
+
+    is_mto = fields.Boolean(inverse="_inverse_is_mto")
 
     def _variant_is_mto(self):
         self.ensure_one()
         return self.is_mto
 
     def _inverse_is_mto(self):
-        res = super()._inverse_is_mto()
         self._archive_orderpoints_on_mto_removal()
-        return res
 
-    @api.depends("product_tmpl_id.route_ids")
     def _compute_is_mto(self):
         # Archive orderpoints when variant becomes not mto
         res = super()._compute_is_mto()

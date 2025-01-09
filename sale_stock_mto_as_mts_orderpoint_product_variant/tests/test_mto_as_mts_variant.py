@@ -15,7 +15,7 @@ class TestMtoAsMtsVariant(TestMTOVariantCommon):
         cls.env["product.supplierinfo"].create(
             [
                 {
-                    "name": cls.vendor_partner.id,
+                    "partner_id": cls.vendor_partner.id,
                     "product_tmpl_id": variant.product_tmpl_id.id,
                     "product_id": variant.id,
                     "min_qty": 1.0,
@@ -25,9 +25,10 @@ class TestMtoAsMtsVariant(TestMTOVariantCommon):
             ]
         )
         cls.warehouse = cls.env.ref("stock.warehouse0")
+        cls.warehouse.mto_as_mts = True
 
     @classmethod
-    def setUpClassProduct(cls):
+    def setUpClassProduct(cls):  # pylint: disable=missing-return
         super().setUpClassProduct()
         cls.buy_route = cls.env.ref("purchase_stock.route_warehouse0_buy")
         cls.template_pen.write(
@@ -46,13 +47,13 @@ class TestMtoAsMtsVariant(TestMTOVariantCommon):
         return sale_form.save()
 
     def _get_orderpoint_for_products(self, products, archived=False):
-        orderpoint = self.env["stock.warehouse.orderpoint"]
-        if archived:
-            orderpoint = orderpoint.with_context(active_test=False)
-        return orderpoint.search([("product_id", "in", products.ids)])
+        return (
+            self.env["stock.warehouse.orderpoint"]
+            .with_context(active_test=not archived)
+            .search([("product_id", "in", products.ids)])
+        )
 
     def test_mto_as_mts_orderpoint(self):
-        template_pen = self.template_pen
         black_pen = self.black_pen
         blue_pen = self.blue_pen
         red_pen = self.red_pen
@@ -88,7 +89,7 @@ class TestMtoAsMtsVariant(TestMTOVariantCommon):
         variants_pen = self.variants_pen
         # set everything to not mto
         template_pen.route_ids = False
-        self.toggle_is_mto(variants_pen)
+        variants_pen.write({"is_mto": False})
         # then check that no orderpoint is created
         order = self._create_sale_order(black_pen)
         orderpoint = self.env["stock.warehouse.orderpoint"].search(
@@ -104,7 +105,7 @@ class TestMtoAsMtsVariant(TestMTOVariantCommon):
     def test_cancel_sale_order_orderpoint(self):
         order = self._create_sale_order(self.variants_pen)
         order.action_confirm()
-        order.action_cancel()
+        order.with_context(disable_cancel_warning=True).action_cancel()
         order.action_draft()
         order.action_confirm()
         self.assertEqual(order.state, "sale")

@@ -63,6 +63,15 @@ Contributors
 ------------
 
 -  Matthieu Méquignon <matthieu.mequignon@camptocamp.com>
+-  Chau Le <chaulb@trobz.com>
+
+Other credits
+-------------
+
+The development and migration of this module has been financially
+supported by:
+
+-  Camptocamp
 
 Maintainers
 -----------
