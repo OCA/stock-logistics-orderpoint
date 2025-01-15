@@ -105,7 +105,7 @@ class TestStockOrderpointMoveLink(TransactionCase):
         move = self.move_obj.search(
             [("orderpoint_ids", "=", self.orderpoint_need_loc.id)]
         )
-        self.assertTrue(len(move), 2)
+        self.assertEqual(len(move), 2)
 
     def test_02_stock_orderpoint_move_link_action_view(self):
         sp_orderpoint = self.move_obj.search(
@@ -114,3 +114,24 @@ class TestStockOrderpointMoveLink(TransactionCase):
         result = self.orderpoint_need_loc.action_view_stock_picking()
         sp_action = self.picking_obj.search(ast.literal_eval(result["domain"]))
         self.assertEqual(sp_orderpoint, sp_action)
+
+    def test_03_stock_orderpoint_move_link_merge_moves(self):
+        # Previous moves generation
+        moves = self.move_obj.search(
+            [("orderpoint_ids", "=", self.orderpoint_need_loc.id)]
+        )
+        self.assertEqual(moves.mapped("product_qty"), [50.0, 50.0])
+        self.assertEqual(len(moves), 2)
+        self.assertEqual(moves.mapped("orderpoint_ids"), self.orderpoint_need_loc)
+        # Force reordering (new moves will be merged into the old ones)
+        self.orderpoint_need_loc.write(
+            {
+                "product_min_qty": 60.0,
+                "product_max_qty": 75.0,
+            }
+        )
+        self.group_obj.run_scheduler()
+        # Check merged moves
+        self.assertEqual(moves.mapped("product_qty"), [75.0, 75.0])
+        self.assertEqual(len(moves), 2)
+        self.assertEqual(moves.mapped("orderpoint_ids"), self.orderpoint_need_loc)

@@ -13,10 +13,5 @@ class StockWarehouseOrderpoint(models.Model):
             "stock.action_picking_tree_all"
         )
         result["context"] = {}
-        picking_ids = (
-            self.env["stock.move"]
-            .search([("orderpoint_ids", "in", self.id)])
-            .mapped("picking_id")
-        )
-        result["domain"] = "[('id','in',%s)]" % picking_ids.ids
+        result["domain"] = f"[('move_ids.orderpoint_ids', 'in', {self.ids})]"
         return result
