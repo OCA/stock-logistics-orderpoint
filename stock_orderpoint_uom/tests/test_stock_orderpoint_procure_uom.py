@@ -35,7 +35,7 @@ class TestStockOrderpointProcureUom(common.TransactionCase):
                         0,
                         0,
                         {
-                            "name": self.env.ref("base.res_partner_3").id,
+                            "partner_id": self.env.ref("base.res_partner_3").id,
                             "delay": 3,
                             "min_qty": 1,
                             "price": 72,
@@ -112,7 +112,12 @@ class TestStockOrderpointProcureUom(common.TransactionCase):
                     (
                         0,
                         False,
-                        {"name": supplier.id, "delay": 1, "min_qty": 1, "price": 2},
+                        {
+                            "partner_id": supplier.id,
+                            "delay": 1,
+                            "min_qty": 1,
+                            "price": 2,
+                        },
                     )
                 ],
             }
