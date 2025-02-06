@@ -121,7 +121,8 @@ class TestStockOrderpointRoute(TransactionCase):
                 default_code=default_code,
                 uom_id=cls.env.ref("uom.product_uom_unit").id,
                 company_id=company_id,
-                type="product",
+                type="consu",
+                is_storable=True,
                 **vals,
             )
         )
