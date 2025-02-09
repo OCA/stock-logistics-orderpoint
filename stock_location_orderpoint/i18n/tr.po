@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-02-09 17:06+0000\n"
+"PO-Revision-Date: 2025-02-09 20:06+0000\n"
 "Last-Translator: İsmail Çağan Yılmaz <ismail.cagan.yilmaz@gmail.com>\n"
 "Language-Team: none\n"
 "Language: tr\n"
@@ -122,22 +122,22 @@ msgstr "Stok Konumları"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
 msgid "Last Cron Execution"
-msgstr "Son Cron yürütme"
+msgstr "Son Cron Yürütme"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint____last_update
 msgid "Last Modified on"
-msgstr "Son değiştirilme tarihi"
+msgstr "Son Değiştirilme Tarihi"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_uid
 msgid "Last Updated by"
-msgstr "Son güncelleyen"
+msgstr "Son Güncelleyen"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_date
 msgid "Last Updated on"
-msgstr "Son güncelleme tarihi"
+msgstr "Son Güncelleme Tarihi"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
@@ -157,7 +157,7 @@ msgstr "Konum Sipariş Noktası Sayısı"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
 msgid "Location Orderpoints"
-msgstr "Konumdaki SIpariş Noktaları"
+msgstr "Konumdaki Sipariş Noktaları"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
@@ -199,7 +199,7 @@ msgstr "Normal"
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.view_location_form
 msgid "Orderpoints"
-msgstr "SIpariş Noktaları"
+msgstr "Sipariş Noktaları"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__route_id
