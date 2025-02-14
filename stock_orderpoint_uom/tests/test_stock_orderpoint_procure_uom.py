@@ -72,7 +72,6 @@ class TestStockOrderpointProcureUom(common.TransactionCase):
         self.assertEqual(purchase_line.product_qty, 2)
 
     def test_02_stock_orderpoint_wrong_uom(self):
-
         with mute_logger("openerp.sql_db"):
             with self.assertRaises(ValidationError):
                 self.env["stock.warehouse.orderpoint"].create(
