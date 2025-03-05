@@ -6,7 +6,7 @@ from odoo.tests import common
 
 class TestOrderpointPurchaseLink(common.TransactionCase):
     def setUp(self):
-        super(TestOrderpointPurchaseLink, self).setUp()
+        super().setUp()
 
         self.product_obj = self.env["product.product"]
         self.partner_obj = self.env["res.partner"]
