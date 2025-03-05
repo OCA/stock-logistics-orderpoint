@@ -16,6 +16,7 @@
         "wizard/orderpoint_generator_view.xml",
         "data/ir_cron.xml",
         "security/ir.model.access.csv",
+        "security/ir_rule.xml",
     ],
     "installable": True,
 }

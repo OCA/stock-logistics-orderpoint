@@ -68,13 +68,13 @@ desired criteria for the time range given. To do so:
    given on the Orderpoint template will be obtained.
 4. Select a criteria method to compute the minimum o maximum quantity:
 
-   -  Maximum: the maximum stock value for the given period.
-   -  Most frequent: the median of the history of stock values for the
-      specified range. Useful when a large amount of history values are
-      obtained, as it tends to avoid deviation caused by extreme values
-      in a common avarage.
-   -  Average: Arithmetic mean of the stock history.
-   -  Minimum: the minimum stock value for the given period.
+   - Maximum: the maximum stock value for the given period.
+   - Most frequent: the median of the history of stock values for the
+     specified range. Useful when a large amount of history values are
+     obtained, as it tends to avoid deviation caused by extreme values
+     in a common avarage.
+   - Average: Arithmetic mean of the stock history.
+   - Minimum: the minimum stock value for the given period.
 
 Lastly, you can promptly create Reordering Rules for a product or a
 product template using the "Reordering Rules Generator". Note that it
@@ -104,19 +104,20 @@ Authors
 Contributors
 ------------
 
--  Yannick Vaucher <yannick.vaucher@camptocamp.com>
--  Matthieu Dietrich <matthieu.dietrich@camptocamp.com>
--  Cyril Gaudin <cyril.gaudin@camptocamp.com>
--  Guewen Baconnier <guewen.baconnier@camptocamp.com>
--  `Tecnativa <https://www.tecnativa.com>`__:
+- Yannick Vaucher <yannick.vaucher@camptocamp.com>
+- Matthieu Dietrich <matthieu.dietrich@camptocamp.com>
+- Cyril Gaudin <cyril.gaudin@camptocamp.com>
+- Guewen Baconnier <guewen.baconnier@camptocamp.com>
+- `Tecnativa <https://www.tecnativa.com>`__:
 
-   -  Vicent Cubells
-   -  David Vidal
-   -  Víctor Martínez
+  - Vicent Cubells
+  - David Vidal
+  - Víctor Martínez
+  - Juan Carlos Oñate
 
--  `360ERP <https://www.360erp.com>`__:
+- `360ERP <https://www.360erp.com>`__:
 
-   -  Andrea Stirpe
+  - Andrea Stirpe
 
 Maintainers
 -----------
