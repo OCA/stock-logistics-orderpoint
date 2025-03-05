@@ -88,13 +88,7 @@ class OrderpointTemplate(models.Model):
 
     @api.depends("company_id")
     def _compute_allowed_warehouse_ids(self):
-        for template in self:
-            domain = [
-                "|",
-                ("company_id", "=", False),
-                ("company_id", "=", template.company_id.id),
-            ]
-            template.allowed_warehouse_ids = self.env["stock.warehouse"].search(domain)
+        self.allowed_warehouse_ids = self.env["stock.warehouse"].search([])
 
     def _template_fields_to_discard(self):
         """In order to create every orderpoint we should pop this template

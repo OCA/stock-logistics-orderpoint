@@ -24,7 +24,7 @@ class ProductProduct(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         products = super().create(vals_list)
-        for product in products.filtered(lambda pp: pp.auto_orderpoint_template_ids):
+        for product in products.filtered("auto_orderpoint_template_ids"):
             product.auto_orderpoint_template_ids.create_orderpoints(product)
         return products
 
