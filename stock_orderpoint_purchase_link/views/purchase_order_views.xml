@@ -8,7 +8,7 @@
         <field name="inherit_id" ref="purchase.purchase_order_form" />
         <field name="arch" type="xml">
             <xpath
-                expr="//field[@name='order_line']/tree//field[@name='date_planned']"
+                expr="//field[@name='order_line']/list//field[@name='date_planned']"
                 position="after"
             >
                 <field
@@ -17,6 +17,7 @@
                     string="Orderpoints"
                     groups="stock.group_stock_user"
                     optional="hide"
+                    readonly="1"
                 />
             </xpath>
         </field>
@@ -28,7 +29,7 @@
         <field name="arch" type="xml">
             <field name="name" position="after">
                 <separator string="Orderpoints" />
-                <field name="orderpoint_ids" />
+                <field name="orderpoint_ids" readonly="1" />
             </field>
         </field>
     </record>

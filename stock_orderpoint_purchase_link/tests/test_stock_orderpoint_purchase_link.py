@@ -1,10 +1,10 @@
 # Copyright 2018-20 ForgeFlow S.L. (https://www.forgeflow.com)
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl-3.0).
 
-from odoo.tests import common
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestOrderpointPurchaseLink(common.TransactionCase):
+class TestOrderpointPurchaseLink(BaseCommon):
     def setUp(self):
         super().setUp()
 
@@ -45,7 +45,8 @@ class TestOrderpointPurchaseLink(common.TransactionCase):
         self.tp1 = self.product_obj.create(
             {
                 "name": "Test Product 1",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "list_price": 150.0,
                 "route_ids": [(6, 0, [route_buy, route_test])],
                 "seller_ids": [(0, 0, {"partner_id": vendor1.id, "price": 20.0})],

@@ -11,15 +11,31 @@ class PurchaseOrderLine(models.Model):
         comodel_name="stock.warehouse.orderpoint",
         string="Orderpoints",
         copy=False,
-        readonly=True,
     )
 
     @api.model
     def _prepare_purchase_order_line_from_procurement(
-        self, product_id, product_qty, product_uom, company_id, values, po
+        self,
+        product_id,
+        product_qty,
+        product_uom,
+        location_dest_id,
+        name,
+        origin,
+        company_id,
+        values,
+        po,
     ):
         vals = super()._prepare_purchase_order_line_from_procurement(
-            product_id, product_qty, product_uom, company_id, values, po
+            product_id,
+            product_qty,
+            product_uom,
+            location_dest_id,
+            name,
+            origin,
+            company_id,
+            values,
+            po,
         )
         # If the procurement was run directly by a reordering rule.
         if "orderpoint_id" in values and values["orderpoint_id"].id:
