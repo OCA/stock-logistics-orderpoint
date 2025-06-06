@@ -10,7 +10,8 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         Stock location directly, the virtual available quantity will
         be fullfiled by this incoming quantity. As we don't want to
         take those quantities into account in order to replenish directly,
-        we need to exclude some locations from the available quantities (e.g.: Suppliers).
+        we need to exclude some locations from the available quantities (e.g.:
+        Suppliers).
         """
         orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2", trigger="manual"

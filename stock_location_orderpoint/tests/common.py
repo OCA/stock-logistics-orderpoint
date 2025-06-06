@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from datetime import datetime
 
-from odoo.tests.common import Form
+from odoo.tests import Form
 
 from odoo.addons.base.tests.common import BaseCommon
 
@@ -15,7 +15,8 @@ class TestLocationOrderpointCommon(BaseCommon):
         cls.product = cls.env["product.product"].create(
             {
                 "name": "Desk Combination",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
             }
         )
         cls.warehouse = cls.env.ref("stock.warehouse0")
@@ -109,7 +110,7 @@ class TestLocationOrderpointCommon(BaseCommon):
             [("scrap_location", "=", True)], limit=1
         )
         move = cls._create_move("Scrap", qty, location, scrap, product=product)
-        move.move_line_ids.write({"qty_done": qty})
+        move.move_line_ids.write({"quantity": qty, "picked": True})
         move._action_done()
         return move
 
@@ -122,7 +123,7 @@ class TestLocationOrderpointCommon(BaseCommon):
             location,
             product=product,
         )
-        move.move_line_ids.write({"qty_done": qty})
+        move.move_line_ids.write({"quantity": qty, "picked": True})
         move._action_done()
         return move
 

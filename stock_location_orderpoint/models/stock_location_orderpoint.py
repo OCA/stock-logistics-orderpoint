@@ -57,11 +57,11 @@ class StockLocationOrderpoint(models.Model):
         default="fill_up",
         required=True,
         help="Defines how the qty to replenish gets computed\n"
-        "Fill up = The replenishment will be triggered when a move is waiting availability "
-        "and forecast quantity is negative at the location (i.e. min=0). "
-        "The replenished quantity will bring back the forecast quantity to 0 (i.e. max=0) "
-        "but will be limited to what is available at the source location "
-        "to plan only reservable replenishment moves",
+        "Fill up = The replenishment will be triggered when a move is waiting "
+        "availability and forecast quantity is negative at the location (i.e. "
+        "min=0). The replenished quantity will bring back the forecast quantity "
+        "to 0 (i.e. max=0) but will be limited to what is available at the "
+        "source location to plan only reservable replenishment moves",
     )
     sequence = fields.Integer(default=10)
     route_id = fields.Many2one(
@@ -96,7 +96,8 @@ class StockLocationOrderpoint(models.Model):
         (
             "location_route_unique",
             "unique(location_id, route_id, company_id, replenish_method)",
-            "The combination of Company, Location, Route and Replenish method must be unique",
+            "The combination of Company, Location, Route and Replenish method "
+            "must be unique",
         )
     ]
 
@@ -125,9 +126,8 @@ class StockLocationOrderpoint(models.Model):
         for orderpoint in self:
             location = False
             if orderpoint.location_id and orderpoint.route_id:
-                location = orderpoint.location_id._get_source_location_from_route(
-                    orderpoint.route_id,
-                    "make_to_stock",
+                location = orderpoint.route_id._get_source_location(
+                    orderpoint.location_id
                 )
             orderpoint.location_src_id = location
 
@@ -299,9 +299,10 @@ class StockLocationOrderpoint(models.Model):
         )
 
     def _find_potential_moves_to_replenish_by_location(self, products=False):
-        """Return a dictionary of products per location that potentially require a replenishment
-        based on the fact there are moves not reserved for those products.
-        This reduces the list of products for which the quantity will be computed"""
+        """Return a dictionary of products per location that potentially
+        require a replenishment based on the fact there are moves not reserved
+        for those products.  This reduces the list of products for which the
+        quantity will be computed"""
         # We don't use the _get_moves_domain method because. We prefer to make
         # 2 queries instead of 1 with a big OR statement because the query
         # planner is not able to use the indexes properly
@@ -318,7 +319,6 @@ class StockLocationOrderpoint(models.Model):
                 domain,
                 ["ids:array_agg(id)", "location_id"],
                 "location_id",
-                orderby="id",
             )
             for res in moves_grouped:
                 location_ids.append(res["location_id"][0])
@@ -569,7 +569,8 @@ class StockLocationOrderpoint(models.Model):
         orderpoints = self._get_orderpoints(
             trigger, locations=moves.location_id, location_field="location_id"
         )
-        # move to src location replenish order point source location -> DO I've to replenish?
+        # move to src location replenish order point source location -> DO I've
+        # to replenish?
         orderpoints = orderpoints | self._get_orderpoints(
             trigger, locations=moves.location_dest_id, location_field="location_src_id"
         )
@@ -603,9 +604,7 @@ class StockLocationOrderpoint(models.Model):
         self.write({"last_cron_execution": self.env.cr.now()})
 
     def _clear_caches(self):
-        self._get_ids_by_parent_path.clear_cache(self)
-        self._get_consuming_moves_domain_for_ids.clear_cache(self)
-        self._get_replenishment_moves_domain_for_ids.clear_cache(self)
+        self.env.registry.clear_cache()
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -613,13 +612,7 @@ class StockLocationOrderpoint(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        # if we only update values that change the group_by_domain
-        moves_domain_caches_update_fields = self._get_group_by_domain_config()
-        if any(field in vals for field in moves_domain_caches_update_fields):
-            self._get_consuming_moves_domain_for_ids.clear_cache(self)
-            self._get_replenishment_moves_domain_for_ids.clear_cache(self)
-        else:
-            self._clear_caches()
+        self._clear_caches()
         return super().write(vals)
 
     def unlink(self):

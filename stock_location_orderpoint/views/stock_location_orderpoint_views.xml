@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
-    <record id="view_stock_location_orderpoint_tree_editable" model="ir.ui.view">
-        <field name="name">stock.location.orderpoint.tree.editable</field>
+    <record id="view_stock_location_orderpoint_list_editable" model="ir.ui.view">
+        <field name="name">stock.location.orderpoint.list.editable</field>
         <field name="model">stock.location.orderpoint</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="sequence" widget="handle" />
                 <field name="name" />
                 <field name="location_id" options="{'no_create': True}" />
                 <field
                     name="route_id"
                     options="{'no_create': True}"
-                    attrs="{'readonly': [('location_id', '=', False)]}"
+                    readonly="not location_id"
                 />
                 <field name="location_src_id" />
                 <field name="trigger" />
@@ -24,7 +24,7 @@
                     readonly="1"
                     groups="base.group_multi_company"
                 />
-            </tree>
+            </list>
         </field>
     </record>
     <record model="ir.ui.view" id="stock_location_orderpoint_form">
@@ -38,7 +38,7 @@
                         name="run_replenishment"
                         type="object"
                         string="Run replenishment"
-                        attrs="{'invisible': ['|', ('active', '=', False), ('trigger', '!=', 'manual')]}"
+                        invisible="not active or trigger != 'manual'"
                     />
                 </header>
                 <sheet>
@@ -47,7 +47,7 @@
                         name="web_ribbon"
                         title="Archived"
                         bg_color="bg-danger"
-                        attrs="{'invisible': [('active', '=', True)]}"
+                        invisible="active"
                     />
                     <group>
                         <field name="name" force_save="1" />

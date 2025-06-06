@@ -97,16 +97,17 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self.assertFalse(replenish_move)
 
         # create the available quantity -> replenishment
-        tomorrow = now.replace(day=now.day + 1)
+        tomorrow = fields.Datetime.add(now, days=1)
         with self._freeze_time(tomorrow):
             self._set_qty_in_location(self.product, location_src, 12)
 
         self.product.invalidate_recordset()
-        day_after_tomorrow = tomorrow.replace(day=tomorrow.day + 1)
+        day_after_tomorrow = fields.Datetime.add(tomorrow, days=1)
         with self._freeze_time(day_after_tomorrow):
             cron.method_direct_trigger()
 
         replenish_move = self._get_replenishment_move(orderpoint)
+        self.assertTrue(replenish_move)
         self._assert_replenishment_move(replenish_move, 12, orderpoint)
         self.assertEqual(orderpoint.last_cron_execution, day_after_tomorrow)
 
