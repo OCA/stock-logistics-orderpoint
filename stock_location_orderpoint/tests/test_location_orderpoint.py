@@ -61,8 +61,9 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
 
     @contextmanager
     def _freeze_time(self, now):
-        with freezegun.freeze_time(now), patch.object(
-            self.env.cr.__class__, "now", return_value=now
+        with (
+            freezegun.freeze_time(now),
+            patch.object(self.env.cr.__class__, "now", return_value=now),
         ):
             yield
 

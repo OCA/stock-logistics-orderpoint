@@ -324,9 +324,9 @@ class StockLocationOrderpoint(models.Model):
                 location_ids.append(res["location_id"][0])
                 result.setdefault(res["location_id"][0], []).extend(res["ids"])
         return {
-            self.env["stock.location"]
-            .browse(location_ids): self.env["stock.move"]
-            .browse(mode_ids)
+            self.env["stock.location"].browse(location_ids): self.env[
+                "stock.move"
+            ].browse(mode_ids)
             for location_ids, mode_ids in result.items()
         }
 
