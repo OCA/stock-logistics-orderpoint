@@ -47,7 +47,7 @@ class TestStockOrderpointMtoAsMts(BaseCommon):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
         # Archive orderpoint
         product.write({"route_ids": [(6, 0, [])]})
         orderpoint = self.env["stock.warehouse.orderpoint"].search(
@@ -69,7 +69,7 @@ class TestStockOrderpointMtoAsMts(BaseCommon):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
         # Change company
         product.write(
             {"company_id": self.env["res.company"].create({"name": "New Company"}).id}
@@ -100,7 +100,7 @@ class TestStockOrderpointMtoAsMts(BaseCommon):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
 
     def test_orderpoint_when_changing_is_mto_on_routes(self):
         # Reset is MTO on route
@@ -130,7 +130,7 @@ class TestStockOrderpointMtoAsMts(BaseCommon):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
 
         # Check case: Enable is_mto on route that has been linked to product category
         self.mto_route.is_mto = False  # Reset is MTO on route
@@ -153,7 +153,7 @@ class TestStockOrderpointMtoAsMts(BaseCommon):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
 
     def test_orderpoint_with_template(self):
         # Create a template with 3 variants
@@ -201,7 +201,7 @@ class TestStockOrderpointMtoAsMts(BaseCommon):
             [("product_id", "in", product_template_sofa.product_variant_ids.ids)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 6)
+        self.assertEqual(len(orderpoint), 6)
         # Archive orderpoint
         product_template_sofa.write({"route_ids": [(6, 0, [])]})
         orderpoint = self.env["stock.warehouse.orderpoint"].search(

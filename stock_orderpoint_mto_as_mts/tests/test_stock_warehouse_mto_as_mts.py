@@ -9,7 +9,6 @@ class TestStockWareHouseMtoAsMts(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
 
         cls.warehouse = cls.env.ref("stock.warehouse0")
         cls.warehouse1 = cls.env["stock.warehouse"].create(
