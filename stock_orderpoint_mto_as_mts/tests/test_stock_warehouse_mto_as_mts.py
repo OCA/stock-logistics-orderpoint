@@ -1,10 +1,11 @@
 # Copyright 2024 Camptocamp SA
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
-from odoo.tests import common
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestStockWareHouseMtoAsMts(common.TransactionCase):
+class TestStockWareHouseMtoAsMts(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

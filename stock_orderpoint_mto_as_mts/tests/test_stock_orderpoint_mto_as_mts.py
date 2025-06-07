@@ -1,15 +1,16 @@
 # Copyright 2020 Camptocamp SA
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 from odoo.fields import Command
-from odoo.tests import common
+
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestStockOrderpointMtoAsMts(common.TransactionCase):
+class TestStockOrderpointMtoAsMts(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
 
         cls.warehouse = cls.env.ref("stock.warehouse0")
         cls.warehouse.write(
@@ -37,7 +38,8 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
         product = self.env["product.product"].create(
             {
                 "name": "Test MTO",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "route_ids": [(6, 0, [self.mto_route.id])],
             }
         )
@@ -58,7 +60,8 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
         product = self.env["product.product"].create(
             {
                 "name": "Test MTO",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "route_ids": [(6, 0, [self.mto_route.id])],
             }
         )
@@ -81,7 +84,8 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
         product = self.env["product.product"].create(
             {
                 "name": "Test MTO",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "categ_id": category.id,
             }
         )
@@ -105,7 +109,8 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
         product = self.env["product.product"].create(
             {
                 "name": "Test MTO",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "categ_id": category.id,
             }
         )
@@ -170,7 +175,8 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
         product_template_sofa = self.env["product.template"].create(
             {
                 "name": "Sofa",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
                 "route_ids": [(6, 0, [self.mto_route.id])],
                 "attribute_line_ids": [
                     Command.create(
