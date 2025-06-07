@@ -5,7 +5,6 @@ from odoo import fields, models
 
 
 class StockWarehouse(models.Model):
-
     _inherit = "stock.warehouse"
 
     default_orderpoint_location_id = fields.Many2one(

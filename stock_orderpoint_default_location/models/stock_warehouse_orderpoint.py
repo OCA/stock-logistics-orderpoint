@@ -5,7 +5,6 @@ from odoo import models
 
 
 class StockWarehouseOrderpoint(models.Model):
-
     _inherit = "stock.warehouse.orderpoint"
 
     def _compute_location_id(self):
