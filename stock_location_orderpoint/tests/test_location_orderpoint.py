@@ -59,6 +59,28 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         move = replenish_moves - move
         self._assert_replenishment_move(move, 1, orderpoint2)
 
+    def test_need_on_child_location(self):
+        """Outgoing move is on a child location of the orderpoint location"""
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="manual"
+        )
+        self.assertEqual(orderpoint.location_src_id, location_src)
+        location_child = self.location_dest.create(
+            {
+                "name": "child",
+                "location_id": self.location_dest.id,
+            }
+        )
+        move = self._create_outgoing_move(12, location=location_child)
+        self.assertEqual(move.state, "confirmed")
+        self._run_replenishment(orderpoint)
+        replenish_move = self._get_replenishment_move(orderpoint)
+        self.assertFalse(replenish_move)
+        self._create_quants(self.product, location_src, 12)
+        self._run_replenishment(orderpoint)
+        replenish_move = self._get_replenishment_move(orderpoint)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
+
     @contextmanager
     def _freeze_time(self, now):
         with (

@@ -397,6 +397,14 @@ class StockLocationOrderpoint(models.Model):
         qty_to_replenish = virtual_available_on_dest - qty_already_replenished
         return min(qty_to_replenish, virtual_available_on_src)
 
+    @api.model
+    def _get_orderpoint_moves_by_location(self, orderpoint, moves_by_location):
+        orderpoint_moves = self.env["stock.move"]
+        for location, moves in moves_by_location.items():
+            if orderpoint.location_id.parent_path in location.parent_path:
+                orderpoint_moves += moves
+        return orderpoint_moves
+
     def _get_qties_to_replenish(self, moves_by_location):
         products = set()
         for moves in moves_by_location.values():
@@ -412,10 +420,10 @@ class StockLocationOrderpoint(models.Model):
                     excluded_location_domain=orderpoint.stock_excluded_location_domain
                 ),
             )
-            if orderpoint.location_id not in moves_by_location:
-                continue
-
-            for product in moves_by_location[orderpoint.location_id].product_id:
+            orderpoint_moves = self._get_orderpoint_moves_by_location(
+                orderpoint, moves_by_location
+            )
+            for product in orderpoint_moves.product_id:
                 qties_replenished_for_location = qties_replenished[
                     orderpoint.location_id
                 ]
@@ -446,10 +454,17 @@ class StockLocationOrderpoint(models.Model):
             qties_to_replenish,
         ) in qties_to_replenish_by_orderpoint.items():
             proc_vals = orderpoint._prepare_procurement_values()
+            if not qties_to_replenish:
+                continue
+            orderpoint_moves = self._get_orderpoint_moves_by_location(
+                orderpoint, moves_by_location
+            )
             for product, qty in qties_to_replenish:
-                date_planned = moves_by_location[
-                    orderpoint.location_id
-                ]._get_location_orderpoint_replenishment_date(product)
+                date_planned = (
+                    orderpoint_moves._get_location_orderpoint_replenishment_date(
+                        product
+                    )
+                )
                 procurements.append(
                     orderpoint._prepare_procurement(
                         product, qty, date_planned, proc_vals
