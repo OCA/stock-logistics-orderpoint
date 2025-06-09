@@ -25,6 +25,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
+[stock_orderpoint_default_location](stock_orderpoint_default_location/) | 18.0.1.0.0 |  | This module allows to define a different default location than the stock location
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 18.0.1.0.0 |  | Link Reordering rules to stock moves
 [stock_orderpoint_purchase_link](stock_orderpoint_purchase_link/) | 18.0.1.0.0 |  | Link Reordering rules to purchase orders
 
