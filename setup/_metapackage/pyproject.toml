@@ -1,7 +1,8 @@
 [project]
 name = "odoo-addons-oca-stock-logistics-orderpoint"
-version = "18.0.20250611.0"
+version = "18.0.20250611.1"
 dependencies = [
+    "odoo-addon-stock_location_orderpoint==18.0.*",
     "odoo-addon-stock_orderpoint_default_location==18.0.*",
     "odoo-addon-stock_orderpoint_move_link==18.0.*",
     "odoo-addon-stock_orderpoint_mto_as_mts==18.0.*",
