@@ -1,0 +1,355 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* stock_location_orderpoint
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2024-04-19 09:34+0000\n"
+"Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
+"Language-Team: none\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.17\n"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__active
+msgid "Active"
+msgstr "Attivo"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
+msgid "Archived"
+msgstr "In archivio"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__auto
+msgid "Auto/realtime"
+msgstr "Automatico/tempo reale"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__trigger
+msgid ""
+"Auto/realtime orderpoints are triggered on new moves\n"
+"Manual orderpoints are triggered via the orderpoints' view\n"
+"Scheduled orderpoints are triggered via scheduled actions per location"
+msgstr ""
+"I punti di riordino automatic/in tempo reale sono attivati nei nuovi "
+"movimenti\n"
+"I punti di riordino manuali sono attivati attraverso la vista dei punti di "
+"riordino\n"
+"I punti di riordino pianificati sono attiVati da azioni pianificate nelle "
+"ubicazioni"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__company_id
+msgid "Company"
+msgstr "Azienda"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_uid
+msgid "Created by"
+msgstr "Creato da"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_date
+msgid "Created on"
+msgstr "Creato il"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
+msgid ""
+"Defines how the qty to replenish gets computed\n"
+"Fill up = The replenishment will be triggered when a move is waiting "
+"availability and forecast quantity is negative at the location (i.e. min=0). "
+"The replenished quantity will bring back the forecast quantity to 0 (i.e. "
+"max=0) but will be limited to what is available at the source location to "
+"plan only reservable replenishment moves"
+msgstr ""
+"Definisce come le quantità da rifornire vengono calcolate\n"
+"Riempimento = il rifornimento viene attivato quando un movimento sta "
+"aspettando la disponibilità e la quantità prevista è negativa "
+"nell'ubicazione (i.e. min=0). La quantità rifornita riporterà la previsione "
+"quantità a 0 (i.e. max=0) ma sarà limitata a quello che è disponibile "
+"nell'ubicazione origine per pianificare solo movimenti di rifornimento "
+"prenotabili"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain_char
+msgid "Domain to filter locations"
+msgstr "Dominio per filtrare le ubicazioni"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
+msgid "Exclude Locations"
+msgstr "Esclude ubicazioni"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
+msgid ""
+"Fill in this field to exclude locations for product availablequantities."
+msgstr ""
+"Compilare questo campo per escludere ubicazioni dalle quantità disponibili "
+"del prodotto."
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain_char
+msgid ""
+"Fill in this with the domain you want to exclude locations for product "
+"available quantities"
+msgstr ""
+"Compilare questo campo con il dominio che si vuole utilizzare per escludere "
+"le ubicazioni per le quantià prodotto disponibili"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__replenish_method__fill_up
+msgid "Fill up"
+msgstr "Riempimento"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__id
+msgid "ID"
+msgstr "ID"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_location
+msgid "Inventory Locations"
+msgstr "Ubicazioni di inventario"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
+msgid "Last Cron Execution"
+msgstr "Ultima esecuzione cron"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint____last_update
+msgid "Last Modified on"
+msgstr "Ultima modifica il"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_uid
+msgid "Last Updated by"
+msgstr "Ultimo aggiornamento di"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_date
+msgid "Last Updated on"
+msgstr "Ultimo aggiornamento il"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
+msgid "Last time this orderpoint was processed by the cron"
+msgstr "L'ultima volta che questo punto di riordino è stato elaborato dal cron"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_id
+msgid "Location"
+msgstr "Ubicazione"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_count
+msgid "Location Orderpoint Count"
+msgstr "Conteggio punto di riordino ubicazione"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
+msgid "Location Orderpoints"
+msgstr "Punti di riordino ubicazione"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
+msgid ""
+"Location Orderpoints. Rules that allows this location to be replenished."
+msgstr ""
+"Punti di riordino ubicazione. Regole che consentono a questa ubicazione di "
+"essere rifornita."
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_src_id
+msgid "Location Src"
+msgstr "Ubicazione origine"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__manual
+msgid "Manual"
+msgstr "Manuale"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__group_id
+msgid ""
+"Moves created through this orderpoint will be put in this procurement group. "
+"If none is given, the moves generated by stock rules will be grouped into "
+"one big picking."
+msgstr ""
+"I movimenti creati tramite questo orderpoint verranno inseriti in questo "
+"gruppo di approvvigionamento. Se non ne viene fornito nessuno, i movimenti "
+"generati dalle regole di giacenza verranno raggruppate in un unico grande "
+"prelievo."
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__name
+msgid "Name"
+msgstr "Nome"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__0
+msgid "Normal"
+msgstr "Normale"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.view_location_form
+msgid "Orderpoints"
+msgstr "Punti di riordino"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__route_id
+msgid "Preferred Route"
+msgstr "Rotta preferita"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__priority
+msgid "Priority"
+msgstr "Priorità"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__group_id
+msgid "Procurement Group"
+msgstr "Gruppo di approvvigionamento"
+
+#. module: stock_location_orderpoint
+#: model:ir.actions.server,name:stock_location_orderpoint.ir_cron_location_replenishment_ir_actions_server
+#: model:ir.cron,cron_name:stock_location_orderpoint.ir_cron_location_replenishment
+msgid "Procurement: run location replenishment"
+msgstr "Approvvigionamento: esegui rifornimento ubicazione"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
+msgid "Replenish Method"
+msgstr "Metodo rifornimento"
+
+#. module: stock_location_orderpoint
+#: model:stock.route,name:stock_location_orderpoint.stock_route_replenish
+msgid "Replenishment Route"
+msgstr "Percorso rifornimento"
+
+#. module: stock_location_orderpoint
+#: model:stock.rule,name:stock_location_orderpoint.stock_rule_replenish
+msgid "Replenishment Rule"
+msgstr "Regola rifornimento"
+
+#. module: stock_location_orderpoint
+#: model:stock.picking.type,name:stock_location_orderpoint.stock_picking_type_replenish
+msgid "Replenishments"
+msgstr "Rifornimenti"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
+msgid "Run replenishment"
+msgstr "Esegui rifornimento"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__cron
+msgid "Scheduled"
+msgstr "Programmato"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__sequence
+msgid "Sequence"
+msgstr "Sequenza"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
+msgid "Stock Excluded Location Domain"
+msgstr "Dominio ubicazione esclusa dalla giacenza"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
+msgid "Stock Excluded Locations"
+msgstr "Ubicazioni escluse dalla giacenza"
+
+#. module: stock_location_orderpoint
+#: model:ir.actions.act_window,name:stock_location_orderpoint.action_stock_location_orderpoint
+#: model:ir.ui.menu,name:stock_location_orderpoint.menu_stock_location_orderpoint
+msgid "Stock Location Orderpoint"
+msgstr "Punto di riordino ubicazione di magazzino"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_move
+msgid "Stock Move"
+msgstr "Movimento di magazzino"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_rule
+msgid "Stock Rule"
+msgstr "Regola di giacenza"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_move__location_orderpoint_id
+msgid "Stock location orderpoint"
+msgstr "Punto di riordino ubicazione di magazzino"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.constraint,message:stock_location_orderpoint.constraint_stock_location_orderpoint_location_route_unique
+msgid ""
+"The combination of Company, Location, Route and Replenish method must be "
+"unique"
+msgstr ""
+"La combinazione di azienda, ubicazione, rotta e metodo di rifornimento deve "
+"essere univoca"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_location_orderpoint.py:0
+#, python-format
+msgid ""
+"The selected route %(route_name)s must contain a rule where the Destination "
+"Location is %(location_name)s"
+msgstr ""
+"La rotta selezionata %(route_name)s deve contenere una regola dove "
+"l'ubicazione di destinazione è %(location_name)s"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__trigger
+msgid "Trigger"
+msgstr "Attivazione"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid ""
+"Try to replenish quantities %(in_or_out)s location %(location_name)s for "
+"product %(product_name)s"
+msgstr ""
+"Tenta di rfornire la quantità %(in_or_out)s dell'ubicazione "
+"%(location_name)s per il prodotto %(product_name)s"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__1
+msgid "Urgent"
+msgstr "Urgente"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid "from"
+msgstr "da"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid "in"
+msgstr "a"

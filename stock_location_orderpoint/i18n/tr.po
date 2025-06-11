@@ -1,0 +1,344 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* stock_location_orderpoint
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2025-02-09 20:06+0000\n"
+"Last-Translator: İsmail Çağan Yılmaz <ismail.cagan.yilmaz@gmail.com>\n"
+"Language-Team: none\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.6.2\n"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__active
+msgid "Active"
+msgstr "Aktif"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
+msgid "Archived"
+msgstr "Arşivlenmiş"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__auto
+msgid "Auto/realtime"
+msgstr "Otomatik/gerçek zamanlı"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__trigger
+msgid ""
+"Auto/realtime orderpoints are triggered on new moves\n"
+"Manual orderpoints are triggered via the orderpoints' view\n"
+"Scheduled orderpoints are triggered via scheduled actions per location"
+msgstr ""
+"Otomatik/gerçek zamanlı sipariş noktaları yeni stok hareketlerinde "
+"tetiklenir\n"
+"Manuel sipariş noktaları sipariş noktalarının görünümlerinde tetiklenir\n"
+"Planlanmış sipariş noktaları konuma göre planlanan aksiyonlarda tetiklenir"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__company_id
+msgid "Company"
+msgstr "Şirket"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_uid
+msgid "Created by"
+msgstr "Tarafından oluşturuldu"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__create_date
+msgid "Created on"
+msgstr "Tarihinde oluşturuldu"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
+msgid ""
+"Defines how the qty to replenish gets computed\n"
+"Fill up = The replenishment will be triggered when a move is waiting availability and forecast quantity is negative at the location (i.e. min=0). The replenished quantity will bring back the forecast quantity to 0 (i.e. max=0) but will be limited to what is available at the source location to plan only reservable replenishment moves"
+msgstr ""
+"Yenilenecek miktarın nasıl hesaplandığını tanımlar\n"
+"Doldur = Stok ikmali, bir hareketin kullanılabilirliğini beklediğinde ve "
+"konumdaki tahmin miktarı negatif olduğunda (yani min=0) tetiklenecektir. "
+"Ikmal edilen miktar, tahmin miktarını 0'a (yani maks=0) geri getirecektir "
+"ancak yalnızca rezerve edilebilir ikmal hareketlerini planlamak için kaynak "
+"konumda mevcut olanla sınırlı olacaktır"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__display_name
+msgid "Display Name"
+msgstr "Görünür Isim"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain_char
+msgid "Domain to filter locations"
+msgstr "Konumları filtrelemek için alan adı"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
+msgid "Exclude Locations"
+msgstr "Konumları Hariç Tut"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
+msgid ""
+"Fill in this field to exclude locations for product availablequantities."
+msgstr ""
+"Mevcut ürün miktarlarına ilişkin konumları hariç tutmak için bu alanı "
+"doldurun."
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain_char
+msgid ""
+"Fill in this with the domain you want to exclude locations for product "
+"available quantities"
+msgstr ""
+"Burayı, mevcut ürün miktarları için konumları hariç tutmak istediğiniz alan "
+"adıyla doldurun"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__replenish_method__fill_up
+msgid "Fill up"
+msgstr "Doldur"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__id
+msgid "ID"
+msgstr "ID"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_location
+msgid "Inventory Locations"
+msgstr "Stok Konumları"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
+msgid "Last Cron Execution"
+msgstr "Son Cron Yürütme"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint____last_update
+msgid "Last Modified on"
+msgstr "Son Değiştirilme Tarihi"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_uid
+msgid "Last Updated by"
+msgstr "Son Güncelleyen"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__write_date
+msgid "Last Updated on"
+msgstr "Son Güncelleme Tarihi"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__last_cron_execution
+msgid "Last time this orderpoint was processed by the cron"
+msgstr "En son bu sipariş noktasının cron tarafından işlenme tarihi"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_id
+msgid "Location"
+msgstr "Konum"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_count
+msgid "Location Orderpoint Count"
+msgstr "Konum Sipariş Noktası Sayısı"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
+msgid "Location Orderpoints"
+msgstr "Konumdaki Sipariş Noktaları"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location__location_orderpoint_ids
+msgid ""
+"Location Orderpoints. Rules that allows this location to be replenished."
+msgstr "Konumdaki Sipariş Noktaları. Bu konumun ikmaline izin veren kurallar."
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_src_id
+msgid "Location Src"
+msgstr "Konum Src"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__manual
+msgid "Manual"
+msgstr "Manuel"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__group_id
+msgid ""
+"Moves created through this orderpoint will be put in this procurement group."
+" If none is given, the moves generated by stock rules will be grouped into "
+"one big picking."
+msgstr ""
+"Bu sipariş noktası aracılığıyla oluşturulan hareketler bu tedarik grubuna "
+"konulacaktır. Hiçbiri belirtilmezse stok kuralları tarafından oluşturulan "
+"hareketler tek bir büyük seçimde gruplandırılacaktır."
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__name
+msgid "Name"
+msgstr "Isim"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__0
+msgid "Normal"
+msgstr "Normal"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.view_location_form
+msgid "Orderpoints"
+msgstr "Sipariş Noktaları"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__route_id
+msgid "Preferred Route"
+msgstr "Tercih Edilen Rota"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__priority
+msgid "Priority"
+msgstr "Öncelik"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__group_id
+msgid "Procurement Group"
+msgstr "Tedarik Grubu"
+
+#. module: stock_location_orderpoint
+#: model:ir.actions.server,name:stock_location_orderpoint.ir_cron_location_replenishment_ir_actions_server
+#: model:ir.cron,cron_name:stock_location_orderpoint.ir_cron_location_replenishment
+msgid "Procurement: run location replenishment"
+msgstr "Tedarik: konum ikmalini çalıştır"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
+msgid "Replenish Method"
+msgstr "Ikmal Metodu"
+
+#. module: stock_location_orderpoint
+#: model:stock.route,name:stock_location_orderpoint.stock_route_replenish
+msgid "Replenishment Route"
+msgstr "Ikmal Rotası"
+
+#. module: stock_location_orderpoint
+#: model:stock.rule,name:stock_location_orderpoint.stock_rule_replenish
+msgid "Replenishment Rule"
+msgstr "Ikmal Kuralı"
+
+#. module: stock_location_orderpoint
+#: model:stock.picking.type,name:stock_location_orderpoint.stock_picking_type_replenish
+msgid "Replenishments"
+msgstr "Ikmaller"
+
+#. module: stock_location_orderpoint
+#: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
+msgid "Run replenishment"
+msgstr "Ikmali Çalıştır"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__cron
+msgid "Scheduled"
+msgstr "Planlanmış"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__sequence
+msgid "Sequence"
+msgstr "Sıra"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
+msgid "Stock Excluded Location Domain"
+msgstr "Stok Hariç Tutulan Konum Alanı"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
+msgid "Stock Excluded Locations"
+msgstr "Stok Hariç Tutulan Konumlar"
+
+#. module: stock_location_orderpoint
+#: model:ir.actions.act_window,name:stock_location_orderpoint.action_stock_location_orderpoint
+#: model:ir.ui.menu,name:stock_location_orderpoint.menu_stock_location_orderpoint
+msgid "Stock Location Orderpoint"
+msgstr "Stok Konumu Sipariş Noktası"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_move
+msgid "Stock Move"
+msgstr "Stok Hareketi"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_rule
+msgid "Stock Rule"
+msgstr "Stok Kuralı"
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_move__location_orderpoint_id
+msgid "Stock location orderpoint"
+msgstr "Stok konumu sipariş noktası"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.constraint,message:stock_location_orderpoint.constraint_stock_location_orderpoint_location_route_unique
+msgid ""
+"The combination of Company, Location, Route and Replenish method must be "
+"unique"
+msgstr ""
+"Şirket, Konum, Rota ve İkmal yönteminin kombinasyonu benzersiz olmalıdır"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_location_orderpoint.py:0
+#, python-format
+msgid ""
+"The selected route %(route_name)s must contain a rule where the Destination "
+"Location is %(location_name)s"
+msgstr ""
+"Seçilen rota %(route_name)s, Hedef Konumunun %(location_name)s olduğu bir "
+"kural içermelidir"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__trigger
+msgid "Trigger"
+msgstr "Tetiklenme"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid ""
+"Try to replenish quantities %(in_or_out)s location %(location_name)s for "
+"product %(product_name)s"
+msgstr ""
+"%(product_name)s ürünü için %(in_or_out)s konumunu %(location_name)s "
+"miktarlarını ikmal etmeyi deneyin"
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__priority__1
+msgid "Urgent"
+msgstr "Acil"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid "from"
+msgstr "tarafından"
+
+#. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid "in"
+msgstr "içinde"
