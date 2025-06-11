@@ -46,6 +46,8 @@ class TestStockOrderpointRoute(TransactionCase):
                 "product_selectable": True,
                 "company_id": cls.main_company.id,
                 "sequence": 10,
+                "warehouse_selectable": True,
+                "warehouse_ids": [(4, cls.warehouse.id)],
             }
         )
         cls.route2 = cls.env["stock.route"].create(
@@ -55,6 +57,8 @@ class TestStockOrderpointRoute(TransactionCase):
                 "product_selectable": True,
                 "company_id": cls.main_company.id,
                 "sequence": 10,
+                "warehouse_selectable": True,
+                "warehouse_ids": [(4, cls.warehouse.id)],
             }
         )
 
