@@ -44,6 +44,8 @@ class TestStockOrderpointRoute(BaseCommon):
                 "product_selectable": True,
                 "company_id": cls.main_company.id,
                 "sequence": 10,
+                "warehouse_selectable": True,
+                "warehouse_ids": [fields.Command.link(cls.warehouse.id)],
             }
         )
         cls.route2 = cls.env["stock.route"].create(
@@ -53,6 +55,8 @@ class TestStockOrderpointRoute(BaseCommon):
                 "product_selectable": True,
                 "company_id": cls.main_company.id,
                 "sequence": 10,
+                "warehouse_selectable": True,
+                "warehouse_ids": [fields.Command.link(cls.warehouse.id)],
             }
         )
 
