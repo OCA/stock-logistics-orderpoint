@@ -1,0 +1,57 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* stock_orderpoint_mto_as_mts
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2025-02-09 17:06+0000\n"
+"Last-Translator: İsmail Çağan Yılmaz <ismail.cagan.yilmaz@gmail.com>\n"
+"Language-Team: none\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.6.2\n"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_stock_warehouse__archive_orderpoints_mto_removal
+msgid "Archive Orderpoints Mto Removal"
+msgstr "SIpariş Noktaları Mto Kaldırma Işaretle"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model,name:stock_orderpoint_mto_as_mts.model_stock_route
+msgid "Inventory Routes"
+msgstr "Envanter Rotaları"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_stock_warehouse__mto_as_mts
+msgid "Mto As Mts"
+msgstr "Mto'yu Mts olarak"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model,name:stock_orderpoint_mto_as_mts.model_product_template
+msgid "Product"
+msgstr "Ürün"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model,name:stock_orderpoint_mto_as_mts.model_product_category
+msgid "Product Category"
+msgstr "Ürün Kategorisi"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model,name:stock_orderpoint_mto_as_mts.model_product_product
+msgid "Product Variant"
+msgstr "Ürün Varyantı"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_product_category__product_ids
+msgid "Products"
+msgstr "Ürünler"
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model,name:stock_orderpoint_mto_as_mts.model_stock_warehouse
+msgid "Warehouse"
+msgstr "Depo"
