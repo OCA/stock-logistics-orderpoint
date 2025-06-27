@@ -449,7 +449,7 @@ class StockLocationOrderpoint(models.Model):
             for product, qty in qties_to_replenish:
                 date_planned = moves_by_location[
                     orderpoint.location_id
-                ]._get_location_orderpoint_replenishment_date(product)
+                ]._get_location_orderpoint_replenishment_date(product, orderpoint)
                 procurements.append(
                     orderpoint._prepare_procurement(
                         product, qty, date_planned, proc_vals
