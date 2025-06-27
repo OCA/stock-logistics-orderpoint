@@ -1,5 +1,6 @@
 # Copyright 2023 ACSONE SA/NV
 # Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# Copyright 2025 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 import logging
@@ -13,17 +14,26 @@ _logger = logging.getLogger(__name__)
 class ProductProduct(models.Model):
     _inherit = "product.product"
 
-    def _prepare_missing_orderpoint_vals(self, warehouse):
+    @api.model
+    def _prepare_orderpoint_vals_base(self):
         return {
-            "name": "MTO",  # give a name as next_by_code is too slow for large data
-            "warehouse_id": warehouse.id,
-            "product_id": self.id,
-            "company_id": warehouse.company_id.id,
+            "active": True,
             "product_min_qty": 0,
             "product_max_qty": 0,
-            "location_id": warehouse._get_locations_for_mto_orderpoints().id,
-            "product_uom": self.uom_id.id,
+            "trigger": "auto",
         }
+
+    def _prepare_missing_orderpoint_vals(self, warehouse):
+        vals = self._prepare_orderpoint_vals_base()
+        vals.update(
+            {
+                "name": "MTO",  # give a name as next_by_code is too slow for large data
+                "warehouse_id": warehouse.id,
+                "product_id": self.id,
+                "company_id": warehouse.company_id.id,
+            }
+        )
+        return vals
 
     def _ensure_default_orderpoint_for_mto(self):
         """Ensure that a default orderpoint is created for the MTO products.
@@ -46,6 +56,7 @@ class ProductProduct(models.Model):
             return
         wh_obj = self.env["stock.warehouse"]
         op_obj = self.env["stock.warehouse.orderpoint"]
+        orderpoint_vals_base = self._prepare_orderpoint_vals_base()
         all_mto_wh = wh_obj.search([("mto_as_mts", "=", True)])
         all_mto_wh_by_company = all_mto_wh.grouped("company_id")
         op_vals_list = []
@@ -68,9 +79,7 @@ class ProductProduct(models.Model):
                 ]
             )
             if inactive_ops:
-                inactive_ops.write(
-                    {"active": True, "product_min_qty": 0.0, "product_max_qty": 0.0}
-                )
+                inactive_ops.write(orderpoint_vals_base)
             # Find products having an orderpoint for that wh
             products_by_wh = dict(
                 op_obj._read_group(
@@ -120,6 +129,7 @@ class ProductProduct(models.Model):
                 ("product_min_qty", "=", 0.0),
                 ("product_max_qty", "=", 0.0),
                 ("location_id", "in", locations.ids),
+                ("trigger", "=", "auto"),
             ]
         )
         return domain
