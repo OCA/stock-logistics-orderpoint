@@ -3,7 +3,7 @@
 {
     "name": "Stock Orderpoint Mto As Mts",
     "summary": "Materialize need from MTO route through orderpoint",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.1.0",
     "development_status": "Alpha",
     "category": "Operations/Inventory/Delivery",
     "website": "https://github.com/OCA/stock-logistics-orderpoint",
