@@ -1,4 +1,5 @@
 # Copyright 2020 Camptocamp SA
+# Copyright 2025 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 from odoo.fields import Command
@@ -41,11 +42,16 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
                 "route_ids": [(6, 0, [self.mto_route.id])],
             }
         )
-        orderpoint = self.env["stock.warehouse.orderpoint"].search(
+        orderpoints = self.env["stock.warehouse.orderpoint"].search(
             [("product_id", "=", product.id)]
         )
-        self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertTrue(orderpoints)
+        self.assertTrue(len(orderpoints) == 2)
+        # Ensure orderpoints are created with correct values
+        orderpoint = orderpoints[0]
+        self.assertEqual(orderpoint.product_min_qty, 0)
+        self.assertEqual(orderpoint.product_max_qty, 0)
+        self.assertEqual(orderpoint.trigger, "auto")
         # Archive orderpoint
         product.write({"route_ids": [(6, 0, [])]})
         orderpoint = self.env["stock.warehouse.orderpoint"].search(
@@ -202,3 +208,37 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "in", product_template_sofa.product_variant_ids.ids)]
         )
         self.assertFalse(orderpoint)
+
+    def test_orderpoint_isnt_archived(self):
+        product = self.env["product.product"].create(
+            {
+                "name": "Test MTO",
+                "type": "product",
+                "route_ids": [(6, 0, [self.mto_route.id])],
+            }
+        )
+        orderpoints = self.env["stock.warehouse.orderpoint"].search(
+            [("product_id", "=", product.id)]
+        )
+        self.assertEqual(len(orderpoints), 2)
+        orderpoint = orderpoints[0]
+        orderpoint.trigger = "manual"
+        # Archive orderpoint
+        product.write({"route_ids": [(6, 0, [])]})
+        orderpoints = self.env["stock.warehouse.orderpoint"].search(
+            [("product_id", "=", product.id)]
+        )
+        self.assertEqual(len(orderpoints), 1)
+        orderpoints.unlink()
+        product.write({"route_ids": [(6, 0, [self.mto_route.id])]})
+        orderpoints = self.env["stock.warehouse.orderpoint"].search(
+            [("product_id", "=", product.id)]
+        )
+        self.assertEqual(len(orderpoints), 2)
+        orderpoints[0].product_min_qty = 1
+        orderpoints[1].product_max_qty = 1
+        product.write({"route_ids": [(6, 0, [])]})
+        orderpoints = self.env["stock.warehouse.orderpoint"].search(
+            [("product_id", "=", product.id)]
+        )
+        self.assertEqual(len(orderpoints), 2)
