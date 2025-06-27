@@ -16,7 +16,7 @@ class StockMove(models.Model):
     )
 
     @ormcache("self", "product")
-    def _get_location_orderpoint_replenishment_date(self, product):
+    def _get_location_orderpoint_replenishment_date(self, product, orderpoint):
         return min(
             self.filtered(lambda move: move.product_id == product).mapped("date")
         )
