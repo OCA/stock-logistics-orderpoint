@@ -473,26 +473,31 @@ class StockLocationOrderpoint(models.Model):
         )
         self._after_replenishment()
 
-    def _prepare_to_assign_replenishment_move_domain(self):
+    def _get_generated_replenishment_moves_domain(self):
         """Returns a domain which selects moves created by a replenishment"""
         domain = [
-            ("state", "in", ["confirmed", "partially_available"]),
+            ("state", "in", ["confirmed", "partially_available", "assigned"]),
             ("procure_method", "=", "make_to_stock"),
             ("location_orderpoint_id", "in", self.ids),
         ]
         return domain
 
-    def _assign_replenishment_moves(self):
+    def _assign_replenishment_moves(self, moves_to_assign):
         """Assigns moves created by the orderpoints"""
-        domain = self._prepare_to_assign_replenishment_move_domain()
-        moves_to_assign = self.env["stock.move"].search(
-            domain, order="priority desc, date asc, id asc"
-        )
         for moves_chunk in split_every(100, moves_to_assign.ids):
             self.env["stock.move"].browse(moves_chunk)._action_assign()
+        return moves_to_assign
 
     def _after_replenishment(self):
-        self._assign_replenishment_moves()
+        """Assigns generated replenishment moves and return them."""
+        generated_moves_domain = self._get_generated_replenishment_moves_domain()
+        generated_moves = self.env["stock.move"].search(
+            generated_moves_domain, order="priority desc, date asc, id asc"
+        )
+        self._assign_replenishment_moves(
+            generated_moves.filtered(lambda m: m.state != "assigned")
+        )
+        return generated_moves
 
     def _prepare_orderpoint_domain_location(self, location_ids, location_field=False):
         """
