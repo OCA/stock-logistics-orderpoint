@@ -42,6 +42,7 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
 
         self.assertTrue(replenish_move_manual)
         self.assertEqual(12.0, replenish_move_manual.product_uom_qty)
+        self.assertEqual("0", replenish_move_manual.priority)
 
         # Change the outgoing quantity
         out_move.product_uom_qty = 6.0
