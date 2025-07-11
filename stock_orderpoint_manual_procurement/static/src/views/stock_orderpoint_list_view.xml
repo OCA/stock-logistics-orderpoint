@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates id="template" xml:space="preserve">
+
+    <t
+        t-name="stock_orderpoint_manual_procurement.StockOrderpoint.listView"
+        t-inherit="stock.StockOrderpoint.listView"
+        t-inherit-mode="extension"
+    >
+        <xpath expr="//t[@t-set-slot='content']" position="inside">
+            <DropdownItem
+                t-if="nbSelected"
+                onSelected="() => this.onClickManualOrder()"
+            >
+                Manual Procurement
+            </DropdownItem>
+        </xpath>
+    </t>
+
+</templates>
