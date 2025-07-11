@@ -27,6 +27,7 @@ addon | version | maintainers | summary
 --- | --- | --- | ---
 [stock_location_orderpoint](stock_location_orderpoint/) | 18.0.1.0.2 | <a href='https://github.com/mt-software-de'><img src='https://github.com/mt-software-de.png' width='32' height='32' style='border-radius:50%;' alt='mt-software-de'/></a> | Declare orderpoint on a location allowing to replenish any product with the same criteria.
 [stock_orderpoint_default_location](stock_orderpoint_default_location/) | 18.0.1.0.0 |  | This module allows to define a different default location than the stock location
+[stock_orderpoint_manual_procurement](stock_orderpoint_manual_procurement/) | 18.0.1.0.0 |  | Allows to create procurement orders from orderpoints instead of relying only on the scheduler.
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 18.0.1.0.0 |  | Link Reordering rules to stock moves
 [stock_orderpoint_mto_as_mts](stock_orderpoint_mto_as_mts/) | 18.0.1.1.0 |  | Materialize need from MTO route through orderpoint
 [stock_orderpoint_purchase_link](stock_orderpoint_purchase_link/) | 18.0.1.0.0 |  | Link Reordering rules to purchase orders
