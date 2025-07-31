@@ -470,19 +470,23 @@ class StockLocationOrderpoint(models.Model):
             self.env["procurement.group"].with_context(from_orderpoint=True).run(
                 procurements, raise_user_error=False
             )
-        return self._after_replenishment()
+        replenishment_moves = self._get_current_replenishment_moves()
+        self._after_replenishment(replenishment_moves)
+        return replenishment_moves
 
-    def _get_current_replenishment_moves_domain(self):
+    def _get_current_replenishment_moves(self):
         """
-        Returns a domain which selects ongoing replenishment moves created
-        or updated by the given orderpoints.
+        Returns ongoing replenishment moves created or updated by the
+        given orderpoints.
         """
         domain = [
             ("state", "in", ["confirmed", "partially_available", "assigned"]),
             ("procure_method", "=", "make_to_stock"),
             ("location_orderpoint_id", "in", self.ids),
         ]
-        return domain
+        return self.env["stock.move"].search(
+            domain, order="priority desc, date asc, id asc"
+        )
 
     def _assign_replenishment_moves(self, moves_to_assign):
         """Assigns moves created by the orderpoints"""
@@ -490,19 +494,13 @@ class StockLocationOrderpoint(models.Model):
             self.env["stock.move"].browse(moves_chunk)._action_assign()
         return moves_to_assign
 
-    def _after_replenishment(self):
+    def _after_replenishment(self, replenishment_moves):
         """
-        Assigns generated replenishment moves and return all ongoing
-        moves for the given orderpoints.
+        Assigns generated replenishment moves.
         """
-        current_moves_domain = self._get_current_replenishment_moves_domain()
-        current_moves = self.env["stock.move"].search(
-            current_moves_domain, order="priority desc, date asc, id asc"
-        )
         self._assign_replenishment_moves(
-            current_moves.filtered(lambda m: m.state != "assigned")
+            replenishment_moves.filtered(lambda m: m.state != "assigned")
         )
-        return current_moves
 
     def _prepare_orderpoint_domain_location(self, location_ids, location_field=False):
         """
