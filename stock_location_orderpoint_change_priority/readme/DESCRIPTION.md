@@ -1,2 +1,2 @@
-This module allows to upgrade the existing replenishment moves if a new demand
-is triggered with higher priority.
+This module updates the priority of all ongoing replenishment moves to the priority of
+their orderpoint when a replenishment is triggered.

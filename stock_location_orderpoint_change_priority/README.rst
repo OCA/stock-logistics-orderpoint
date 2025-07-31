@@ -28,8 +28,8 @@ Stock Location Orderpoint Change Priority
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-This module allows to upgrade the existing replenishment moves if a new
-demand is triggered with higher priority.
+This module updates the priority of all ongoing replenishment moves to
+the priority of their orderpoint when a replenishment is triggered.
 
 **Table of contents**
 
@@ -42,9 +42,10 @@ Use Cases / Context
 Orderpoints have generated replenishments that have a normal priority
 (e.g.: replenishments to cover average sales).
 
-In the case a new demand is created that triggers a realtime orderpoint
-and is already covered by the existing replenishment, the priority won't
-be changed.
+In the case a new demand is created that triggers an 'urgent' orderpoint
+(e.g.: a 'fill_up' orderpoint) and is already covered by the existing
+replenishment, the priority of these already created replenishment moves
+won't be changed.
 
 This could be problematic as users won't see the real high priority
 replenishment moves.
@@ -71,6 +72,7 @@ Contributors
 ------------
 
 - Denis Roussel denis.roussel@acsone.eu
+- Nicolas Delbovier nicolas.delbovier@acsone.eu
 
 Maintainers
 -----------
