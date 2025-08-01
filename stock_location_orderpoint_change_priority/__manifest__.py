@@ -4,8 +4,9 @@
 {
     "name": "Stock Location Orderpoint Change Priority",
     "summary": """
-        Allows to change existing replenishments to take into account new demands
-        with higher priority""",
+        This module updates the priority of all ongoing replenishment moves to
+        the priority of their orderpoint when a replenishment is triggered.
+        """,
     "version": "16.0.1.0.0",
     "license": "AGPL-3",
     "author": "ACSONE SA/NV,Odoo Community Association (OCA)",
