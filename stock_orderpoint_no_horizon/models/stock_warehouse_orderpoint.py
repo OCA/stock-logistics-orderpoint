@@ -1,5 +1,5 @@
-# Copyright 2023 Camptocamp SA
-# @author: Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# Copyright 2023 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# Copyright 2025 Camptocamp SA
 
 from odoo import models
 
