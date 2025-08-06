@@ -1,5 +1,6 @@
-# Copyright 2023 Camptocamp SA
-# @author: Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# Copyright 2023 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+# Copyright 2025 Camptocamp SA
+
 from datetime import date, datetime, timedelta
 
 from odoo.addons.base.tests.common import BaseCommon
@@ -21,6 +22,7 @@ class TestOrderpointNoHorizon(BaseCommon):
                 "name": __name__,
                 "warehouse_id": warehouse.id,
                 "location_id": warehouse.lot_stock_id.id,
+                "route_id": warehouse.reception_route_id.id,
                 "product_id": self.product.id,
                 "product_min_qty": 0.0,
                 "product_max_qty": 5.0,
@@ -28,24 +30,31 @@ class TestOrderpointNoHorizon(BaseCommon):
         )
 
         # get auto-created pull rule from when warehouse is created
+        supplier_loc = self.env.ref("stock.stock_location_suppliers")
         rule = self.env["stock.rule"].search(
             [
                 ("route_id", "=", warehouse.reception_route_id.id),
                 ("location_dest_id", "=", warehouse.lot_stock_id.id),
-                (
-                    "location_src_id",
-                    "=",
-                    self.env.ref("stock.stock_location_suppliers").id,
-                ),
+                ("location_src_id", "=", supplier_loc.id),
                 ("action", "=", "pull"),
                 ("procure_method", "=", "make_to_stock"),
                 ("picking_type_id", "=", warehouse.in_type_id.id),
             ]
         )
-
-        # add a delay [i.e. lead days] so procurement will be triggered based
-        # on forecasted stock
-        rule.delay = 9.0
+        if not rule:
+            # when purchase_stock is installed, the rule is replaced by a buy
+            # route, so recreate it
+            rule = self.env["stock.rule"].create(
+                {
+                    "name": "pull",
+                    "route_id": warehouse.reception_route_id.id,
+                    "location_dest_id": warehouse.lot_stock_id.id,
+                    "location_src_id": supplier_loc.id,
+                    "action": "pull",
+                    "procure_method": "make_to_stock",
+                    "picking_type_id": warehouse.in_type_id.id,
+                }
+            )
 
         delivery_move = self.env["stock.move"].create(
             {
@@ -59,8 +68,8 @@ class TestOrderpointNoHorizon(BaseCommon):
             }
         )
         delivery_move._action_confirm()
-        orderpoint._compute_qty()
-        self.env["procurement.group"].run_scheduler()
+
+        orderpoint.action_replenish()
 
         receipt_move = self.env["stock.move"].search(
             [
