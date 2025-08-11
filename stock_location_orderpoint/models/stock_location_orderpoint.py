@@ -470,11 +470,11 @@ class StockLocationOrderpoint(models.Model):
             self.env["procurement.group"].with_context(from_orderpoint=True).run(
                 procurements, raise_user_error=False
             )
-        replenishment_moves = self._get_current_replenishment_moves()
+        replenishment_moves = self._get_current_replenishment_moves(products)
         self._after_replenishment(replenishment_moves)
         return replenishment_moves
 
-    def _get_current_replenishment_moves(self):
+    def _get_current_replenishment_moves(self, products=False):
         """
         Returns ongoing replenishment moves created or updated by the
         given orderpoints.
@@ -484,6 +484,8 @@ class StockLocationOrderpoint(models.Model):
             ("procure_method", "=", "make_to_stock"),
             ("location_orderpoint_id", "in", self.ids),
         ]
+        if products:
+            domain = expression.AND([domain, [("product_id", "in", products.ids)]])
         return self.env["stock.move"].search(
             domain, order="priority desc, date asc, id asc"
         )
