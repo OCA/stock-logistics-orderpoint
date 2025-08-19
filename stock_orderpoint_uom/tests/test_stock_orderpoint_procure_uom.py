@@ -26,7 +26,7 @@ class TestStockOrderpointProcureUom(common.TransactionCase):
             {
                 "name": "product A",
                 "standard_price": 1,
-                "type": "product",
+                "is_storable": True,
                 "uom_id": self.uom_unit.id,
                 "uom_po_id": self.uom_dozen.id,
                 "default_code": "A",
@@ -35,7 +35,7 @@ class TestStockOrderpointProcureUom(common.TransactionCase):
                         0,
                         0,
                         {
-                            "name": self.env.ref("base.res_partner_3").id,
+                            "partner_id": self.env.ref("base.res_partner_3").id,
                             "delay": 3,
                             "min_qty": 1,
                             "price": 72,
@@ -103,14 +103,19 @@ class TestStockOrderpointProcureUom(common.TransactionCase):
             {
                 "name": "Beer bottle",
                 "standard_price": 1,
-                "type": "product",
+                "is_storable": True,
                 "uom_id": self.uom_unit.id,
                 "uom_po_id": self.uom_dozen.id,
                 "seller_ids": [
                     (
                         0,
                         False,
-                        {"name": supplier.id, "delay": 1, "min_qty": 1, "price": 2},
+                        {
+                            "partner_id": supplier.id,
+                            "delay": 1,
+                            "min_qty": 1,
+                            "price": 2,
+                        },
                     )
                 ],
             }

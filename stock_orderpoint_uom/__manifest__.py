@@ -4,7 +4,7 @@
     "name": "Stock Orderpoint UoM",
     "summary": "Allows to create procurement orders in the UoM indicated in "
     "the orderpoint",
-    "version": "15.0.1.1.0",
+    "version": "18.0.1.0.0",
     "author": "ForgeFlow, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "category": "Warehouse Management",
