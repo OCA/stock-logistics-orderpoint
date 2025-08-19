@@ -8,7 +8,7 @@ from odoo.tools import mute_logger
 
 class TestStockOrderpointProcureUom(common.TransactionCase):
     def setUp(self):
-        super(TestStockOrderpointProcureUom, self).setUp()
+        super().setUp()
 
         # Get required Model
         productObj = self.env["product.product"]
@@ -46,7 +46,6 @@ class TestStockOrderpointProcureUom(common.TransactionCase):
         )
 
     def test_01_stock_orderpoint_procure_uom(self):
-
         orderpoint = self.env["stock.warehouse.orderpoint"].create(
             {
                 "warehouse_id": self.warehouse.id,

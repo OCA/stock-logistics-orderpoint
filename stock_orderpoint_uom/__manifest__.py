@@ -6,7 +6,7 @@
     "the orderpoint",
     "version": "15.0.1.1.0",
     "author": "ForgeFlow, Odoo Community Association (OCA)",
-    "website": "https://github.com/OCA/stock-logistics-warehouse",
+    "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "category": "Warehouse Management",
     "depends": ["purchase_stock"],
     "data": ["views/stock_warehouse_orderpoint_view.xml"],
