@@ -31,6 +31,7 @@ addon | version | maintainers | summary
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 18.0.1.0.0 |  | Link Reordering rules to stock moves
 [stock_orderpoint_mto_as_mts](stock_orderpoint_mto_as_mts/) | 18.0.1.1.0 |  | Materialize need from MTO route through orderpoint
 [stock_orderpoint_purchase_link](stock_orderpoint_purchase_link/) | 18.0.1.0.0 |  | Link Reordering rules to purchase orders
+[stock_orderpoint_uom](stock_orderpoint_uom/) | 18.0.1.0.0 |  | Allows to create procurement orders in the UoM indicated in the orderpoint
 
 [//]: # (end addons)
 
