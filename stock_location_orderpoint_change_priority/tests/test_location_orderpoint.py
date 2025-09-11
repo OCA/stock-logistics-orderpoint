@@ -147,3 +147,68 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         # Check priority has been changed (for both moves)
         self.assertEqual("1", replenish_move.priority)
         self.assertEqual("1", replenish_move_2.priority)
+
+    def test_merged_replenishment_move_priority(self):
+        """
+        Test that merged replenishment moves coming from different orderpoints
+        inherit the highest priority orderpoint.
+
+        Setup:
+            - Create a manual orderpoint with priotity 0
+            - Create a manual orderpoint with priotity 1 (same location as 1st one)
+            - Create a shortage on orderpoints location
+            - trigger orderpoint 0 for replenishment
+            - Create a shortage on location again
+            - Trigger orderpoint 1 for replenishment
+
+        Expected result:
+            - The resulting merged repl move to account for both shortage set on
+              location should be linked to orderpoint '1' (and have a priority of '1')
+        """
+
+        # ↓ we drop the unique constraint here because ideally we want to create orderpoints
+        # that have exactly the same characteristics except for the replenish_method (in order
+        # to make sure the moves get merged)
+        # However, we only have 1 replenish_method available and we do not want to
+        # add another dependency (e.g. avg_daily_sale)
+        self.env.cr.execute(
+            """
+            ALTER TABLE stock_location_orderpoint
+            DROP CONSTRAINT stock_location_orderpoint_location_route_unique;
+            """
+        )
+
+        (
+            manual_orderpoint_1,
+            orderpoints_src_location,
+        ) = self._create_orderpoint_complete(
+            "Reserve",
+            trigger="manual",
+        )
+        manual_orderpoint_2 = manual_orderpoint_1.copy({"priority": "1"})
+
+        self.assertEqual(
+            manual_orderpoint_1.location_id, manual_orderpoint_2.location_id
+        )
+        self.assertEqual(
+            manual_orderpoint_1.location_src_id, manual_orderpoint_2.location_src_id
+        )
+        self.assertEqual(manual_orderpoint_1.route_id, manual_orderpoint_2.route_id)
+
+        # Make some stock in the orderpoints sources
+        self._create_incoming_move(100, orderpoints_src_location)
+
+        # create a move that introduces a shortage on orderpoints location
+        self._create_outgoing_move(20)
+
+        # trigger creation of first orderpoint repl move
+        manual_orderpoint_1.run_replenishment()
+        repl_move = self._get_replenishment_move(manual_orderpoint_1)
+        self._assert_replenishment_move(repl_move, 20, manual_orderpoint_1)
+
+        # introduce shortage again on orderpoints location
+        self._create_outgoing_move(20)
+
+        # trigger creation of first orderpoint repl move
+        manual_orderpoint_2.run_replenishment()
+        self._assert_replenishment_move(repl_move, 40, manual_orderpoint_2)
