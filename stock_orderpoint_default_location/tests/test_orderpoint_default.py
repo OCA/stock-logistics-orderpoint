@@ -2,11 +2,14 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo.tests import Form, TransactionCase
 
+from odoo.addons.base.tests.common import DISABLED_MAIL_CONTEXT
+
 
 class TestOrderPOintDefault(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.env.context = dict(cls.env.context, **DISABLED_MAIL_CONTEXT)
         cls.orderpoint_obj = cls.env["stock.warehouse.orderpoint"]
         cls.product = cls.env["product.product"].create(
             {
