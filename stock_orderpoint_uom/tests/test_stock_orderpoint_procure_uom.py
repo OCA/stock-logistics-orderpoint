@@ -7,35 +7,36 @@ from odoo.tools import mute_logger
 
 
 class TestStockOrderpointProcureUom(common.TransactionCase):
-    def setUp(self):
-        super(TestStockOrderpointProcureUom, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
 
         # Get required Model
-        productObj = self.env["product.product"]
-        self.purchase_model = self.env["purchase.order"]
-        self.purchase_line_model = self.env["purchase.order.line"]
-        self.warehouse = self.env.ref("stock.warehouse0")
-        self.location_stock = self.env.ref("stock.stock_location_stock")
-        self.uom_unit = self.env.ref("uom.product_uom_unit")
-        self.uom_unit.rounding = 1
-        self.uom_dozen = self.env.ref("uom.product_uom_dozen")
-        self.uom_dozen.rounding = 1
-        self.uom_kg = self.env.ref("uom.product_uom_kgm")
+        productObj = cls.env["product.product"]
+        cls.purchase_model = cls.env["purchase.order"]
+        cls.purchase_line_model = cls.env["purchase.order.line"]
+        cls.warehouse = cls.env.ref("stock.warehouse0")
+        cls.location_stock = cls.env.ref("stock.stock_location_stock")
+        cls.uom_unit = cls.env.ref("uom.product_uom_unit")
+        cls.uom_unit.rounding = 1
+        cls.uom_dozen = cls.env.ref("uom.product_uom_dozen")
+        cls.uom_dozen.rounding = 1
+        cls.uom_kg = cls.env.ref("uom.product_uom_kgm")
 
-        self.productA = productObj.create(
+        cls.productA = productObj.create(
             {
                 "name": "product A",
                 "standard_price": 1,
                 "type": "product",
-                "uom_id": self.uom_unit.id,
-                "uom_po_id": self.uom_dozen.id,
+                "uom_id": cls.uom_unit.id,
+                "uom_po_id": cls.uom_dozen.id,
                 "default_code": "A",
                 "variant_seller_ids": [
                     (
                         0,
                         0,
                         {
-                            "partner_id": self.env.ref("base.res_partner_3").id,
+                            "partner_id": cls.env.ref("base.res_partner_3").id,
                             "delay": 3,
                             "min_qty": 1,
                             "price": 72,
