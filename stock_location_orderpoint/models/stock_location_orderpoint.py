@@ -1,4 +1,5 @@
 # Copyright 2023 Michael Tietz (MT Software) <mtietz@mt-software.de>
+# Copyright 2025 Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from collections import defaultdict
 from copy import copy
@@ -240,7 +241,6 @@ class StockLocationOrderpoint(models.Model):
         the location"""
         domain = [
             ("move_dest_ids", "=", False),
-            ("procure_method", "=", "make_to_stock"),
             ("state", "=", "done"),
         ]
         if self:

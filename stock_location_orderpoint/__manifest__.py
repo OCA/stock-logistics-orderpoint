@@ -29,6 +29,6 @@
         "queue_job",
     ],
     "license": "AGPL-3",
-    "maintainers": ["mt-software-de"],
+    "maintainers": ["mt-software-de", "jbaudoux"],
     "website": "https://github.com/OCA/stock-logistics-orderpoint",
 }
