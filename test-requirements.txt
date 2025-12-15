@@ -1,0 +1,2 @@
+
+odoo-addon-stock-orderpoint-source-from-route @ git+https://github.com/OCA/stock-logistics-orderpoint@refs/pull/61/head#subdirectory=stock_orderpoint_source_from_route
