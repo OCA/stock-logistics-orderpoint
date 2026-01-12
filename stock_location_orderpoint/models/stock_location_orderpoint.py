@@ -538,7 +538,11 @@ class StockLocationOrderpoint(models.Model):
         return domain
 
     @api.model
-    @tools.ormcache("trigger", "location_field")
+    @tools.ormcache(
+        "trigger",
+        "location_field",
+        'tuple(self.env.context.get("allowed_company_ids", []))',
+    )
     def _get_ids_by_parent_path(self, trigger, location_field):
         """Returns a dict of orderpoint ids by their parent paths for the given
         trigger and location_field
