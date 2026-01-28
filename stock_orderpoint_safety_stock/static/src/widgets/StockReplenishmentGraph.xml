@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Copyright 2026 Camptocamp SA (https://www.camptocamp.com).
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<templates xml:space="preserve">
+    <t t-inherit="stock.replenishmentGraph" t-inherit-mode="extension">
+        <xpath expr="//span[@t-out='dailyDemand']/parent::span" position="after">
+            <span t-if="safetyStockMethod != 'manual'" class="pt-2">
+                Standard Deviation (σ): <span t-out="standardDeviation" /> <span
+                t-out="productUomName"
+            />/day
+            </span>
+        </xpath>
+    </t>
+</templates>

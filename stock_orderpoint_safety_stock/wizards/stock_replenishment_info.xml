@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Copyright 2026 Camptocamp SA (https://www.camptocamp.com).
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <record id="view_stock_replenishment_info" model="ir.ui.view">
+        <field name="model">stock.replenishment.info</field>
+        <field name="inherit_id" ref="stock.view_stock_replenishment_info" />
+        <field name="arch" type="xml">
+            <!-- Add the safety stock method selection -->
+            <xpath expr="//field[@name='based_on']/parent::div" position="before">
+                <div name="safety_stock_method" class="d-flex">
+                    <label
+                        string="Method"
+                        for="safety_stock_method"
+                        class="o_form_label col-3"
+                    />
+                    <field name="safety_stock_method" class="oe_inline" />
+                    <field
+                        name="cycle_service_level_id"
+                        widget="selection"
+                        class="oe_inline ml8"
+                        invisible="safety_stock_method != 'csl'"
+                        required="safety_stock_method == 'csl'"
+                    />
+                </div>
+                <div name="cycle_days" invisible="safety_stock_method == 'manual'">
+                    <label for="cycle_days" string="Cycle" class="o_form_label col-3" />
+                    <field name="cycle_days" class="oe_inline" />
+                    <t>days</t>
+                </div>
+                <div name="growth_factor" invisible="safety_stock_method == 'manual'">
+                    <label for="growth_factor" class="o_form_label col-3" />
+                    <field name="growth_factor" class="oe_inline" widget="percentage" />
+                </div>
+                <div
+                    name="demand_avg_qty"
+                    invisible="safety_stock_method == 'manual'"
+                    groups="base.group_no_one"
+                >
+                    <label for="demand_avg_qty" class="o_form_label col-3" />
+                    <field name="demand_avg_qty" class="oe_inline" />
+                    <field name="product_uom_name" class="oe_inline ml8" />/day
+                </div>
+                <div
+                    name="demand_std_dev"
+                    invisible="safety_stock_method == 'manual'"
+                    groups="base.group_no_one"
+                >
+                    <label for="demand_std_dev" class="o_form_label col-3" />
+                    <field name="demand_std_dev" class="oe_inline" />
+                    <field name="product_uom_name" class="oe_inline ml8" />/day
+                </div>
+                <div
+                    name="demand_lt_std_dev"
+                    invisible="safety_stock_method == 'manual'"
+                    groups="base.group_no_one"
+                >
+                    <label for="demand_lt_std_dev" class="o_form_label col-3" />
+                    <field name="demand_lt_std_dev" class="oe_inline" />
+                    <field name="product_uom_name" class="oe_inline ml8" />/day
+                </div>
+                <div name="safety_stock" invisible="safety_stock_method == 'manual'">
+                    <label for="safety_stock" class="o_form_label col-3" />
+                    <field name="safety_stock" class="oe_inline" />
+                    <field name="product_uom_name" class="oe_inline ml8" />
+                </div>
+            </xpath>
+            <!-- Hide the fields that are not relevant when using the safety stock method -->
+            <xpath expr="//field[@name='based_on']/parent::div" position="attributes">
+                <attribute name="invisible">safety_stock_method != 'manual'</attribute>
+            </xpath>
+            <!-- Min and Max quantities are readonly when using an automated safety stock method -->
+            <!-- The margins (ml8) is added because the readonly widget looks wrong without them -->
+            <!-- Force save is added to ensure the orderpoint min/max quantites are updated upon save -->
+            <xpath
+                expr="//group/group//field[@name='product_min_qty']"
+                position="attributes"
+            >
+                <attribute
+                    name="readonly"
+                    separator="or"
+                    add="safety_stock_method != 'manual'"
+                />
+                <attribute name="force_save">True</attribute>
+            </xpath>
+            <xpath
+                expr="//group/group//field[@name='product_min_qty']/following-sibling::field[@name='product_uom_name']"
+                position="attributes"
+            >
+                <attribute name="class" add="ml8" separator=" " />
+            </xpath>
+            <xpath
+                expr="//group/group//field[@name='product_max_qty']"
+                position="attributes"
+            >
+                <attribute
+                    name="readonly"
+                    separator="or"
+                    add="safety_stock_method != 'manual'"
+                />
+                <attribute name="force_save">True</attribute>
+            </xpath>
+            <xpath
+                expr="//group/group//field[@name='product_max_qty']/following-sibling::field[@name='product_uom_name']"
+                position="attributes"
+            >
+                <attribute name="class" add="ml8" separator=" " />
+            </xpath>
+            <!-- TODO: Fix in core? wizard should update the orderpoint -->
+            <button special="cancel" position="before">
+                <button
+                    string="Save"
+                    class="btn-primary"
+                    special="save"
+                    data-hotkey="S"
+                />
+            </button>
+        </field>
+    </record>
+</odoo>

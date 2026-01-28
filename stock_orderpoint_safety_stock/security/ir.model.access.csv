@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_create,perm_write,perm_unlink,perm_read
+access_stock_cycle_service_level_user,Stock Cycle Service Level (User),model_stock_cycle_service_level,stock.group_stock_user,1,0,0,0
+access_stock_cycle_service_level_manager,Stock Cycle Service Level (Manager),model_stock_cycle_service_level,stock.group_stock_manager,1,1,1,1

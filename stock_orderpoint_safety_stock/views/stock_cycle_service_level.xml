@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Copyright 2026 Camptocamp SA (https://www.camptocamp.com).
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <record id="view_stock_cycle_service_level_list" model="ir.ui.view">
+        <field name="model">stock.cycle.service.level</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="csl" widget="percentage" readonly="orderpoint_count" />
+                <field name="z_score" />
+                <button
+                    type="object"
+                    name="action_open_orderpoints"
+                    string="View Replenishments"
+                    invisible="not orderpoint_count"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="action_stock_cycle_service_level" model="ir.actions.act_window">
+        <field name="name">Cycle Service Levels</field>
+        <field name="res_model">stock.cycle.service.level</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>
+                Define standard Cycle Service Level targets for use in safety stock policies.
+                A higher cycle service level means fewer stockouts, but requires more safety stock.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_stock_cycle_service_level_root"
+        action="action_stock_cycle_service_level"
+        parent="stock.menu_warehouse_config"
+        sequence="60"
+    />
+</odoo>

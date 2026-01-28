@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Copyright 2026 Camptocamp SA (https://www.camptocamp.com).
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo>
+    <record id="view_stock_warehouse_orderpoint_tree_editable" model="ir.ui.view">
+        <field name="model">stock.warehouse.orderpoint</field>
+        <field name="inherit_id" ref="stock.view_warehouse_orderpoint_tree_editable" />
+        <field name="arch" type="xml">
+            <field name="qty_forecast" position="after">
+                <field
+                    name="demand_avg_qty"
+                    string="Avg. Daily"
+                    optional="hide"
+                    options="{'lazy': true}"
+                />
+                <field
+                    name="demand_std_dev"
+                    string="Std. Dev."
+                    optional="hide"
+                    options="{'lazy': true}"
+                />
+            </field>
+            <field name="product_min_qty" position="before">
+                <field
+                    name="safety_stock_method"
+                    string="Safety Stock"
+                    optional="show"
+                />
+                <field
+                    name="cycle_service_level_id"
+                    string="CSL Target"
+                    optional="show"
+                    invisible="safety_stock_method != 'csl'"
+                    required="safety_stock_method == 'csl'"
+                    widget="selection"
+                />
+                <field
+                    name="cycle_days"
+                    string="Cycle"
+                    optional="hide"
+                    invisible="safety_stock_method == 'manual'"
+                />
+                <field
+                    name="growth_factor"
+                    string="+/- Growth"
+                    optional="hide"
+                    invisible="safety_stock_method == 'manual'"
+                    widget="percentage"
+                />
+                <button
+                    name="action_apply_safety_stock"
+                    type="object"
+                    icon="fa-refresh"
+                    title="Apply the safety stock to the orderpoint min and max quantities"
+                    invisible="not id or safety_stock_method == 'manual'"
+                />
+            </field>
+            <field name="product_min_qty" position="attributes">
+                <attribute
+                    name="readonly"
+                    add="safety_stock_method != 'manual'"
+                    separator="or"
+                />
+            </field>
+            <field name="product_max_qty" position="attributes">
+                <attribute
+                    name="readonly"
+                    add="safety_stock_method != 'manual'"
+                    separator="or"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="view_warehouse_orderpoint_form" model="ir.ui.view">
+        <field name="model">stock.warehouse.orderpoint</field>
+        <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form" />
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field
+                    name="safety_stock_method"
+                    widget="radio"
+                    options="{'horizontal': true}"
+                />
+                <field
+                    name="cycle_service_level_id"
+                    invisible="safety_stock_method != 'csl'"
+                    required="safety_stock_method == 'csl'"
+                    widget="selection"
+                />
+                <label
+                    for="cycle_days"
+                    string="Cycle"
+                    invisible="safety_stock_method == 'manual'"
+                />
+                <div name="cycle_days" invisible="safety_stock_method == 'manual'">
+                    <field name="cycle_days" class="oe_inline" />
+                    <span class="ml4">days</span>
+                </div>
+                <field
+                    name="growth_factor"
+                    optional="hide"
+                    invisible="safety_stock_method == 'manual'"
+                    widget="percentage"
+                />
+                <button
+                    string="Apply Safety Stock"
+                    name="action_apply_safety_stock"
+                    type="object"
+                    title="Apply the safety stock to the orderpoint min and max quantities"
+                    invisible="not id or safety_stock_method == 'manual'"
+                />
+            </field>
+            <field name="product_min_qty" position="attributes">
+                <attribute
+                    name="readonly"
+                    add="safety_stock_method != 'manual'"
+                    separator="or"
+                />
+            </field>
+            <field name="product_max_qty" position="attributes">
+                <attribute
+                    name="readonly"
+                    add="safety_stock_method != 'manual'"
+                    separator="or"
+                />
+            </field>
+        </field>
+    </record>
+
+    <record id="stock_reorder_report_search" model="ir.ui.view">
+        <field name="model">stock.warehouse.orderpoint</field>
+        <field name="inherit_id" ref="stock.stock_reorder_report_search" />
+        <field name="arch" type="xml">
+            <field name="trigger" position="after">
+                <field name="safety_stock_method" enable_counters="1" />
+                <field name="cycle_service_level_id" enable_counters="1" />
+            </field>
+        </field>
+    </record>
+</odoo>
