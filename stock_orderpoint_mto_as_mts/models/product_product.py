@@ -48,7 +48,6 @@ class ProductProduct(models.Model):
             domain=[
                 ("id", "in", self.ids),
                 ("is_mto", "=", True),
-                ("purchase_ok", "=", True),
             ],
             fields=["id", "company_id"],
             groupby=["company_id"],
@@ -75,6 +74,8 @@ class ProductProduct(models.Model):
                 mto_wh = all_mto_wh
             if not mto_wh:
                 continue
+            if hasattr(self.browse(), "is_kits"):  # mrp forbid orderpoint for kits
+                products = products.filtered(lambda p: not p.is_kits)
             locations = self.env["stock.location"].browse()
             for wh in mto_wh:
                 locations |= wh._get_locations_for_mto_orderpoints()
