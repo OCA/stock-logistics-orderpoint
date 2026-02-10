@@ -47,11 +47,9 @@ msgid "Product Variant"
 msgstr "Variante prodotto"
 
 #. module: stock_orderpoint_mto_as_mts
-#: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_product_category__product_ids
-msgid "Products"
-msgstr "Prodotti"
-
-#. module: stock_orderpoint_mto_as_mts
 #: model:ir.model,name:stock_orderpoint_mto_as_mts.model_stock_warehouse
 msgid "Warehouse"
 msgstr "Magazzino"
+
+#~ msgid "Products"
+#~ msgstr "Prodotti"
