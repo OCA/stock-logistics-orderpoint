@@ -4,7 +4,6 @@
     "name": "Stock Orderpoint Mto As Mts",
     "summary": "Materialize need from MTO route through orderpoint",
     "version": "16.0.1.1.0",
-    "development_status": "Alpha",
     "category": "Operations/Inventory/Delivery",
     "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "author": "BCIM, Camptocamp, Odoo Community Association (OCA)",
