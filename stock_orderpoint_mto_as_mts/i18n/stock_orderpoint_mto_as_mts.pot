@@ -19,13 +19,40 @@ msgid "Archive Orderpoints Mto Removal"
 msgstr ""
 
 #. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields.selection,name:stock_orderpoint_mto_as_mts.selection__stock_warehouse__mto_orderpoint_trigger__auto
+msgid "Auto"
+msgstr ""
+
+#. module: stock_orderpoint_mto_as_mts
 #: model:ir.model,name:stock_orderpoint_mto_as_mts.model_stock_route
 msgid "Inventory Routes"
 msgstr ""
 
 #. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields,help:stock_orderpoint_mto_as_mts.field_stock_warehouse__mto_as_mts
+msgid "Manage MTO by orderpoint"
+msgstr ""
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields.selection,name:stock_orderpoint_mto_as_mts.selection__stock_warehouse__mto_orderpoint_trigger__manual
+msgid "Manual"
+msgstr ""
+
+#. module: stock_orderpoint_mto_as_mts
 #: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_stock_warehouse__mto_as_mts
 msgid "Mto As Mts"
+msgstr ""
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_stock_warehouse__mto_orderpoint_trigger
+msgid "Mto Orderpoint Trigger"
+msgstr ""
+
+#. module: stock_orderpoint_mto_as_mts
+#: model:ir.model.fields,help:stock_orderpoint_mto_as_mts.field_stock_warehouse__mto_orderpoint_trigger
+msgid ""
+"Orderpoint trigger for any newly automaticaly created orderpoint. Existing "
+"orderpoints need to be manually changed"
 msgstr ""
 
 #. module: stock_orderpoint_mto_as_mts
