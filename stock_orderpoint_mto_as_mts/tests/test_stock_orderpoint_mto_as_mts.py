@@ -59,6 +59,28 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
         )
         self.assertFalse(orderpoint)
 
+    def test_orderpoint_manual(self):
+        self.warehouse.mto_orderpoint_trigger = "manual"
+        # Create orderpoint
+        product = self.env["product.product"].create(
+            {
+                "name": "Test MTO",
+                "type": "product",
+                "route_ids": [(6, 0, [self.mto_route.id])],
+            }
+        )
+        orderpoint = self.env["stock.warehouse.orderpoint"].search(
+            [
+                ("product_id", "=", product.id),
+                ("warehouse_id", "=", self.warehouse.id),
+            ]
+        )
+        self.assertEqual(len(orderpoint), 1)
+        # Ensure orderpoints are created with correct values
+        self.assertEqual(orderpoint.product_min_qty, 0)
+        self.assertEqual(orderpoint.product_max_qty, 0)
+        self.assertEqual(orderpoint.trigger, "manual")
+
     def test_orderpoint_when_changing_company(self):
         # Create orderpoint
         product = self.env["product.product"].create(

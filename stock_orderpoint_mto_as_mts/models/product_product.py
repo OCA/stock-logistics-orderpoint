@@ -16,16 +16,17 @@ class ProductProduct(models.Model):
     _inherit = "product.product"
 
     @api.model
-    def _prepare_orderpoint_vals_base(self):
+    def _prepare_orderpoint_vals_base(self, warehouse=False):
+        trigger = warehouse and warehouse.mto_orderpoint_trigger or "auto"
         return {
             "active": True,
             "product_min_qty": 0,
             "product_max_qty": 0,
-            "trigger": "auto",
+            "trigger": trigger,
         }
 
     def _prepare_missing_orderpoint_vals(self, warehouse):
-        vals = self._prepare_orderpoint_vals_base()
+        vals = self._prepare_orderpoint_vals_base(warehouse)
         vals.update(
             {
                 "name": "MTO",  # give a name as next_by_code is too slow for large data
