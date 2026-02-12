@@ -7,7 +7,10 @@ class StockWarehouse(models.Model):
 
     _inherit = "stock.warehouse"
 
-    mto_as_mts = fields.Boolean(inverse="_inverse_mto_as_mts")
+    mto_as_mts = fields.Boolean(
+        inverse="_inverse_mto_as_mts",
+        help="Manage MTO by orderpoint",
+    )
     archive_orderpoints_mto_removal = fields.Boolean(default=False)
 
     def _get_locations_for_mto_orderpoints(self):
