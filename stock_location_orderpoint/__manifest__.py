@@ -9,6 +9,7 @@
     "version": "16.0.2.0.2",
     "data": [
         "security/ir.model.access.csv",
+        "security/stock_location_orderpoint_security.xml",
         "data/ir_cron.xml",
         "data/ir_sequence.xml",
         "data/queue_job_channel.xml",
