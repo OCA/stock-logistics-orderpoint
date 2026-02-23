@@ -80,6 +80,7 @@ class ProductProduct(models.Model):
         for record in all_mto_wh:
             all_mto_wh_by_company[record.company_id].extend(record)
         op_vals_list = []
+        all_orderpoints = op_obj.browse()
         for company, products in products_by_company:
             if company:
                 mto_wh = all_mto_wh_by_company.get(company)
@@ -102,6 +103,7 @@ class ProductProduct(models.Model):
             )
             if inactive_ops:
                 inactive_ops.write(orderpoint_vals_base)
+                all_orderpoints += inactive_ops
             # Find products having an orderpoint for that wh
             # Prepare missing orderpoints
             for warehouse in mto_wh:
@@ -125,8 +127,10 @@ class ProductProduct(models.Model):
         for i, op_vals_list_chunk in enumerate(split_every(chunk_size, op_vals_list)):
             _logger.debug(f"Create orderpoint for MTO - chunk {i}")
             ops = op_obj.create(op_vals_list_chunk)
+            all_orderpoints += ops
             # free memory usage
             ops.invalidate_model()
+        return all_orderpoints
 
     @api.model_create_multi
     def create(self, vals_list):
