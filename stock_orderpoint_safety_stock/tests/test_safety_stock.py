@@ -44,7 +44,7 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
     def test_math_simple(self):
         """Test the math on a small and understandable example"""
         serie = self.default_serie
-        expected = self._compute_values(serie)
+        expected = self._compute_values(serie, round_min_max_to_unit=True)
         self.orderpoint.action_apply_safety_stock()
         self.assertEqual(self._get_orderpoint_serie(self.orderpoint), serie)
         self.assertRecordValues(self.orderpoint, [expected])
@@ -57,7 +57,7 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
         """
         self.orderpoint.growth_factor = 0.5
         serie = self.default_serie
-        expected = self._compute_values(serie, growth=0.5)
+        expected = self._compute_values(serie, growth=0.5, round_min_max_to_unit=True)
         self.orderpoint.action_apply_safety_stock()
         self.assertRecordValues(self.orderpoint, [expected])
 
@@ -115,7 +115,7 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
         )
         # Test serie
         serie = [0, 15, (0 + 8), (12 + 10), (0 + 6), (0 + 12), 0]
-        expected = self._compute_values(serie)
+        expected = self._compute_values(serie, round_min_max_to_unit=True)
         self.assertEqual(self._get_orderpoint_serie(self.orderpoint), serie)
         self.orderpoint.action_apply_safety_stock()
         self.assertRecordValues(self.orderpoint, [expected])
@@ -152,7 +152,7 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
         ).action_apply_inventory(date=self.today - timedelta(days=1))
         # Test serie: inventory adjustments are not taken into account
         serie = self.default_serie
-        expected = self._compute_values(serie)
+        expected = self._compute_values(serie, round_min_max_to_unit=True)
         self.assertEqual(self._get_orderpoint_serie(self.orderpoint), serie)
         self.orderpoint.action_apply_safety_stock()
         self.assertRecordValues(self.orderpoint, [expected])
@@ -180,7 +180,7 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
         )
         # Test serie: supplier incoming moves are not taken into account
         serie = self.default_serie
-        expected = self._compute_values(serie)
+        expected = self._compute_values(serie, round_min_max_to_unit=True)
         self.assertEqual(self._get_orderpoint_serie(self.orderpoint), serie)
         self.orderpoint.action_apply_safety_stock()
         self.assertRecordValues(self.orderpoint, [expected])
@@ -219,13 +219,13 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
         )
         # Test serie for WH1
         serie_wh1 = [0, 15, 0, 12, 10, 0, 0]
-        expected_wh1 = self._compute_values(serie_wh1)
+        expected_wh1 = self._compute_values(serie_wh1, round_min_max_to_unit=True)
         self.assertEqual(self._get_orderpoint_serie(self.orderpoint), serie_wh1)
         self.orderpoint.action_apply_safety_stock()
         self.assertRecordValues(self.orderpoint, [expected_wh1])
         # Test serie for WH2: the incoming move is not counted as demand
         serie_wh2 = [0, 0, 0, 0, 0, 0, 0]
-        expected_wh2 = self._compute_values(serie_wh2)
+        expected_wh2 = self._compute_values(serie_wh2, round_min_max_to_unit=True)
         self.assertEqual(self._get_orderpoint_serie(orderpoint2), serie_wh2)
         orderpoint2.action_apply_safety_stock()
         self.assertRecordValues(orderpoint2, [expected_wh2])
@@ -249,10 +249,51 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
         )
         # Test serie: the move is counted as 6 units
         serie = [0, 15, 0, 12, 6, 0, 0]
-        expected = self._compute_values(serie)
+        expected = self._compute_values(serie, round_min_max_to_unit=True)
         self.assertEqual(self._get_orderpoint_serie(self.orderpoint), serie)
         self.orderpoint.action_apply_safety_stock()
         self.assertRecordValues(self.orderpoint, [expected])
+
+    def test_safety_stock_kg_uom_not_rounded_to_units(self):
+        """With Kg UoM, min/max quantities are rounded by UoM but not ceiled to integers
+
+        Only orderpoints in unit UoM (or with common reference to unit) get
+        math.ceil applied. For Kg, fractional values like 2.5 are kept.
+        """
+        uom_kg = self.env.ref("uom.product_uom_kgm")
+        product_kg = self.env["product.product"].create(
+            {
+                "name": "Test Product Kg",
+                "type": "consu",
+                "is_storable": True,
+                "uom_id": uom_kg.id,
+            }
+        )
+        orderpoint_kg = self.env["stock.warehouse.orderpoint"].create(
+            {
+                "product_id": product_kg.id,
+                "warehouse_id": self.warehouse.id,
+                "safety_stock_method": "csl",
+                "cycle_service_level_id": self.csl_95.id,
+            }
+        )
+        self.env.company.demand_history_days = 7
+        orderpoint_kg.rule_ids.delay = 1
+        orderpoint_kg.invalidate_recordset(["lead_days"])
+        # Demand that yields fractional avg: e.g. 1.5, 2.0, 1.0 kg -> avg 1.5
+        self._create_moves_from_serie(
+            product_kg,
+            [
+                (self.today - timedelta(days=6), 1.5),
+                (self.today - timedelta(days=4), 2.0),
+                (self.today - timedelta(days=2), 1.0),
+            ],
+        )
+        orderpoint_kg.action_apply_safety_stock()
+        # With unit UoM we would get ceil(min_qty), ceil(max_qty). With Kg we must
+        # get UoM-rounded values that can be fractional (no forced integer).
+        self.assertEqual(orderpoint_kg.product_min_qty, 2.04)
+        self.assertEqual(orderpoint_kg.product_max_qty, 2.04)
 
     def test_onchange_safety_stock_method_apply(self):
         """Test that the safety stock is correctly applied when the method is changed"""
@@ -266,20 +307,27 @@ class TestStockOrderpointSafetyStock(OrderpointSafetyStockCommon):
         ) as form:
             form.safety_stock_method = "csl"
             form.cycle_service_level_id = self.csl_95
-            expected = self._compute_values(self.default_serie)
+            expected = self._compute_values(
+                self.default_serie, round_min_max_to_unit=True
+            )
             self.assertEqual(form.product_min_qty, expected["product_min_qty"])
             self.assertEqual(form.product_max_qty, expected["product_max_qty"])
             # Change the CSL
             form.cycle_service_level_id = self.csl_90
             expected = self._compute_values(
-                self.default_serie, z_score=self.csl_90.z_score
+                self.default_serie,
+                z_score=self.csl_90.z_score,
+                round_min_max_to_unit=True,
             )
             self.assertEqual(form.product_min_qty, expected["product_min_qty"])
             self.assertEqual(form.product_max_qty, expected["product_max_qty"])
             # Change the Growth
             form.growth_factor = 0.5
             expected = self._compute_values(
-                self.default_serie, z_score=self.csl_90.z_score, growth=0.5
+                self.default_serie,
+                z_score=self.csl_90.z_score,
+                growth=0.5,
+                round_min_max_to_unit=True,
             )
             self.assertEqual(form.product_min_qty, expected["product_min_qty"])
             self.assertEqual(form.product_max_qty, expected["product_max_qty"])

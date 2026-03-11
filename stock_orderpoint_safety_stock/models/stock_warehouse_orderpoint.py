@@ -181,8 +181,14 @@ class StockWarehouseOrderpoint(models.Model):
             return
         to_apply = self.filtered(lambda rec: rec.safety_stock_method != "manual")
         to_apply.safety_stock_update_date = fields.Datetime.now()
+        uom_unit = self.env.ref("uom.product_uom_unit")
         for rec in to_apply:
             min_qty, max_qty = rec._get_min_max_quantities_from_safety_stock()
+            # If the product UoM has a common reference with the unit UoM,
+            # we round the quantities to the nearest integer, units can't be fractional.
+            if rec.product_uom._has_common_reference(uom_unit):
+                min_qty = math.ceil(min_qty)
+                max_qty = math.ceil(max_qty)
             rec.product_min_qty = min_qty
             rec.product_max_qty = max_qty
 

@@ -98,8 +98,13 @@ class OrderpointSafetyStockCommon(TransactionCase):
         growth: float = 0.0,
         lead_days: int = 1,
         cycle_days: int = 0,
+        round_min_max_to_unit: bool = False,
     ) -> dict[str, float]:
-        """Compute the expected values for the provided serie, using a simple math"""
+        """Compute the expected values for the provided serie, using a simple math.
+
+        When round_min_max_to_unit is True, product_min_qty and product_max_qty
+        are ceiled to integers (matching the model behavior for unit UoM).
+        """
         avg_qty = round(fmean(serie), 2)
         std_dev = round(stdev(serie), 2)
         std_dev_lt = std_dev * math.sqrt(lead_days)
@@ -107,6 +112,9 @@ class OrderpointSafetyStockCommon(TransactionCase):
         safety_stock = round(std_dev_lt * z_score * growth_ratio, 2)
         min_qty = round(safety_stock + (avg_qty * lead_days * growth_ratio), 2)
         max_qty = round(min_qty + (avg_qty * cycle_days * growth_ratio), 2)
+        if round_min_max_to_unit:
+            min_qty = math.ceil(min_qty)
+            max_qty = math.ceil(max_qty)
         return {
             "demand_avg_qty": avg_qty,
             "demand_std_dev": std_dev,

@@ -30,9 +30,9 @@ class TestStockOrderpointSafetyStockFixtureSerie01(OrderpointSafetyStockCommon):
                     "demand_avg_qty": 5850.03,
                     "demand_std_dev": 20444.87,
                     "demand_lt_std_dev": 54092.04,
-                    "safety_stock": 88976,
-                    "product_min_qty": 129926.21,
-                    "product_max_qty": 129926.21,
+                    "safety_stock": 88976.0,
+                    "product_min_qty": 129927.0,
+                    "product_max_qty": 129927.0,
                 }
             ],
         )
@@ -47,11 +47,11 @@ class TestStockOrderpointSafetyStockFixtureSerie01(OrderpointSafetyStockCommon):
                     "demand_avg_qty": 5850.03,
                     "demand_std_dev": 20444.87,
                     "demand_lt_std_dev": 54092.04,
-                    "safety_stock": 88976,
-                    # Safety stock + demand avg * lead time
-                    "product_min_qty": 88976 + (5850.03 * 7),
-                    # Min quantity + demand avg * days to order
-                    "product_max_qty": (88976 + (5850.03 * 7)) + (5850.03 * 5),
+                    "safety_stock": 88976.0,
+                    # Safety stock + demand avg * lead time (ceiled for unit UoM)
+                    "product_min_qty": 129927.0,
+                    # Min quantity + demand avg * days to order (ceiled for unit UoM)
+                    "product_max_qty": 159177.0,
                 }
             ],
         )
@@ -84,8 +84,8 @@ class TestStockOrderpointSafetyStockScenarios(OrderpointSafetyStockCommon):
                     "demand_std_dev": 3,
                     "demand_lt_std_dev": 6,
                     "safety_stock": 9.87,
-                    "product_min_qty": 13.87,
-                    "product_max_qty": 13.87,
+                    "product_min_qty": 14.0,
+                    "product_max_qty": 14.0,
                 }
             ],
         )
@@ -101,8 +101,8 @@ class TestStockOrderpointSafetyStockScenarios(OrderpointSafetyStockCommon):
                     "demand_std_dev": 3,
                     "demand_lt_std_dev": 10.39,
                     "safety_stock": 17.09,
-                    "product_min_qty": 29.09,
-                    "product_max_qty": 29.09,
+                    "product_min_qty": 30.0,
+                    "product_max_qty": 30.0,
                 }
             ],
         )
@@ -119,8 +119,8 @@ class TestStockOrderpointSafetyStockScenarios(OrderpointSafetyStockCommon):
                     "demand_std_dev": 3,
                     "demand_lt_std_dev": 6,
                     "safety_stock": 9.87,
-                    "product_min_qty": 13.87,
-                    "product_max_qty": 21.87,
+                    "product_min_qty": 14.0,
+                    "product_max_qty": 22.0,
                 }
             ],
         )
