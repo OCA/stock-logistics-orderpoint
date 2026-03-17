@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+    Copyright 2026 Camptocamp SA (https://www.camptocamp.com).
+    License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+-->
+<odoo noupdate="1">
+    <record model="stock.cycle.service.level" id="stock_cycle_service_level_90">
+        <field name="csl">0.90</field>
+    </record>
+    <record model="stock.cycle.service.level" id="stock_cycle_service_level_95">
+        <field name="csl">0.95</field>
+    </record>
+    <record model="stock.cycle.service.level" id="stock_cycle_service_level_97">
+        <field name="csl">0.97</field>
+    </record>
+    <record model="stock.cycle.service.level" id="stock_cycle_service_level_99">
+        <field name="csl">0.99</field>
+    </record>
+</odoo>
