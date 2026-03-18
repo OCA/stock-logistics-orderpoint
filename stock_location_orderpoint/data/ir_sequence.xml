@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<odoo>
+<odoo noupdate="1">
     <record id="sequence_location_orderpoint" model="ir.sequence">
         <field name="name">Stock locaation orderpoint</field>
         <field name="code">stock.location.orderpoint</field>
