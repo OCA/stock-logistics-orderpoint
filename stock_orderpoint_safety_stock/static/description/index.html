@@ -501,8 +501,9 @@ order</strong> quantities based on the historical demand data and the
 parameters you set.</p>
 </div>
 </div>
-<div class="section" id="safety-stock-method">
-<h2>Safety Stock Method</h2>
+<div class="section" id="reordering-rule-parameters">
+<h2>Reordering Rule Parameters</h2>
+<p><strong>Safety Stock Method</strong></p>
 <ul class="simple">
 <li><strong>Manual</strong>: The product’s min and max quantities are set manually
 (standard Odoo behavior).</li>
@@ -510,25 +511,51 @@ parameters you set.</p>
 computed based on the target cycle service level, growth factor, order
 cycle and lead times.</li>
 </ul>
-</div>
-<div class="section" id="cycle-service-level">
-<h2>Cycle Service Level</h2>
+<p><strong>Cycle Service Level</strong></p>
 <p>Defines the target probability of meeting all demand during a
 replenishment cycle without running out of stock. Typical values range
 from 90% to 99%. A higher target increases safety stock to reduce the
 risk of stockouts; a lower target reduces inventory at the cost of more
 frequent shortages.</p>
-</div>
-<div class="section" id="cycle-days">
-<h2>Cycle Days</h2>
+<p><strong>Cycle Days</strong></p>
 <p>The desired number of days between orders. Used to size the gap between
 the min and max quantities, to cover the expected demand during the
 desired reordering cycle.</p>
-</div>
-<div class="section" id="growth-factor">
-<h2>Growth Factor</h2>
+<p><strong>Growth Factor</strong></p>
 <p>An optional multiplier to account for expected growth in demand. Will be
 applied to the safety stock and the resulting min and max quantities.</p>
+</div>
+<div class="section" id="additional-information">
+<h2>Additional information</h2>
+<p>This module enhances the transparency of inventory management by
+displaying the full calculation path for minimum and maximum stock
+levels. By providing visibility into how safety stock formulas are
+derived directly within the user interface, it builds user trust and
+simplifies the verification of automated procurement rules.</p>
+<p>When clicking on the ℹ️ icon, you are redirected to all the necessary
+info &amp; configuration needed to use this OCA module:</p>
+<p><img alt="orderpoint-tree-info" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/orderpoint-tree-info.png" /></p>
+<p><img alt="orderpoint-additional-info" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/orderpoint-additional-info.png" /></p>
+<p><strong>Note:</strong> Some fields are only shown in “Developer Mode”.</p>
+</div>
+<div class="section" id="min-max-computation">
+<h2>Min &amp; Max computation</h2>
+<p>All the statistics and safety stock are non-stored fields computed
+on-the-fly, while min &amp; max quantities are computed either:</p>
+<ul>
+<li><p class="first">Manually by clicking on the replenishment’s 🔄 button</p>
+<p><img alt="orderpoint-refresh-manual" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/orderpoint-refresh-manual.png" /></p>
+</li>
+<li><p class="first">Automatically by a daily scheduled action</p>
+<p><img alt="orderpoint-refresh-cron" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/orderpoint-refresh-cron.png" /></p>
+</li>
+</ul>
+</div>
+<div class="section" id="usability-filters">
+<h2>Usability filters</h2>
+<p>It’s possible to filter on the safety stock method &amp; on the cycle
+service level in the Orderpoint tree view:</p>
+<p><img alt="orderpoint-filters" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/orderpoint-filters.png" /></p>
 <div class="section" id="bug-tracker">
 <h3>Bug Tracker</h3>
 <p>Bugs are tracked on <a class="reference external" href="https://github.com/OCA/stock-logistics-orderpoint/issues">GitHub Issues</a>.
