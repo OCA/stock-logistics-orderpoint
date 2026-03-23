@@ -37,9 +37,10 @@ service-level–based, stochastic control using a continuous review
 replenishment system. Instead of relying solely on fixed min/max stock
 levels, the module estimates your typical (mean) and variable (variance)
 daily demand from historical data and factors in lead time. These
-calculations generate a statistically sound safety stock, which becomes
-your reorder threshold (the “min”). The “max” is set so your inventory
-will cover expected demand during the entire replenishment period.
+calculations generate a statistically sound safety stock, which is
+included in your reorder threshold (the “min”). The “max” is set so your
+inventory will cover expected demand during the entire replenishment
+cycle.
 
 Now, you can set replenishment rules (orderpoints) based on the **Cycle
 Service Level (CSL)**, which reflects the probability of meeting all
@@ -55,8 +56,8 @@ system then keeps your reordering rule's min and max levels up-to-date.
 Prefer manual control? You can always switch back to the “Manual” mode
 to specify min and max directly.
 
-Understanding the Theory: Service Levels & Inventory Management
----------------------------------------------------------------
+Theory
+------
 
 The backbone of this approach is the Cycle Service Level (CSL), a widely
 used supply chain metric:
@@ -85,16 +86,37 @@ Where:
 - **z:** Z-score for your desired CSL (e.g., 1.65 for 95% CSL)
 - **g:** Growth factor (optional, lets you add a margin)
 
-**How min and max are derived:**
+**Three zones are needed to define how min and max are derived:**
 
-- **Minimum (min):**
-  ``safety stock + (average daily demand × lead time in days)``
-- **Maximum (max):** ``min + (average daily demand × cycle days)``
+- **Red zone = safety stock:**
+
+  - This zone should never be touched. It acts as the buffer for
+    unexpected variation.
+  - Refer to the safety stock formula above.
+
+- **Yellow zone = expected demand during the lead time:**
+
+  - This zone represents the expected stock consumption from the moment
+    you click on replenish, until the moment you receive your purchase
+    order.
+  - Formula: ``average daily demand × lead time in days``
+
+- **Green zone = expected demand during the cycle:**
+
+  - Represents the stock consumption during the desired reordering cycle
+    (the time between two replenishments)
+  - Formula: ``average daily demand × cycle days``
 
 Where:
 
 - **lead time:** The time it takes to receive the order.
 - **cycle days:** The desired number of days between orders.
+
+From these three zones, the min and max quantities are derived as
+follows:
+
+- **Minimum (min):** Red + Yellow
+- **Maximum (max):** Red + Yellow + Green
 
 **Why does it work?**
 
@@ -107,6 +129,10 @@ Where:
 This makes inventory management both more data-driven and easier to
 maintain.
 
+|cycle-graph|
+
+.. |cycle-graph| image:: https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/cycle-graph.png
+
 **Table of contents**
 
 .. contents::
@@ -115,17 +141,44 @@ maintain.
 Configuration
 =============
 
-General Settings > Inventory
-----------------------------
+To efficiently use this module, some configuration must be done in Odoo.
 
-- **Demand History Days**: Define the rolling window for the historical
-  analysis to compute the average daily demand and resulting safety
-  stock. Default: 365. Company-specific.
+Demand History Days
+-------------------
 
-Orderpoint (per replenishment rule)
------------------------------------
+In the **General Settings >Inventory**, under *Advanced Scheduling*, you
+have the possibility to set the **Demand History Days**.
 
-**Safety Stock Method**
+It defines the rolling window for the historical analysis to compute the
+average daily demand and resulting safety stock. Defaults to ``365``.
+Company-specific.
+
+|demand_history_days|
+
+Cycle Service Levels
+--------------------
+
+They define the target probability of meeting all demand during a
+replenishment cycle without running out of stock. The module comes with
+predefined values for Cycle Service Levels and their z-scores, but you
+can create more according to your needs.
+
+|cycle_service_levels|
+
+.. |demand_history_days| image:: https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/settings-demand-history-days.png
+.. |cycle_service_levels| image:: https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/cycle-service-levels.png
+
+Usage
+=====
+
+Set up your Replenishment Rules (Orderpoints) to use the **Cycle Service
+Level** method, and play with the following variables to fit your needs.
+The module will recompute daily the **Min**, **Max** and thus the **To
+order** quantities based on the historical demand data and the
+parameters you set.
+
+Safety Stock Method
+-------------------
 
 - **Manual**: The product's min and max quantities are set manually
   (standard Odoo behavior).
@@ -133,22 +186,24 @@ Orderpoint (per replenishment rule)
   computed based on the target cycle service level, growth factor, order
   cycle and lead times.
 
-**Cycle Service Level**
+Cycle Service Level
+-------------------
 
 Defines the target probability of meeting all demand during a
 replenishment cycle without running out of stock. Typical values range
-from 90% to 99%.
+from 90% to 99%. A higher target increases safety stock to reduce the
+risk of stockouts; a lower target reduces inventory at the cost of more
+frequent shortages.
 
-A higher target increases safety stock to reduce the risk of stockouts;
-a lower target reduces inventory at the cost of more frequent shortages.
-
-**Cycle Days**
+Cycle Days
+----------
 
 The desired number of days between orders. Used to size the gap between
 the min and max quantities, to cover the expected demand during the
 desired reordering cycle.
 
-**Growth Factor**
+Growth Factor
+-------------
 
 An optional multiplier to account for expected growth in demand. Will be
 applied to the safety stock and the resulting min and max quantities.

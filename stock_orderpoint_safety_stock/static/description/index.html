@@ -380,9 +380,10 @@ service-level–based, stochastic control using a continuous review
 replenishment system. Instead of relying solely on fixed min/max stock
 levels, the module estimates your typical (mean) and variable (variance)
 daily demand from historical data and factors in lead time. These
-calculations generate a statistically sound safety stock, which becomes
-your reorder threshold (the “min”). The “max” is set so your inventory
-will cover expected demand during the entire replenishment period.</p>
+calculations generate a statistically sound safety stock, which is
+included in your reorder threshold (the “min”). The “max” is set so your
+inventory will cover expected demand during the entire replenishment
+cycle.</p>
 <p>Now, you can set replenishment rules (orderpoints) based on the <strong>Cycle
 Service Level (CSL)</strong>, which reflects the probability of meeting all
 demand during a replenishment cycle without running out of stock. This
@@ -394,8 +395,8 @@ gathered over a period you define, plus the orderpoint’s lead time. The
 system then keeps your reordering rule’s min and max levels up-to-date.</p>
 <p>Prefer manual control? You can always switch back to the “Manual” mode
 to specify min and max directly.</p>
-<div class="section" id="understanding-the-theory-service-levels-inventory-management">
-<h2>Understanding the Theory: Service Levels &amp; Inventory Management</h2>
+<div class="section" id="theory">
+<h2>Theory</h2>
 <p>The backbone of this approach is the Cycle Service Level (CSL), a widely
 used supply chain metric:</p>
 <ul class="simple">
@@ -420,16 +421,38 @@ a buffer to reduce the risk of running out of stock.</p>
 <li><strong>z:</strong> Z-score for your desired CSL (e.g., 1.65 for 95% CSL)</li>
 <li><strong>g:</strong> Growth factor (optional, lets you add a margin)</li>
 </ul>
-<p><strong>How min and max are derived:</strong></p>
+<p><strong>Three zones are needed to define how min and max are derived:</strong></p>
 <ul class="simple">
-<li><strong>Minimum (min):</strong>
-<tt class="docutils literal">safety stock + (average daily demand × lead time in days)</tt></li>
-<li><strong>Maximum (max):</strong> <tt class="docutils literal">min + (average daily demand × cycle days)</tt></li>
+<li><strong>Red zone = safety stock:</strong><ul>
+<li>This zone should never be touched. It acts as the buffer for
+unexpected variation.</li>
+<li>Refer to the safety stock formula above.</li>
+</ul>
+</li>
+<li><strong>Yellow zone = expected demand during the lead time:</strong><ul>
+<li>This zone represents the expected stock consumption from the moment
+you click on replenish, until the moment you receive your purchase
+order.</li>
+<li>Formula: <tt class="docutils literal">average daily demand × lead time in days</tt></li>
+</ul>
+</li>
+<li><strong>Green zone = expected demand during the cycle:</strong><ul>
+<li>Represents the stock consumption during the desired reordering cycle
+(the time between two replenishments)</li>
+<li>Formula: <tt class="docutils literal">average daily demand × cycle days</tt></li>
+</ul>
+</li>
 </ul>
 <p>Where:</p>
 <ul class="simple">
 <li><strong>lead time:</strong> The time it takes to receive the order.</li>
 <li><strong>cycle days:</strong> The desired number of days between orders.</li>
+</ul>
+<p>From these three zones, the min and max quantities are derived as
+follows:</p>
+<ul class="simple">
+<li><strong>Minimum (min):</strong> Red + Yellow</li>
+<li><strong>Maximum (max):</strong> Red + Yellow + Green</li>
 </ul>
 <p><strong>Why does it work?</strong></p>
 <ul class="simple">
@@ -441,6 +464,7 @@ the next restock, plus a buffer to cover the desired cycle days.</li>
 </ul>
 <p>This makes inventory management both more data-driven and easier to
 maintain.</p>
+<p><img alt="cycle-graph" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/cycle-graph.png" /></p>
 <p><strong>Table of contents</strong></p>
 <div class="contents local topic" id="contents">
 <ul class="simple">
@@ -449,19 +473,36 @@ maintain.</p>
 </div>
 <div class="section" id="configuration">
 <h3><a class="toc-backref" href="#toc-entry-1">Configuration</a></h3>
+<p>To efficiently use this module, some configuration must be done in Odoo.</p>
 </div>
 </div>
-<div class="section" id="general-settings-inventory">
-<h2>General Settings &gt; Inventory</h2>
-<ul class="simple">
-<li><strong>Demand History Days</strong>: Define the rolling window for the historical
-analysis to compute the average daily demand and resulting safety
-stock. Default: 365. Company-specific.</li>
-</ul>
+<div class="section" id="demand-history-days">
+<h2>Demand History Days</h2>
+<p>In the <strong>General Settings &gt;Inventory</strong>, under <em>Advanced Scheduling</em>, you
+have the possibility to set the <strong>Demand History Days</strong>.</p>
+<p>It defines the rolling window for the historical analysis to compute the
+average daily demand and resulting safety stock. Defaults to <tt class="docutils literal">365</tt>.
+Company-specific.</p>
+<p><img alt="demand_history_days" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/settings-demand-history-days.png" /></p>
 </div>
-<div class="section" id="orderpoint-per-replenishment-rule">
-<h2>Orderpoint (per replenishment rule)</h2>
-<p><strong>Safety Stock Method</strong></p>
+<div class="section" id="cycle-service-levels">
+<h2>Cycle Service Levels</h2>
+<p>They define the target probability of meeting all demand during a
+replenishment cycle without running out of stock. The module comes with
+predefined values for Cycle Service Levels and their z-scores, but you
+can create more according to your needs.</p>
+<p><img alt="cycle_service_levels" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/cycle-service-levels.png" /></p>
+<div class="section" id="usage">
+<h3>Usage</h3>
+<p>Set up your Replenishment Rules (Orderpoints) to use the <strong>Cycle Service
+Level</strong> method, and play with the following variables to fit your needs.
+The module will recompute daily the <strong>Min</strong>, <strong>Max</strong> and thus the <strong>To
+order</strong> quantities based on the historical demand data and the
+parameters you set.</p>
+</div>
+</div>
+<div class="section" id="safety-stock-method">
+<h2>Safety Stock Method</h2>
 <ul class="simple">
 <li><strong>Manual</strong>: The product’s min and max quantities are set manually
 (standard Odoo behavior).</li>
@@ -469,17 +510,23 @@ stock. Default: 365. Company-specific.</li>
 computed based on the target cycle service level, growth factor, order
 cycle and lead times.</li>
 </ul>
-<p><strong>Cycle Service Level</strong></p>
+</div>
+<div class="section" id="cycle-service-level">
+<h2>Cycle Service Level</h2>
 <p>Defines the target probability of meeting all demand during a
 replenishment cycle without running out of stock. Typical values range
-from 90% to 99%.</p>
-<p>A higher target increases safety stock to reduce the risk of stockouts;
-a lower target reduces inventory at the cost of more frequent shortages.</p>
-<p><strong>Cycle Days</strong></p>
+from 90% to 99%. A higher target increases safety stock to reduce the
+risk of stockouts; a lower target reduces inventory at the cost of more
+frequent shortages.</p>
+</div>
+<div class="section" id="cycle-days">
+<h2>Cycle Days</h2>
 <p>The desired number of days between orders. Used to size the gap between
 the min and max quantities, to cover the expected demand during the
 desired reordering cycle.</p>
-<p><strong>Growth Factor</strong></p>
+</div>
+<div class="section" id="growth-factor">
+<h2>Growth Factor</h2>
 <p>An optional multiplier to account for expected growth in demand. Will be
 applied to the safety stock and the resulting min and max quantities.</p>
 <div class="section" id="bug-tracker">
