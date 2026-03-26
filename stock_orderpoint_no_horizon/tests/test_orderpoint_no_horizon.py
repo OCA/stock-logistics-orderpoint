@@ -12,7 +12,7 @@ class TestOrderpointNoHorizon(BaseCommon):
         super().setUpClass()
         cls.uom_unit = cls.env.ref("uom.product_uom_unit")
         cls.product = cls.env["product.product"].create(
-            {"name": "Test Orderpoint No Horizon", "is_storable": True}
+            {"name": "Test Orderpoint No Horizon", "type": "product"}
         )
 
     def test_reordering_rule_no_horizon(self):
