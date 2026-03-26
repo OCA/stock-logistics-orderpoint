@@ -6,35 +6,37 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2026-03-26 12:45+0000\n"
+"Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_warehouse_orderpoint_tree_editable
 msgid "+/- Growth"
-msgstr ""
+msgstr "+/- crescita"
 
 #. module: stock_orderpoint_safety_stock
 #. odoo-javascript
 #: code:addons/stock_orderpoint_safety_stock/static/src/widgets/StockReplenishmentGraph.xml:0
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_replenishment_info
 msgid "/day"
-msgstr ""
+msgstr "/giorno"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_warehouse_orderpoint_form
 msgid "<span class=\"ml4\">days</span>"
-msgstr ""
+msgstr "<span class=\"ml4\">giorni</span>"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.res_config_settings_view_form
 msgid "<span> days</span>"
-msgstr ""
+msgstr "<span> giorni</span>"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_replenishment_info__growth_factor
@@ -43,66 +45,71 @@ msgid ""
 "A multiplier to apply to the safety stock and the resulting min and max "
 "quantities. Used to account for expected growth or decrease in demand."
 msgstr ""
+"Un moltiplicatore da applicare alle scorte di sicurezza e alle conseguenti "
+"quantità minime e massime. Utilizzato per tenere conto della crescita o "
+"della diminuzione previste della domanda."
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_warehouse_orderpoint_form
 msgid "Apply Safety Stock"
-msgstr ""
+msgstr "Applica scorta di sicurezza"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_warehouse_orderpoint_tree_editable
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_warehouse_orderpoint_form
 msgid "Apply the safety stock to the orderpoint min and max quantities"
 msgstr ""
+"Applicare la scorta di sicurezza alle quantità minime e massime del punto di "
+"riordino"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__demand_avg_qty
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__demand_avg_qty
 msgid "Average Daily Demand"
-msgstr ""
+msgstr "Domanda giornaliera media"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_warehouse_orderpoint_tree_editable
 msgid "Avg. Daily"
-msgstr ""
+msgstr "Giornaliero medio"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_warehouse_orderpoint_tree_editable
 msgid "CSL Target"
-msgstr ""
+msgstr "Obiettivo CSL"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model,name:stock_orderpoint_safety_stock.model_res_company
 msgid "Companies"
-msgstr ""
+msgstr "Aziende"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model,name:stock_orderpoint_safety_stock.model_res_config_settings
 msgid "Config Settings"
-msgstr ""
+msgstr "Impostazioni configurazione"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__create_uid
 msgid "Created by"
-msgstr ""
+msgstr "Creato da"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__create_date
 msgid "Created on"
-msgstr ""
+msgstr "Creato il"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_replenishment_info
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_warehouse_orderpoint_tree_editable
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_warehouse_orderpoint_form
 msgid "Cycle"
-msgstr ""
+msgstr "Ciclo"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__cycle_days
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__cycle_days
 msgid "Cycle Days"
-msgstr ""
+msgstr "Giorni ciclo"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model,name:stock_orderpoint_safety_stock.model_stock_cycle_service_level
@@ -111,18 +118,18 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__cycle_service_level_id
 #: model:ir.model.fields.selection,name:stock_orderpoint_safety_stock.selection__stock_warehouse_orderpoint__safety_stock_method__csl
 msgid "Cycle Service Level"
-msgstr ""
+msgstr "Livello servizio ciclo"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__csl
 msgid "Cycle Service Level Target"
-msgstr ""
+msgstr "Obiettivo livello servizio ciclo"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.actions.act_window,name:stock_orderpoint_safety_stock.action_stock_cycle_service_level
 #: model:ir.ui.menu,name:stock_orderpoint_safety_stock.menu_stock_cycle_service_level_root
 msgid "Cycle Service Levels"
-msgstr ""
+msgstr "Livelli servizio ciclo"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.actions.act_window,help:stock_orderpoint_safety_stock.action_stock_cycle_service_level
@@ -130,6 +137,10 @@ msgid ""
 "Define standard Cycle Service Level targets for use in safety stock policies.\n"
 "                A higher cycle service level means fewer stockouts, but requires more safety stock."
 msgstr ""
+"Definire obiettivi standard per il livello di servizio del ciclo di vendita "
+"da utilizzare nelle politiche di scorte di sicurezza.\n"
+"                Un livello di servizio del ciclo di vendita più elevato "
+"significa meno rotture di stock, ma richiede maggiori scorte di sicurezza."
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.res_config_settings_view_form
@@ -137,6 +148,9 @@ msgid ""
 "Define the rolling window for the historical analysis to compute the "
 "orderpoint's average daily demand and safety stock."
 msgstr ""
+"Definire la finestra temporale mobile per l'analisi storica al fine di "
+"calcolare la domanda media giornaliera e le scorte di sicurezza del punto di "
+"riordino."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_res_company__demand_history_days
@@ -144,7 +158,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__demand_history_days
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__demand_history_days
 msgid "Demand History Days"
-msgstr ""
+msgstr "Giorni cronologia domanda"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_product_product__display_name
@@ -154,13 +168,13 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__display_name
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
-msgstr ""
+msgstr "Nome visualizzato"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__growth_factor
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__growth_factor
 msgid "Growth Factor"
-msgstr ""
+msgstr "Fattore di crescita"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_product_product__id
@@ -170,93 +184,96 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__id
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__id
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__write_uid
 msgid "Last Updated by"
-msgstr ""
+msgstr "Ultimo aggiornamento di"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__write_date
 msgid "Last Updated on"
-msgstr ""
+msgstr "Ultimo aggiornamento il"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__safety_stock_update_date
 msgid "Last modification date of Min and Max quantities from Safety Stock"
 msgstr ""
+"Data dell'ultima modifica delle quantità minime e massime delle scorte di "
+"sicurezza"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields.selection,name:stock_orderpoint_safety_stock.selection__stock_warehouse_orderpoint__safety_stock_method__manual
 msgid "Manual"
-msgstr ""
+msgstr "Manuale"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_replenishment_info
 msgid "Method"
-msgstr ""
+msgstr "Metodo"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model,name:stock_orderpoint_safety_stock.model_stock_warehouse_orderpoint
 msgid "Minimum Inventory Rule"
-msgstr ""
+msgstr "Regola giacenza minima"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__orderpoint_ids
 msgid "Orderpoints"
-msgstr ""
+msgstr "Punti di riordino"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__orderpoint_count
 msgid "Orderpoints Count"
-msgstr ""
+msgstr "Conteggio punti di riordino"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model,name:stock_orderpoint_safety_stock.model_product_product
 msgid "Product Variant"
-msgstr ""
+msgstr "Variante prodotto"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.actions.server,name:stock_orderpoint_safety_stock.cron_stock_orderpoint_safety_stock_ir_actions_server
 msgid "Replenishment: recompute safety stock"
-msgstr ""
+msgstr "Rifornimento: ricalcola le scorte di sicurezza"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_warehouse_orderpoint_tree_editable
 msgid "Safety Stock"
-msgstr ""
+msgstr "Giacenza di sicurezza"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__safety_stock_method
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__safety_stock_method
 msgid "Safety Stock Method"
-msgstr ""
+msgstr "Metodo scorta di sicurezza"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_replenishment_info
 msgid "Save"
-msgstr ""
+msgstr "Salva"
 
 #. module: stock_orderpoint_safety_stock
 #. odoo-javascript
 #: code:addons/stock_orderpoint_safety_stock/static/src/widgets/StockReplenishmentGraph.xml:0
 msgid "Standard Deviation (σ):"
-msgstr ""
+msgstr "Deviazione standard (σ):"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__demand_std_dev
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__demand_std_dev
 msgid "Standard Deviation of Daily Demand"
-msgstr ""
+msgstr "Deviazione standard della domanda giornaliera"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__demand_lt_std_dev
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__demand_lt_std_dev
 msgid "Standard Deviation of Daily Demand over Lead Time"
 msgstr ""
+"Deviazione standard della domanda giornaliera nel tempo di attraversamento"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_cycle_service_level__z_score
@@ -268,28 +285,36 @@ msgid ""
 "The z-score represents how many standard deviations of demand variability are covered by the safety stock.\n"
 "A higher z-score corresponds to a higher service level and results in more safety stock."
 msgstr ""
+"Fattore statistico derivato dal livello di servizio obiettivo del ciclo.\n"
+"\n"
+"Il punteggio z rappresenta quante deviazioni standard della variabilità "
+"della domanda sono coperte dalle scorte di sicurezza.\n"
+"Un punteggio z più elevato corrisponde a un livello di servizio più alto e "
+"si traduce in maggiori scorte di sicurezza."
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_warehouse_orderpoint_tree_editable
 msgid "Std. Dev."
-msgstr ""
+msgstr "Dev. Sta."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model,name:stock_orderpoint_safety_stock.model_stock_replenishment_info
 msgid "Stock supplier replenishment information"
-msgstr ""
+msgstr "Informazioni rifornimento giacenza fornitore"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_replenishment_info__demand_avg_qty
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__demand_avg_qty
 msgid "The average daily outgoing quantity on this warehouse."
-msgstr ""
+msgstr "Le uscite medie giornaliere in questo magazzino."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.constraint,message:stock_orderpoint_safety_stock.constraint_stock_cycle_service_level_check_csl_range
 msgid ""
 "The cycle service level must be between 0 and 1, typically 0.90...0.99."
 msgstr ""
+"Il livello del servizio del ciclo deve essere tra 0 e 1, tipicamente "
+"0.90...0.99."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_replenishment_info__cycle_days
@@ -300,6 +325,13 @@ msgid ""
 "\n"
 "product_max_qty = product_min_qty + (demand_avg_qty * cycle_days)"
 msgstr ""
+"Il numero di giorni desiderato tra un ordine e l'altro.\n"
+"Utilizzato per dimensionare l'intervallo tra la quantità minima e quella "
+"massima, in modo da coprire la domanda prevista durante il ciclo di riordino "
+"desiderato.\n"
+"\n"
+"quantità_massima_prodotto = quantità_minima_prodotto + "
+"(quantità_media_domanda * giorni_ciclo)"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_replenishment_info__safety_stock_method
@@ -309,6 +341,12 @@ msgid ""
 "* Manual: The product's min and max quantities are set manually.\n"
 "* Cycle Service Level: The product's min and max quantities are computed based on the target cycle service level and the growth factor.\n"
 msgstr ""
+"Metodo per impostare le quantità minime e massime del prodotto.\n"
+"* Manuale: le quantità minime e massime del prodotto vengono impostate "
+"manualmente.\n"
+"* Livello di servizio del ciclo: le quantità minime e massime del prodotto "
+"vengono calcolate in base al livello di servizio del ciclo target e al "
+"fattore di crescita.\n"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_res_company__demand_history_days
@@ -317,6 +355,8 @@ msgstr ""
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__demand_history_days
 msgid "The number of days in the past to use to compute the safety stock."
 msgstr ""
+"Il numero di giorni passati da utilizzare per calcolare le scorte di "
+"sicurezza."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_cycle_service_level__csl
@@ -326,6 +366,14 @@ msgid ""
 "This value defines how reliable the stock should be during each replenishment cycle. A higher target increases safety stock to reduce the risk of stockouts; a lower target reduces inventory at the cost of more frequent shortages.\n"
 "Typical values range from 0.90 to 0.99 (e.g., 0.95 = 95% of cycles without stockouts)."
 msgstr ""
+"La probabilità che la domanda durante il tempo di approvvigionamento venga "
+"completamente soddisfatta senza esaurimenti delle scorte.\n"
+"Questo valore definisce l'affidabilità delle scorte durante ogni ciclo di "
+"rifornimento. Un obiettivo più elevato aumenta le scorte di sicurezza per "
+"ridurre il rischio di esaurimenti; un obiettivo inferiore riduce le scorte a "
+"costo di carenze più frequenti.\n"
+"I valori tipici variano da 0,90 a 0,99 (ad esempio, 0,95 = 95% di cicli "
+"senza esaurimenti)."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_replenishment_info__safety_stock
@@ -336,6 +384,15 @@ msgid ""
 "\n"
 "safety_stock = demand_lt_std_dev * z_score * (1.0 + growth_factor)"
 msgstr ""
+"La probabilità che la domanda durante il tempo di approvvigionamento venga "
+"completamente soddisfatta senza esaurimenti delle scorte.\n"
+"Questo valore definisce l'affidabilità delle scorte durante ogni ciclo di "
+"rifornimento. Un obiettivo più elevato aumenta le scorte di sicurezza per "
+"ridurre il rischio di esaurimenti; un obiettivo inferiore riduce le scorte a "
+"costo di carenze più frequenti.\n"
+"\n"
+"I valori tipici variano da 0,90 a 0,99 (ad esempio, 0,95 = 95% di cicli "
+"senza esaurimenti)"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_replenishment_info__demand_lt_std_dev
@@ -344,6 +401,8 @@ msgid ""
 "The standard deviation of the daily outgoing quantity on this warehouse over"
 " the lead time."
 msgstr ""
+"Deviazione standard della quantità giornaliera in uscita da questo magazzino "
+"nel corso del tempo di consegna."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,help:stock_orderpoint_safety_stock.field_stock_replenishment_info__demand_std_dev
@@ -351,25 +410,26 @@ msgstr ""
 msgid ""
 "The standard deviation of the daily outgoing quantity on this warehouse."
 msgstr ""
+"Deviazione standard della quantità giornaliera in uscita da questo magazzino."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.constraint,message:stock_orderpoint_safety_stock.constraint_stock_cycle_service_level_check_csl_unique
 msgid "There's already a cycle service level with this value."
-msgstr ""
+msgstr "Esiste già un livello di servizio ciclico con questo valore."
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_cycle_service_level_list
 msgid "View Replenishments"
-msgstr ""
+msgstr "Visualizza rifornimenti"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__z_score
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_replenishment_info__z_score
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__z_score
 msgid "Z-Score"
-msgstr ""
+msgstr "Punteggio z"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.view_stock_replenishment_info
 msgid "days"
-msgstr ""
+msgstr "giorni"
