@@ -28,6 +28,7 @@ addon | version | maintainers | summary
 [stock_orderpoint_default_location](stock_orderpoint_default_location/) | 16.0.1.0.0 |  | This module allows to define a different default location than the stock location
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 16.0.1.0.1 |  | Link Reordering rules to stock moves
 [stock_orderpoint_mto_as_mts](stock_orderpoint_mto_as_mts/) | 16.0.1.3.1 |  | Materialize need from MTO route through orderpoint
+[stock_orderpoint_no_horizon](stock_orderpoint_no_horizon/) | 16.0.1.0.0 |  | Consider all future moves, do not limit horizon to the rule lead days.
 [stock_orderpoint_origin](stock_orderpoint_origin/) | 16.0.1.0.0 |  | Link Purchase Orders to the replenishment demand Sales Orders
 [stock_orderpoint_origin_mrp_link](stock_orderpoint_origin_mrp_link/) | 16.0.1.0.0 |  | Link Purchase Orders to the replenishment demand MOs
 [stock_orderpoint_purchase_link](stock_orderpoint_purchase_link/) | 16.0.1.0.0 |  | Link Reordering rules to purchase orders
