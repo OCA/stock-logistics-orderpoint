@@ -503,6 +503,12 @@ class StockLocationOrderpoint(models.Model):
         self._assign_replenishment_moves(
             replenishment_moves.filtered(lambda m: m.state != "assigned")
         )
+        for move in replenishment_moves.sudo():
+            new_priority = move.location_orderpoint_id.priority
+            if move.picking_id.priority != new_priority:
+                move.picking_id.priority = new_priority
+            if move.priority != new_priority:
+                move.priority = new_priority
 
     def _prepare_orderpoint_domain_location(self, location_ids, location_field=False):
         """
