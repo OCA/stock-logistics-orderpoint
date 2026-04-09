@@ -9,7 +9,6 @@ from psycopg2 import IntegrityError
 from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tools import mute_logger
-from odoo.tools.date_utils import get_timedelta
 
 from odoo.addons.queue_job.job import identity_exact
 from odoo.addons.queue_job.tests.common import trap_jobs
@@ -97,12 +96,12 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self.assertFalse(replenish_move)
 
         # create the available quantity -> replenishment
-        tomorrow = now + get_timedelta(1, "day")
+        tomorrow = fields.Datetime.add(now, days=1)
         with self._freeze_time(tomorrow):
             self._set_qty_in_location(self.product, location_src, 12)
 
         self.product.invalidate_recordset()
-        day_after_tomorrow = now + get_timedelta(2, "day")
+        day_after_tomorrow = fields.Datetime.add(now, days=2)
         with self._freeze_time(day_after_tomorrow):
             cron.method_direct_trigger()
 
