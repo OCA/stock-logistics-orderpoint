@@ -466,33 +466,43 @@ class StockLocationOrderpoint(models.Model):
     def run_replenishment(self, products=False):
         """Run the replenishment for all potential products or only a selection"""
         procurements = self._prepare_procurements(products)
-        if not procurements:
-            return
-        self.env["procurement.group"].with_context(from_orderpoint=True).run(
-            procurements, raise_user_error=False
-        )
-        self._after_replenishment()
+        if procurements:
+            self.env["procurement.group"].with_context(from_orderpoint=True).run(
+                procurements, raise_user_error=False
+            )
+        replenishment_moves = self._get_current_replenishment_moves(products)
+        self._after_replenishment(replenishment_moves)
+        return replenishment_moves
 
-    def _prepare_to_assign_replenishment_move_domain(self):
-        """Returns a domain which selects moves created by a replenishment"""
+    def _get_current_replenishment_moves(self, products=False):
+        """
+        Returns ongoing replenishment moves created or updated by the
+        given orderpoints.
+        """
         domain = [
-            ("state", "in", ["confirmed", "partially_available"]),
+            ("state", "in", ["confirmed", "partially_available", "assigned"]),
             ("procure_method", "=", "make_to_stock"),
             ("location_orderpoint_id", "in", self.ids),
         ]
-        return domain
-
-    def _assign_replenishment_moves(self):
-        """Assigns moves created by the orderpoints"""
-        domain = self._prepare_to_assign_replenishment_move_domain()
-        moves_to_assign = self.env["stock.move"].search(
+        if products:
+            domain = expression.AND([domain, [("product_id", "in", products.ids)]])
+        return self.env["stock.move"].search(
             domain, order="priority desc, date asc, id asc"
         )
+
+    def _assign_replenishment_moves(self, moves_to_assign):
+        """Assigns moves created by the orderpoints"""
         for moves_chunk in split_every(100, moves_to_assign.ids):
             self.env["stock.move"].browse(moves_chunk)._action_assign()
+        return moves_to_assign
 
-    def _after_replenishment(self):
-        self._assign_replenishment_moves()
+    def _after_replenishment(self, replenishment_moves):
+        """
+        Assigns generated replenishment moves.
+        """
+        self._assign_replenishment_moves(
+            replenishment_moves.filtered(lambda m: m.state != "assigned")
+        )
 
     def _prepare_orderpoint_domain_location(self, location_ids, location_field=False):
         """
