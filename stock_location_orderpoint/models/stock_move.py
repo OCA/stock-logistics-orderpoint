@@ -110,3 +110,12 @@ class StockMove(models.Model):
         # (state, ...)
         moves._prepare_auto_replenishment_for_incoming_moves()
         return moves
+
+    def _merge_moves_fields(self):
+        # Make sure to link to the highest-priority orderpoint.
+        # This ensures the merged move inherits the correct priority
+        res = super()._merge_moves_fields()
+        res["location_orderpoint_id"] = max(
+            self, key=lambda x: x.location_orderpoint_id.priority
+        ).location_orderpoint_id
+        return res
