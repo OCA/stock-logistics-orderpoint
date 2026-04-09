@@ -7,7 +7,14 @@
         <field name="arch" type="xml">
             <field name="partner_id" position="after">
                 <field name="mto_as_mts" />
-                <field name="archive_orderpoints_mto_removal" />
+                <field
+                    name="mto_orderpoint_trigger"
+                    attrs="{'required': [('mto_as_mts', '=', True)], 'invisible': [('mto_as_mts', '=', False)]}"
+                />
+                <field
+                    name="archive_orderpoints_mto_removal"
+                    attrs="{'invisible': [('mto_as_mts', '=', False)]}"
+                />
             </field>
         </field>
     </record>

@@ -46,7 +46,7 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoints)
-        self.assertTrue(len(orderpoints) == 2)
+        self.assertEqual(len(orderpoints), 2)
         # Ensure orderpoints are created with correct values
         orderpoint = orderpoints[0]
         self.assertEqual(orderpoint.product_min_qty, 0)
@@ -58,6 +58,28 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "=", product.id)]
         )
         self.assertFalse(orderpoint)
+
+    def test_orderpoint_manual(self):
+        self.warehouse.mto_orderpoint_trigger = "manual"
+        # Create orderpoint
+        product = self.env["product.product"].create(
+            {
+                "name": "Test MTO",
+                "type": "product",
+                "route_ids": [(6, 0, [self.mto_route.id])],
+            }
+        )
+        orderpoint = self.env["stock.warehouse.orderpoint"].search(
+            [
+                ("product_id", "=", product.id),
+                ("warehouse_id", "=", self.warehouse.id),
+            ]
+        )
+        self.assertEqual(len(orderpoint), 1)
+        # Ensure orderpoints are created with correct values
+        self.assertEqual(orderpoint.product_min_qty, 0)
+        self.assertEqual(orderpoint.product_max_qty, 0)
+        self.assertEqual(orderpoint.trigger, "manual")
 
     def test_orderpoint_when_changing_company(self):
         # Create orderpoint
@@ -72,7 +94,7 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
         # Change company
         product.write(
             {"company_id": self.env["res.company"].create({"name": "New Company"}).id}
@@ -102,7 +124,7 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
 
     def test_orderpoint_when_changing_is_mto_on_routes(self):
         # Reset is MTO on route
@@ -131,7 +153,7 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
 
         # Check case: Enable is_mto on route that has been linked to product category
         self.mto_route.is_mto = False  # Reset is MTO on route
@@ -154,7 +176,7 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "=", product.id)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 2)
+        self.assertEqual(len(orderpoint), 2)
 
     def test_orderpoint_with_template(self):
         # Create a template with 3 variants
@@ -201,7 +223,7 @@ class TestStockOrderpointMtoAsMts(common.TransactionCase):
             [("product_id", "in", product_template_sofa.product_variant_ids.ids)]
         )
         self.assertTrue(orderpoint)
-        self.assertTrue(len(orderpoint) == 6)
+        self.assertEqual(len(orderpoint), 6)
         # Archive orderpoint
         product_template_sofa.write({"route_ids": [(6, 0, [])]})
         orderpoint = self.env["stock.warehouse.orderpoint"].search(
