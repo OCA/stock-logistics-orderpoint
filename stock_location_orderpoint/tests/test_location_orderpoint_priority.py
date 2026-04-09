@@ -98,7 +98,7 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         product_2 = self.env["product.product"].create(
             {
                 "name": "Product 2",
-                "type": "product",
+                "is_storable": True,
             }
         )
         move_qty = 12
@@ -146,6 +146,72 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         # Check priority has been changed (for both moves)
         self.assertEqual("1", replenish_move.priority)
         self.assertEqual("1", replenish_move_2.priority)
+
+    def test_mixed_replenishment_priority_bis(self):
+        """
+        Create a manual orderpoint with 'normal' priority
+
+        Create moves that will generate replenishment (outgoing + quantity on Reserve).
+
+        Run the manual orderpoint
+
+        Check the move is created
+
+        Create a second orderpoint with 'urgent' priority
+
+        Create moves that will generate replenishment (outgoing + quantity on Reserve).
+
+        Run the second orderpoint for an other product
+
+        Check the move is created
+
+        Each moves must:
+        - be linked to the correct orderpoint
+        - have the correct priority
+
+        The picking must have the highest priority between the 2 moves (i.e. 'urgent')
+
+        """
+        # we drop the unique constraint here because ideally we want to create
+        # orderpoints for the same location with different priority
+        self.env.cr.execute(
+            """
+            ALTER TABLE stock_location_orderpoint
+            DROP CONSTRAINT stock_location_orderpoint_location_route_unique;
+            """
+        )
+        product_1 = self.product
+        product_2 = self.env["product.product"].create(
+            {
+                "name": "Product 2",
+                "is_storable": True,
+            }
+        )
+        move_qty = 12
+
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2",
+            trigger="manual",
+        )
+        self._create_outgoing_move(move_qty)
+        self._create_incoming_move(move_qty, location_src)
+        orderpoint.run_replenishment()
+        replenish_move_1 = self._get_replenishment_move(orderpoint, product=product_1)
+
+        orderpoint_2 = orderpoint.copy({"priority": "1"})
+        self.product = product_2
+        self._create_outgoing_move(move_qty, product=product_2)
+        self._create_incoming_move(move_qty, location_src, product=product_2)
+        orderpoint_2.run_replenishment()
+        replenish_move_2 = self._get_replenishment_move(orderpoint_2, product=product_2)
+
+        self.assertTrue(replenish_move_1)
+        self.assertTrue(replenish_move_2)
+
+        self.assertEqual("0", replenish_move_1.priority)
+        self.assertEqual("1", replenish_move_2.priority)
+        self.assertEqual(replenish_move_1.picking_id, replenish_move_2.picking_id)
+        self.assertEqual("1", replenish_move_1.picking_id.priority)
 
     def test_merged_replenishment_move_priority(self):
         """
