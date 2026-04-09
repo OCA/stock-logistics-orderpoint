@@ -518,12 +518,18 @@ class StockLocationOrderpoint(models.Model):
         self._assign_replenishment_moves(
             replenishment_moves.filtered(lambda m: m.state != "assigned")
         )
+        picking_priority_to_update = env["stock.picking"]
         for move in replenishment_moves.sudo():
             new_priority = move.location_orderpoint_id.priority
-            if move.picking_id.priority != new_priority:
-                move.picking_id.priority = new_priority
             if move.priority != new_priority:
                 move.priority = new_priority
+                picking_priority_to_update |= move.picking_id
+        for picking in picking_priority_to_update:
+             new_priority = max(picking.move_ids.filtered(lambda m: m.state != "cancel").priority)
+             if picking.priority != new_priority:
+                picking.priority = new_priority
+
+
 
     def _prepare_orderpoint_domain_location(self, location_ids, location_field=False):
         """
