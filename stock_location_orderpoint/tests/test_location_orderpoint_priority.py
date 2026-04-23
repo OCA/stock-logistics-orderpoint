@@ -1,6 +1,7 @@
 # Copyright 2023 ACSONE SA/NV (http://www.acsone.eu)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+import datetime
 
 from odoo.addons.queue_job.job import identity_exact
 from odoo.addons.queue_job.tests.common import trap_jobs
@@ -21,20 +22,24 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
 
         Make the orderpoint an automatic orderpoint with 'urgent' priority
 
-        Change the existing outgoing move quantity (with lower need)
+        Refill available quantity in reserve location
 
-        Create an outgoing move with the difference quantity (no move should be created)
+        Create an outgoing move (no move should be created)
 
-        Check that the replenishment move priority has changed to 'urgent'.
+        Launch the replenishment
+
+        Check that the replenishment move has been  updated to 'urgent'
+        and the qty to replenish is updated according to the new
+        outgoing move qty.
         """
-        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
         move_qty = 12
 
         manual_orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2",
             trigger="manual",
+            proc_run_async=False,
         )
-        out_move = self._create_outgoing_move(move_qty)
+        self._create_outgoing_move(move_qty)
         self._create_incoming_move(move_qty, location_src)
         manual_orderpoint.run_replenishment()
         replenish_move_manual = self._get_replenishment_move(manual_orderpoint)
@@ -43,35 +48,30 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         self.assertEqual(12.0, replenish_move_manual.product_uom_qty)
         self.assertEqual("0", replenish_move_manual.priority)
 
-        # Change the outgoing quantity
-        out_move.product_uom_qty = 6.0
-
-        self.assertEqual(6.0, out_move.product_uom_qty)
-
         manual_orderpoint.update(
             {
                 "trigger": "auto",
                 "priority": "1",
             }
         )
-
+        job_func = manual_orderpoint.run_replenishment
+        self._set_qty_in_location(self.product, location_src, 20)
         with trap_jobs() as trap:
             out_move_2 = self._create_outgoing_move(2.0)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                manual_orderpoint.browse([]).run_auto_replenishment,
-                args=(out_move_2.product_id, out_move_2.location_id, "location_id"),
+                job_func,
+                args=(out_move_2.product_id,),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
                 ),
             )
             trap.perform_enqueued_jobs()
-
         replenish_move = self._get_replenishment_move(manual_orderpoint)
         self.assertEqual(replenish_move, replenish_move_manual)
 
-        self.assertEqual(replenish_move.product_uom_qty, 12.0)
+        self.assertEqual(replenish_move.product_uom_qty, move_qty + 2.0)
 
         # Check priority has been changed
         self.assertEqual("1", replenish_move.priority)
@@ -88,11 +88,17 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
 
         Update orderpoint priority to 'urgent'
 
-        Change the existing outgoing move quantity (with lower need)
+        Refill available quantity in reserve location
 
-        Create an outgoing move with the difference quantity (no move should be created)
+        Create an outgoing move (no move should be created)
 
-        Check that both replenishment moves priority has changed to 'urgent'.
+        Launch the replenishment
+
+        Check that the replenishment move for the product 1 has been
+        updated to 'urgent' and the one for product 2 is still 'normal'.
+        The qty to replenish for product 1 should be updated according
+        to the new outgoing move qty.
+
         """
         product_1 = self.product
         product_2 = self.env["product.product"].create(
@@ -101,13 +107,14 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
                 "type": "product",
             }
         )
-        move_qty = 12
+        move_qty = 10
 
         orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2",
             trigger="manual",
+            proc_run_async=False,
         )
-        out_move = self._create_outgoing_move(move_qty)
+        self._create_outgoing_move(move_qty)
         self._create_incoming_move(move_qty, location_src)
 
         self.product = product_2
@@ -127,13 +134,18 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         self.assertTrue(replenish_move_manual_2)
 
         # Change the outgoing quantity
-        out_move.product_uom_qty = 6.0
-        self.assertEqual(6.0, out_move.product_uom_qty)
 
         orderpoint.priority = "1"
 
         self.product = product_1
-        self._create_outgoing_move(2.0)
+        self._set_qty_in_location(product_1, location_src, 20)
+        # we use a date in the past to check that the resulting
+        # replenishment move will be planned at the right date (i.e. the one of the
+        #  new outgoing move) and the picking scheduled date is updated accordingly
+        move_date = datetime.datetime(2023, 1, 1)
+        self._create_outgoing_move(
+            2.0, date=move_date
+        )  # make sure the move is taken into account in replenishment
 
         orderpoint.run_replenishment()
 
@@ -141,11 +153,13 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         replenish_move_2 = self._get_replenishment_move(orderpoint, product=product_2)
 
         self.assertEqual(replenish_move, replenish_move_manual_1)
-        self.assertEqual(replenish_move.product_uom_qty, 12.0)
+        self.assertEqual(replenish_move.product_uom_qty, move_qty + 2.0)
+        self.assertEqual(replenish_move.date, move_date)
+        self.assertEqual(replenish_move.picking_id.scheduled_date, move_date)
 
         # Check priority has been changed (for both moves)
         self.assertEqual("1", replenish_move.priority)
-        self.assertEqual("1", replenish_move_2.priority)
+        self.assertEqual("0", replenish_move_2.priority)
 
     def test_mixed_replenishment_priority_bis(self):
         """
@@ -192,6 +206,7 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2",
             trigger="manual",
+            proc_run_async=False,
         )
         self._create_outgoing_move(move_qty)
         self._create_incoming_move(move_qty, location_src)
@@ -200,7 +215,8 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
 
         orderpoint_2 = orderpoint.copy({"priority": "1"})
         self.product = product_2
-        self._create_outgoing_move(move_qty, product=product_2)
+        move_date = datetime.datetime(2023, 1, 1)
+        self._create_outgoing_move(move_qty, product=product_2, date=move_date)
         self._create_incoming_move(move_qty, location_src, product=product_2)
         orderpoint_2.run_replenishment()
         replenish_move_2 = self._get_replenishment_move(orderpoint_2, product=product_2)
@@ -210,8 +226,10 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
 
         self.assertEqual("0", replenish_move_1.priority)
         self.assertEqual("1", replenish_move_2.priority)
+        self.assertEqual(move_date, replenish_move_2.date)
         self.assertEqual(replenish_move_1.picking_id, replenish_move_2.picking_id)
         self.assertEqual("1", replenish_move_1.picking_id.priority)
+        self.assertEqual(move_date, replenish_move_2.picking_id.scheduled_date)
 
     def test_merged_replenishment_move_priority(self):
         """
@@ -249,6 +267,7 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         ) = self._create_orderpoint_complete(
             "Reserve",
             trigger="manual",
+            proc_run_async=False,
         )
         manual_orderpoint_2 = manual_orderpoint_1.copy({"priority": "1"})
 

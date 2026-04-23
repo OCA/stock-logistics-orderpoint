@@ -1,10 +1,24 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo noupdate="1">
     <record
+        id="channel_stock_location_orderpoint_replenishment"
+        model="queue.job.channel"
+    >
+        <field name="name">stock_location_orderpoint_replenishment</field>
+        <field name="parent_id" ref="queue_job.channel_root" />
+    </record>
+    <record
         id="channel_stock_location_orderpoint_auto_replenishment"
         model="queue.job.channel"
     >
         <field name="name">stock_location_orderpoint_auto_replenishment</field>
-        <field name="parent_id" ref="queue_job.channel_root" />
+        <field name="parent_id" ref="channel_stock_location_orderpoint_replenishment" />
+    </record>
+    <record
+        id="channel_stock_location_orderpoint_procurement_run"
+        model="queue.job.channel"
+    >
+        <field name="name">stock_location_orderpoint_procurement_run</field>
+        <field name="parent_id" ref="channel_stock_location_orderpoint_replenishment" />
     </record>
 </odoo>

@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_stock_location_orderpoint_manager,stock.location.orderpoint - manager,model_stock_location_orderpoint,stock.group_stock_manager,1,1,1,1
 access_stock_location_orderpoint_user,stock.location.orderpoint - user,model_stock_location_orderpoint,stock.group_stock_user,1,0,0,0
+stock_location_orderpoint.access_stock_location_replenishment_computer,access_stock_location_replenishment_computer,stock_location_orderpoint.model_stock_location_replenishment_computer,base.group_user,1,0,0,0

@@ -5,10 +5,22 @@
         model="queue.job.function"
     >
         <field name="model_id" ref="model_stock_location_orderpoint" />
-        <field name="method">run_auto_replenishment</field>
+        <field name="method">run_replenishment</field>
         <field
             name="channel_id"
             ref="channel_stock_location_orderpoint_auto_replenishment"
+        />
+        <field name="retry_pattern" eval="{1: 1, 5: 5, 10: 10, 15: 30}" />
+    </record>
+    <record
+        id="job_function_stock_location_orderpoint_delayed_execute_procurements"
+        model="queue.job.function"
+    >
+        <field name="model_id" ref="model_stock_location_orderpoint" />
+        <field name="method">_fulfill_procurement</field>
+        <field
+            name="channel_id"
+            ref="channel_stock_location_orderpoint_procurement_run"
         />
         <field name="retry_pattern" eval="{1: 1, 5: 5, 10: 10, 15: 30}" />
     </record>
