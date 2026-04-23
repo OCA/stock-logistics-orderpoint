@@ -1,6 +1,5 @@
 # Copyright 2023 ACSONE SA/NV
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from datetime import datetime
 
 from freezegun import freeze_time
 
@@ -24,6 +23,18 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         #   - Area 2
         #     - Shelf 2
         cls.now = Date.today()
+        cls.product_1 = cls.env["product.product"].create(
+            {
+                "name": "Product 1",
+                "type": "product",
+            }
+        )
+        cls.product_2 = cls.env["product.product"].create(
+            {
+                "name": "Product 2",
+                "type": "product",
+            }
+        )
 
         # Create a product 3 and 4 to check multi replenishment
         cls.product_3 = cls.env["product.product"].create(
@@ -43,7 +54,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         cls.area_1 = cls.env["stock.location"].create(
             {
                 "name": "Area 1",
-                "location_id": cls.warehouse.lot_stock_id.id,
+                "location_id": cls.location_zone.id,
                 "usage": "view",
             }
         )
@@ -57,7 +68,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         cls.area_2 = cls.env["stock.location"].create(
             {
                 "name": "Area 2",
-                "location_id": cls.warehouse.lot_stock_id.id,
+                "location_id": cls.location_zone.id,
                 "usage": "view",
             }
         )
@@ -72,20 +83,9 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         cls.orderpoint_1, cls.replenish_1 = cls._create_orderpoint_complete(
             "Replenish Area 1",
             trigger="manual",
-            replenish_method="average_daily_sale",
-            location_dest=cls.area_1,
-        )
-        cls.orderpoint_2, cls.replenish_2 = cls._create_orderpoint_complete(
-            "Replenish Area 2",
-            trigger="manual",
-            replenish_method="average_daily_sale",
-            location_dest=cls.area_2,
-        )
-        cls.orderpoint_cron, cls.replenish_cron = cls._create_orderpoint_complete(
-            "Replenish Cron",
-            trigger="cron",
-            replenish_method="average_daily_sale",
-            location_dest=cls.area_1,
+            replenish_method="average_daily_usage",
+            location_dest=cls.location_zone,
+            proc_run_async=False,
         )
 
         # create average daily sale
@@ -133,42 +133,17 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         move_3_date = Date.to_string(cls.now - relativedelta(weeks=9))
         cls._create_outgoing_move(2.0, move_3_date, cls.shelf_1, cls.product_3)
 
+        cls.cfg.period_value = 12
+        cls.cfg.location_id = cls.location_zone
         cls._refresh()
-
-    @classmethod
-    def _create_move(cls, name, qty, location, location_dest, product=None, **kwargs):
-        product = product or cls.product
-        uom = product.uom_id
-        vals = {
-            "name": name,
-            "date": datetime.today(),
-            "product_id": product.id,
-            "product_uom": uom.id,
-            "product_uom_qty": qty,
-            "location_id": location.id,
-            "location_dest_id": location_dest.id,
-        }
-        vals.update(kwargs)
-        move = cls.env["stock.move"].create(vals)
-        move._write({"create_date": datetime.now()})
-        move._action_confirm()
-        return move
 
     @classmethod
     def _create_outgoing_move(cls, qty, move_date, origin, product, done=True):
         with freeze_time(move_date):
-            move = cls._create_move(
-                "Shelf 1 > Customers",
-                qty,
-                origin,
-                cls.customers,
-                product,
-                picking_type_id=cls.env.ref("stock.picking_type_out").id,
-            )
+            move = cls._create_move(product, origin, qty)
             move._action_confirm()
             if done:
                 move._action_assign()
-                move._assign_picking()
                 move.picking_id.priority = "1"
                 move.quantity_done = move.product_uom_qty
                 move._action_done()
@@ -348,15 +323,14 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         self.env["stock.quant"].with_context(inventory_mode=True).create(
             {
                 "product_id": self.product_1.id,
-                "location_id": self.replenish_cron.id,
+                "location_id": self.replenish_1.id,
                 "inventory_quantity": 15.0,
             }
         )._apply_inventory()
-
         self._create_outgoing_move(8, self.now, self.area_1, self.product_1, done=False)
-        self._run_replenishment(self.orderpoint_cron)
-        replenish_move = self._get_replenishment_move(
-            self.orderpoint_cron, self.product_1
-        )
+        self.orderpoint_1.trigger = "cron"
+        self.orderpoint_1.proc_run_async = False
+        self._run_replenishment(self.orderpoint_1)
+        replenish_move = self._get_replenishment_move(self.orderpoint_1, self.product_1)
         self.assertTrue(replenish_move)
         self.assertEqual(9.0, replenish_move.product_uom_qty)

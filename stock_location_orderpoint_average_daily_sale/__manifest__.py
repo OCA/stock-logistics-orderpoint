@@ -13,5 +13,6 @@
     "depends": [
         "stock_location_orderpoint",
         "stock_average_daily_sale",
+        "stock_available_location_get_domain",
     ],
 }
