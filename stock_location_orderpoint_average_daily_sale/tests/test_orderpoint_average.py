@@ -334,3 +334,68 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         replenish_move = self._get_replenishment_move(self.orderpoint_1, self.product_1)
         self.assertTrue(replenish_move)
         self.assertEqual(9.0, replenish_move.product_uom_qty)
+
+    def test_compute_demand_only_include_product_in_avg_table(self):
+        """Test that only products in the average daily sale table are included in
+        the computation."""
+        avg_product_1 = self.env["stock.average.daily.sale"].search(
+            [("product_id", "=", self.product_1.id)]
+        )
+        self.assertTrue(avg_product_1)
+
+        tmp_product_in_mvt_out = self.env["product.product"].create(
+            {
+                "name": "Tmp Product in Move Out",
+                "type": "product",
+            }
+        )
+        tmp_product_in_quant = self.env["product.product"].create(
+            {
+                "name": "Tmp Product in Quant",
+                "type": "product",
+            }
+        )
+        # Set inventory on replenishment locations to allows repenishement
+        # and empty the shelf 1 for product 1
+        # -> a replenishment is required for product 1
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.replenish_1.id,
+                "inventory_quantity": 50.0,
+            }
+        )._apply_inventory()
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.shelf_1.id,
+                "inventory_quantity": 0.0,
+            }
+        )._apply_inventory()
+
+        # create an outgoing move for a product not in the average daily sale table
+        self._create_outgoing_move(
+            8, self.now, self.shelf_1, tmp_product_in_mvt_out, done=False
+        )
+
+        # Add tmp prouct in a quant
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": tmp_product_in_quant.id,
+                "location_id": self.shelf_1.id,
+                "inventory_quantity": -10.0,
+            }
+        )._apply_inventory()
+
+        demand = self.orderpoint_1._strategy_model._compute_demand(
+            self.orderpoint_1.location_id, products=None
+        )
+        product_ids = demand.keys()
+        self.assertEqual({self.product_1.id}, set(product_ids))
+
+        demand = self.orderpoint_1._strategy_model._compute_demand(
+            self.orderpoint_1.location_id,
+            products=self.env["product.product"].search([]),
+        )
+        product_ids = demand.keys()
+        self.assertEqual({self.product_1.id}, set(product_ids))

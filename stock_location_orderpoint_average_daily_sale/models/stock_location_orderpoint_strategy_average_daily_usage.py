@@ -103,13 +103,10 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
             WHERE {ads_where}
         """
 
-        # --- STOCK MOVE (OUTGOING) ---
+        # --- STOCK MOVE (OUTGOING) with condition on products ---
+        # --- for which we have an average daily sale at the location ---
 
         outgoing_moves_domain = location._get_consuming_moves_domain(location.id)
-        if products is not None:
-            outgoing_moves_domain = expression.AND(
-                [outgoing_moves_domain, [("product_id", "in", products.ids)]]
-            )
         stock_move_obj = self.env["stock.move"]
         stock_move_obj._flush_search(outgoing_moves_domain)
         stock_move_obj.flush_model(["product_uom_qty"])
@@ -124,18 +121,17 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
                 {stock_move_obj._table}.product_id,
                 SUM({stock_move_obj._table}.product_uom_qty) AS qty
             FROM {move_tables}
+            JOIN avg_daily_sale ON avg_daily_sale.product_id =
+                {stock_move_obj._table}.product_id
             WHERE {move_where}
             GROUP BY {stock_move_obj._table}.product_id
         """
 
-        # --- STOCK QUANT ---
+        # --- STOCK QUANT with condition on products ---
+        # --- for which we have an average daily sale at the location ---
 
         stock_quant_obj = self.env["stock.quant"]
         domain_quant, _im, _om = location._get_stock_domains(location.id)
-        if products is not None:
-            domain_quant = expression.AND(
-                [domain_quant, [("product_id", "in", products.ids)]]
-            )
         stock_quant_obj._flush_search(domain_quant)
         stock_quant_obj.flush_model(["quantity"])
 
@@ -149,6 +145,8 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
                 {stock_quant_obj._table}.product_id,
                 - SUM({stock_quant_obj._table}.quantity) AS qty
             FROM {quant_tables}
+            JOIN avg_daily_sale ON avg_daily_sale.product_id =
+                {stock_quant_obj._table}.product_id
             WHERE {quant_where}
             GROUP BY {stock_quant_obj._table}.product_id
         """
@@ -156,9 +154,10 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         # --- FINAL UNION ---
 
         final_sql = f"""
+            WITH avg_daily_sale AS ({ads_sql})
             SELECT product_id, SUM(qty) AS qty
             FROM (
-                {ads_sql}
+                SELECT * FROM avg_daily_sale
                 UNION ALL
                 {move_sql}
                 UNION ALL
