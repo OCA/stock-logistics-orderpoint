@@ -9,12 +9,13 @@ class StockLocationOrderpointStrategy(models.AbstractModel):
     _description = "Stock location orderpoint strategy"
 
     @api.model
-    def _get_candidate_products(self, location, products=None):
+    def _get_candidate_products(self, location, horizon, products=None):
         """
         Get the candidate products to compute the demand for according to a specific strategy.
         By default, we consider that all stockable products are candidates.
 
         :param location: stock.location record
+        :param horizon: datetime, time horizon to consider for the replenishment
         :param products: product.product recordset or None
 
          :return: product.product recordset
@@ -27,11 +28,12 @@ class StockLocationOrderpointStrategy(models.AbstractModel):
         )
 
     @api.model
-    def _compute_demand(self, location, products) -> dict[int, float]:
+    def _compute_demand(self, location, horizon, products) -> dict[int, float]:
         """
         Compute demand for the given products according to a specific strategy.
 
         :param location: stock.location record
+        :param horizon: datetime, time horizon to consider for the replenishment
         :param products: product.product recordset
 
         :return: dict {product_id: demand_qty}

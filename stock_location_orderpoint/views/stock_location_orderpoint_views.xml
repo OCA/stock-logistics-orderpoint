@@ -67,6 +67,7 @@
                         <field name="group_id" />
                         <field name="priority" />
                         <field name="replenish_limit_to_free_qty" />
+                        <field name="replenish_horizon" />
                     </group>
                     <group name="exclude_locations" string="Exclude Locations">
                         <field
