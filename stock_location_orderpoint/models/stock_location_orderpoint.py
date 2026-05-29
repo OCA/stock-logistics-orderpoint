@@ -91,6 +91,13 @@ class StockLocationOrderpoint(models.Model):
         "limited to the free quantity at the source location. ",
         default=True,
     )
+    replenish_horizon = fields.Float(
+        string="Replenishment horizon (in days)",
+        help="Time horizon to consider for the replenishment. "
+        "Limits the demand considered to what is expected in the horizon. ",
+        default=7,
+        required=True,
+    )
     active = fields.Boolean(default=True)
 
     last_cron_execution = fields.Datetime(
@@ -118,6 +125,17 @@ class StockLocationOrderpoint(models.Model):
             "The combination of Company, Location, Route and Replenish method must be unique",
         )
     ]
+
+    # -------------------------------------------------------------------------
+    # Simple properties
+    # -------------------------------------------------------------------------
+
+    @property
+    def _horizon_datetime(self):
+        """Compute the replenishment horizon as a datetime based on the current time and the
+        replenish_horizon field expressed in days."""
+        self.ensure_one()
+        return fields.Datetime.add(fields.Datetime.now(), days=self.replenish_horizon)
 
     # -------------------------------------------------------------------------
     # Validation and computed fields
@@ -380,6 +398,7 @@ class StockLocationOrderpoint(models.Model):
         return {
             "location_id": self.location_id.id,
             "location_src_id": self.location_src_id.id,
+            "horizon": self._horizon_datetime,
             "replenish_limit_to_free_qty": self.replenish_limit_to_free_qty,
             "excluded_location_domain": self.stock_excluded_location_domain,
         }
@@ -550,7 +569,7 @@ class StockLocationOrderpoint(models.Model):
         """
         self.ensure_one()
         return self._strategy_model._get_candidate_products(
-            self.location_id, products=products
+            self.location_id, self._horizon_datetime, products=products
         )
 
     def _build_procurements(self, procurement_data):

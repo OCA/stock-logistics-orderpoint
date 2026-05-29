@@ -11,7 +11,7 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
     _description = "Stock location orderpoint strategy: fill up to the max quantity"
 
     @api.model
-    def _get_candidate_products(self, location, products=None):
+    def _get_candidate_products(self, location, horizon, products=None):
         """
         In the fill-up strategy, if the orderpoint is triggered without specifying products,
         we want to consider only the products with pending not fully reserved moves
@@ -21,6 +21,7 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         demand for this product at the destination location.
 
         :param location: stock.location record
+        :param horizon: dateime, time horizon to consider for the replenishment
         :param products: product.product recordset or None
 
         :return: product.product recordset
@@ -45,7 +46,7 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         return self.env["product.product"].browse(product_ids)
 
     @api.model
-    def _compute_demand(self, location, products) -> dict[int, float]:
+    def _compute_demand(self, location, horizon, products) -> dict[int, float]:
         """
         Compute demand for the given products according to the fill-up strategy.
         The demand is computed as the quantity required to ensure that the
@@ -54,12 +55,13 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         location and the quantity already incoming.
 
         :param location: stock.location record
+        :param horizon: datetime, time horizon to consider for the replenishment
         :param products: product.product recordset
         """
         demand_data = {}
         qties_on_location = products.with_context(
             location=location.id
-        )._compute_quantities_dict(None, None, None)
+        )._compute_quantities_dict(None, None, None, to_date=horizon)
         for product_id, qties_on_location in qties_on_location.items():
             virtual_available_on_dest = qties_on_location["virtual_available"]
             if (

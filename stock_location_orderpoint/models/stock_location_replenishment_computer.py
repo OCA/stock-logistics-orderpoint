@@ -49,6 +49,12 @@ class StockLocationReplenishmentComputer(models.TransientModel):
         required=True,
         string="Source Location",
     )
+    horizon = fields.Datetime(
+        required=True,
+        string="Horizon Datetime",
+        help="Time horizon to consider for the replenishment. Only moves with a date_deadline"
+        "up to this datetime will be considered in the demand computation.",
+    )
     replenish_limit_to_free_qty = fields.Boolean(
         default=True,
     )
@@ -129,7 +135,7 @@ class StockLocationReplenishmentComputer(models.TransientModel):
             location = location.with_context(
                 excluded_location_domain=self.excluded_location_domain
             )
-        return self._strategy._compute_demand(location, products)
+        return self._strategy._compute_demand(location, self.horizon, products)
 
     def _compute_procurement_qty(self, demand_data, job_logs=None):
         """

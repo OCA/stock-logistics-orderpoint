@@ -1,5 +1,6 @@
 # Copyright 2023 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+import datetime
 from contextlib import contextmanager
 from unittest.mock import patch
 
@@ -124,6 +125,27 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             trap.perform_enqueued_jobs()
         replenish_move = self._get_replenishment_move(orderpoint)
         self._assert_replenishment_move(replenish_move, 12, orderpoint)
+
+    def test_replenishment_horizon(self):
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="manual", proc_run_async=True
+        )
+        horizon = orderpoint.replenish_horizon
+        self._set_qty_in_location(self.product, location_src, 12)
+        self._create_outgoing_move(
+            12, date=fields.Datetime.now() + datetime.timedelta(days=horizon + 1)
+        )
+        with trap_jobs() as trap:
+            self._run_replenishment(orderpoint)
+            trap.assert_jobs_count(
+                0, only=self.env["stock.location.orderpoint"]._fulfill_procurement
+            )
+        orderpoint.replenish_horizon = horizon + 1
+        with trap_jobs() as trap:
+            self._run_replenishment(orderpoint)
+            trap.assert_jobs_count(
+                1, only=self.env["stock.location.orderpoint"]._fulfill_procurement
+            )
 
     def test_auto_replenishment(self):
         job_func = self.env["stock.location.orderpoint"].run_replenishment
