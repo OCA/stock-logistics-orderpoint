@@ -14,7 +14,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
     )
 
     @api.model
-    def _get_candidate_products(self, location, products=None):
+    def _get_candidate_products(self, location, horizon, products=None):
         """
         In the average daily usage strategy, if the orderpoint is triggered without
         specifying products, we don't return products. Indeed, the candidate products will be
@@ -24,13 +24,13 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         all products.
 
         :param location: stock.location record
-
+        :param horizon: datetime, time horizon to consider for the replenishment
         :return: product.product recordset
         """
         return products
 
     @api.model
-    def _compute_demand(self, location, products) -> dict[int, float]:
+    def _compute_demand(self, location, horizon, products) -> dict[int, float]:
         """
         Compute demand for the given products according to the average daily usage strategy.
         The demand is computed based on the past average daily usage at the destination location
@@ -38,6 +38,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         plus the quantity already leaving the location.
 
         :param location: stock.location record
+        :param horizon: datetime, time horizon to consider for the replenishment
         :param products: product.product recordset
         """
         # --- STOCK AVERAGE DAILY SALE ---
@@ -107,6 +108,9 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         # --- for which we have an average daily sale at the location ---
 
         outgoing_moves_domain = location._get_consuming_moves_domain(location.id)
+        outgoing_moves_domain = expression.AND(
+            [outgoing_moves_domain, [("date", "<=", horizon)]]
+        )
         stock_move_obj = self.env["stock.move"]
         stock_move_obj._flush_search(outgoing_moves_domain)
         stock_move_obj.flush_model(["product_uom_qty"])

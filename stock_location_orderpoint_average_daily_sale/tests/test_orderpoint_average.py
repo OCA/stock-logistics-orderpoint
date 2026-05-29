@@ -191,6 +191,52 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
 
         self.assertEqual(missing_quantity, replenish_move.product_uom_qty)
 
+    def test_orderpoint_average_horizon(self):
+        avg_product_1 = self.env["stock.average.daily.sale"].search(
+            [("product_id", "=", self.product_1.id)]
+        )
+        self.assertTrue(avg_product_1)
+        # Set enough quantity on Shelf 1
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.shelf_1.id,
+                "inventory_quantity": avg_product_1.recommended_qty + 1,
+            }
+        )._apply_inventory()
+
+        # Set invnetory on replenishment locations
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.replenish_1.id,
+                "inventory_quantity": 50.0,
+            }
+        )._apply_inventory()
+
+        horizon_dt = self.now + relativedelta(
+            days=self.orderpoint_1.replenish_horizon + 5
+        )
+
+        self._create_outgoing_move(
+            8, horizon_dt, self.area_1, self.product_1, done=False
+        )
+        self._run_replenishment(self.orderpoint_1)
+        replenish_move = self._get_replenishment_move(self.orderpoint_1, self.product_1)
+        self.assertFalse(
+            replenish_move,
+            "No replenishment should be triggered as the move is out of the horizon",
+        )
+
+        self.orderpoint_1.replenish_horizon += 10
+        self._run_replenishment(self.orderpoint_1)
+        replenish_move = self._get_replenishment_move(self.orderpoint_1, self.product_1)
+        self.assertTrue(
+            replenish_move,
+            "A replenishment should be triggered as the move is now in the horizon",
+        )
+        self.assertEqual(7, replenish_move.product_uom_qty)
+
     def test_orderpoint_average_multi(self):
         # Run the orderpoint
         #
@@ -387,8 +433,9 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
             }
         )._apply_inventory()
 
+        horizon = self.now + relativedelta(weeks=2)
         demand = self.orderpoint_1._strategy_model._compute_demand(
-            self.orderpoint_1.location_id, products=None
+            self.orderpoint_1.location_id, products=None, horizon=horizon
         )
         product_ids = demand.keys()
         self.assertEqual({self.product_1.id}, set(product_ids))
@@ -396,6 +443,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         demand = self.orderpoint_1._strategy_model._compute_demand(
             self.orderpoint_1.location_id,
             products=self.env["product.product"].search([]),
+            horizon=horizon,
         )
         product_ids = demand.keys()
         self.assertEqual({self.product_1.id}, set(product_ids))
