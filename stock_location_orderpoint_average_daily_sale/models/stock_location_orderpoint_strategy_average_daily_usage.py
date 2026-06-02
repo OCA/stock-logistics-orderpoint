@@ -131,6 +131,29 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
             GROUP BY {stock_move_obj._table}.product_id
         """
 
+        # -- STOCK MOVE (INCOMING) with condition on products ---
+        # --- for which we have an average daily sale at the location ---
+        incoming_moves_domain = location._get_replenishing_moves_domain(location.id)
+        incoming_moves_domain = expression.AND(
+            [incoming_moves_domain, [("date", "<=", horizon)]]
+        )
+        stock_move_obj._flush_search(incoming_moves_domain)
+
+        move_in_query = stock_move_obj._where_calc(incoming_moves_domain)
+        stock_move_obj._apply_ir_rules(move_in_query, "read")
+        move_in_tables, move_in_where, move_in_params = move_in_query.get_sql()
+
+        move_in_sql = f"""
+            SELECT
+                {stock_move_obj._table}.product_id,
+                - SUM({stock_move_obj._table}.product_uom_qty) AS qty
+            FROM {move_in_tables}
+            JOIN avg_daily_sale ON avg_daily_sale.product_id =
+                {stock_move_obj._table}.product_id
+            WHERE {move_in_where}
+            GROUP BY {stock_move_obj._table}.product_id
+        """
+
         # --- STOCK QUANT with condition on products ---
         # --- for which we have an average daily sale at the location ---
 
@@ -165,13 +188,15 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
                 UNION ALL
                 {move_sql}
                 UNION ALL
+                {move_in_sql}
+                UNION ALL
                 {quant_sql}
             ) AS combined
             GROUP BY product_id
             HAVING SUM(qty) > 0
         """
 
-        params = ads_params + move_params + quant_params
+        params = ads_params + move_params + move_in_params + quant_params
 
         self.env.cr.execute(final_sql, params)
         return dict(self.env.cr.fetchall())

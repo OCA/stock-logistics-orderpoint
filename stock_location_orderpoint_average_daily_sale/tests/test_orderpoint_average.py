@@ -182,6 +182,10 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
             + 8.0
             - self.product_1.with_context(location=self.shelf_1.id).virtual_available
         )
+        # a demand exists
+        computer = self.orderpoint_1._get_replenishment_computer()
+        demand = computer._compute_demand(self.product_1)
+        self.assertIn(self.product_1.id, demand)
 
         self._run_replenishment(self.orderpoint_1)
 
@@ -190,6 +194,11 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         self.assertEqual(19.0, replenish_move.product_uom_qty)
 
         self.assertEqual(missing_quantity, replenish_move.product_uom_qty)
+
+        # once a replenishement is planned the demand should be
+        # considered as covered
+        demand = computer._compute_demand(self.product_1)
+        self.assertNotIn(self.product_1.id, demand)
 
     def test_orderpoint_average_horizon(self):
         avg_product_1 = self.env["stock.average.daily.sale"].search(
