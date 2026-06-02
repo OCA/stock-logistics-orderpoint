@@ -75,6 +75,19 @@ class StockLocation(models.Model):
         return expression.AND([domain_move_out_loc, domain])
 
     @api.model
+    def _get_replenishing_moves_domain(self, location_id):
+        """Get the domain to apply on stock.move to get the moves replenishing a location."""
+        (
+            _q,
+            domain_move_in_loc,
+            _ol,
+        ) = self._get_stock_domains(location_id)
+        domain = [
+            ("state", "in", ("confirmed", "assigned", "partially_available")),
+        ]
+        return expression.AND([domain_move_in_loc, domain])
+
+    @api.model
     def _get_replenished_moves_domain(self, location_id):
         """Get the domain to apply on stock.move to get the move having repeished the
         location."""
