@@ -12,4 +12,11 @@
         parent="stock.menu_warehouse_config"
         sequence="50"
     />
+    <menuitem
+        id="menu_stock_location_product_orderpoint"
+        action="action_stock_location_product_orderpoint"
+        name="Stock Location Product Orderpoint"
+        parent="stock.menu_stock_warehouse_mgmt"
+        sequence="999"
+    />
 </odoo>
