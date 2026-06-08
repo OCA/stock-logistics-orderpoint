@@ -10,7 +10,6 @@ from odoo.osv import expression
 from odoo.tools import split_every
 
 from odoo.addons.queue_job.job import identity_exact
-from odoo.addons.stock.models.stock_move import PROCUREMENT_PRIORITIES
 
 from .stock_location_orderpoint_strategy import StockLocationOrderpointStrategy
 from .tools import MovesTouchTracker
@@ -104,7 +103,7 @@ class StockLocationOrderpoint(models.Model):
         help="Last time this orderpoint was processed by the cron",
     )
     priority = fields.Selection(
-        PROCUREMENT_PRIORITIES,
+        selection="_selection_move_priorities",
         default="0",
     )
     proc_run_async = fields.Boolean(
@@ -125,6 +124,9 @@ class StockLocationOrderpoint(models.Model):
             "The combination of Company, Location, Route and Replenish method must be unique",
         )
     ]
+
+    def _selection_move_priorities(self):
+        return self.env["stock.move"]._fields["priority"].selection
 
     # -------------------------------------------------------------------------
     # Simple properties
