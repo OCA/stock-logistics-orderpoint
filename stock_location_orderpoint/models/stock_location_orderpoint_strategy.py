@@ -9,13 +9,14 @@ class StockLocationOrderpointStrategy(models.AbstractModel):
     _description = "Stock location orderpoint strategy"
 
     @api.model
-    def _get_candidate_products(self, location, horizon, products=None):
+    def _get_candidate_products(self, location, horizon, product_domain, products=None):
         """
         Get the candidate products to compute the demand for according to a specific strategy.
         By default, we consider that all stockable products are candidates.
 
         :param location: stock.location record
         :param horizon: datetime, time horizon to consider for the replenishment
+        :param product_domain: domain to filter products
         :param products: product.product recordset or None
 
          :return: product.product recordset
@@ -28,18 +29,29 @@ class StockLocationOrderpointStrategy(models.AbstractModel):
         )
 
     @api.model
-    def _compute_demand(self, location, horizon, products) -> dict[int, float]:
+    def _compute_demand(
+        self, location, horizon, product_domain, products
+    ) -> dict[int, float]:
         """
         Compute demand for the given products according to a specific strategy.
 
         :param location: stock.location record
         :param horizon: datetime, time horizon to consider for the replenishment
-        :param products: product.product recordset
+        :param product_domain: domain to filter products
+        :param products: product.product recordset or None
 
         :return: dict {product_id: demand_qty}
 
         This model is meant to be inherited to implement different strategies
         to compute the demand.
+
+        In some cases, the candidate products could be computed directly from the demand
+        computation. In such case, the _get_candidate_products method of the strategy will
+        return None and the _compute_demand method will be responsible to compute the
+         candidate products and the demand at the same time. That's why the _compute_demand
+         method receives the same parameters as the _get_candidate_products method, to be
+         able to compute the candidate products if needed.
+
         The demand is the quantity to replenish to meet the orderpoint's rules.
         """
         raise NotImplementedError(

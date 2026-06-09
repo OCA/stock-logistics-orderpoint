@@ -147,6 +147,17 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
                 1, only=self.env["stock.location.orderpoint"]._fulfill_procurement
             )
 
+    def test_orderpoint_product_domain(self):
+        orderpoint, _location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="manual", proc_run_async=False
+        )
+        self._create_outgoing_move(12, product=self.product)
+        candidate_products = orderpoint._get_candidate_products()
+        self.assertIn(self.product, candidate_products)
+        orderpoint.product_domain_char = f'[("id", "!=", {self.product.id})]'
+        candidate_products = orderpoint._get_candidate_products()
+        self.assertNotIn(self.product, candidate_products)
+
     def test_auto_replenishment(self):
         job_func = self.env["stock.location.orderpoint"].run_replenishment
         move_qty = 12
@@ -216,6 +227,40 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             replenish_move_new = self._get_replenishment_move(orderpoint)
             self.assertEqual(replenish_move, replenish_move_new)
             self._assert_replenishment_move(replenish_move, move_qty * 2, orderpoint)
+
+    def test_auto_replenishment_with_product_domain(self):
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="auto"
+        )
+        orderpoint.product_domain_char = f'[("id", "!=", {self.product.id})]'
+        job_func = orderpoint.run_replenishment
+        with trap_jobs() as trap:
+            move = self._create_outgoing_move(12)
+            trap.assert_jobs_count(0, only=job_func)
+
+        # Create an incoming move to have available quantity, but no
+        # replenishment should be triggered because of the product domain
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(12, location_src)
+            trap.assert_jobs_count(0, only=job_func)
+
+        # If I remove the product domain, the replenishment should be triggered
+        orderpoint.product_domain_char = "[]"
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(1, location_src)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.run_replenishment,
+                args=(move.product_id,),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            self.product.invalidate_recordset()
+            trap.perform_enqueued_jobs()
+            replenish_move = self._get_replenishment_move(orderpoint)
+            self._assert_replenishment_move(replenish_move, 12, orderpoint)
 
     def test_auto_replenishment_channel(self):
         """
