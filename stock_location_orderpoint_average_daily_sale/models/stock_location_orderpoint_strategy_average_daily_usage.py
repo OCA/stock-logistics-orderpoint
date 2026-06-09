@@ -14,7 +14,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
     )
 
     @api.model
-    def _get_candidate_products(self, location, horizon, products=None):
+    def _get_candidate_products(self, location, horizon, product_domain, products=None):
         """
         In the average daily usage strategy, if the orderpoint is triggered without
         specifying products, we don't return products. Indeed, the candidate products will be
@@ -25,12 +25,20 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
 
         :param location: stock.location record
         :param horizon: datetime, time horizon to consider for the replenishment
+        :param product_domain: domain to filter products
         :return: product.product recordset
         """
+        if products:
+            if product_domain:
+                products = products.filtered_domain(product_domain)
+        elif product_domain:
+            products = self.env["product.product"].search(product_domain)
         return products
 
     @api.model
-    def _compute_demand(self, location, horizon, products) -> dict[int, float]:
+    def _compute_demand(
+        self, location, horizon, product_domain, products
+    ) -> dict[int, float]:
         """
         Compute demand for the given products according to the average daily usage strategy.
         The demand is computed based on the past average daily usage at the destination location

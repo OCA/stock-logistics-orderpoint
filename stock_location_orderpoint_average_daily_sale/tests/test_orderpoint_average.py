@@ -444,7 +444,10 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
 
         horizon = self.now + relativedelta(weeks=2)
         demand = self.orderpoint_1._strategy_model._compute_demand(
-            self.orderpoint_1.location_id, products=None, horizon=horizon
+            self.orderpoint_1.location_id,
+            products=None,
+            horizon=horizon,
+            product_domain=self.orderpoint_1._get_product_domain(),
         )
         product_ids = demand.keys()
         self.assertEqual({self.product_1.id}, set(product_ids))
@@ -453,6 +456,49 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
             self.orderpoint_1.location_id,
             products=self.env["product.product"].search([]),
             horizon=horizon,
+            product_domain=self.orderpoint_1._get_product_domain(),
         )
         product_ids = demand.keys()
         self.assertEqual({self.product_1.id}, set(product_ids))
+
+    def test_orderpoint_product_domain(self):
+        avg_product_1 = self.env["stock.average.daily.sale"].search(
+            [("product_id", "=", self.product_1.id)]
+        )
+        self.assertTrue(avg_product_1)
+        # Void inventory on Shelf 1
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.shelf_1.id,
+                "inventory_quantity": 0.0,
+            }
+        )._apply_inventory()
+
+        # Set invnetory on replenishment locations
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": self.product_1.id,
+                "location_id": self.replenish_1.id,
+                "inventory_quantity": 50.0,
+            }
+        )._apply_inventory()
+
+        self._create_outgoing_move(8, self.now, self.area_1, self.product_1, done=False)
+
+        # a demand exists
+        computer = self.orderpoint_1._get_replenishment_computer()
+        demand = computer._compute_demand(self.product_1)
+        self.assertIn(self.product_1.id, demand)
+
+        # add a product domain excluding the product, no replenishment should be triggered
+        self.orderpoint_1.product_domain_char = f"[('id', '!=', {self.product_1.id})]"
+        self._run_replenishment(self.orderpoint_1)
+        replenish_move = self._get_replenishment_move(self.orderpoint_1, self.product_1)
+        self.assertFalse(replenish_move)
+
+        # If I remove the product domain, the replenishment should be triggered
+        self.orderpoint_1.product_domain_char = "[]"
+        self._run_replenishment(self.orderpoint_1)
+        replenish_move = self._get_replenishment_move(self.orderpoint_1, self.product_1)
+        self.assertTrue(replenish_move)
