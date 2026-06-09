@@ -26,10 +26,9 @@ class StockLocationOrderpoint(models.Model):
     name = fields.Char(
         copy=False,
         required=True,
-        readonly=True,
-        default=lambda self: self.env["ir.sequence"].next_by_code(
-            "stock.location.orderpoint"
-        ),
+        readonly=False,
+        default="/",
+        help="Set to '/' and save if you want a default name to be proposed.",
     )
     company_id = fields.Many2one(
         "res.company",
@@ -815,7 +814,7 @@ class StockLocationOrderpoint(models.Model):
         return moves_to_assign
 
     # -------------------------------------------------------------------------
-    # Cache lifecycle
+    # Cache lifecycle and overrides of create/write/unlink
     # -------------------------------------------------------------------------
 
     def _clear_caches(self):
@@ -828,10 +827,27 @@ class StockLocationOrderpoint(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         self._clear_caches()
-        return super().create(vals_list)
+        val_list_updated = []
+        for vals in vals_list:
+            if "name" not in vals or vals["name"] == "/":
+                val_list_updated.append(
+                    dict(
+                        vals,
+                        name=self.env["ir.sequence"].next_by_code(
+                            "stock.location.orderpoint"
+                        ),
+                    )
+                )
+            else:
+                val_list_updated.append(vals)
+        return super().create(val_list_updated)
 
     def write(self, vals):
         self._clear_caches()
+        if "name" in vals and vals["name"] == "/":
+            vals["name"] = self.env["ir.sequence"].next_by_code(
+                "stock.location.orderpoint"
+            )
         return super().write(vals)
 
     def unlink(self):
