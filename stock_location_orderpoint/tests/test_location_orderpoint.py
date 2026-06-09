@@ -77,6 +77,23 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         with self.assertRaises(ValidationError):
             self._create_orderpoint(route_id=self.warehouse.delivery_route_id)
 
+    def test_orderpoint_name_sequence(self):
+        sequence = self.env.ref(
+            "stock_location_orderpoint.sequence_location_orderpoint"
+        )
+        orderpoint1 = self._create_orderpoint(name="/")
+        orderpoint2 = self._create_orderpoint(name="/")
+        self.assertNotEqual(orderpoint1.name, orderpoint2.name)
+        self.assertTrue(orderpoint1.name.startswith(sequence.prefix))
+        self.assertTrue(orderpoint2.name.startswith(sequence.prefix))
+        # if I create a new orderpoint with a specific name, it should keep it
+        orderpoint3 = self._create_orderpoint(name="My custom name")
+        self.assertEqual(orderpoint3.name, "My custom name")
+        # if I update an orderpoint with name '/', it should get
+        # a new name from the sequence
+        orderpoint3.name = "/"
+        self.assertTrue(orderpoint3.name.startswith(sequence.prefix))
+
     def test_cron_replenishment(self):
         cron = self.env.ref("stock_location_orderpoint.ir_cron_location_replenishment")
         orderpoint, location_src = self._create_orderpoint_complete(
