@@ -11,7 +11,7 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
     _description = "Stock location orderpoint strategy: fill up to the max quantity"
 
     @api.model
-    def _get_candidate_products(self, location, horizon, products=None):
+    def _get_candidate_products(self, location, horizon, product_domain, products=None):
         """
         In the fill-up strategy, if the orderpoint is triggered without specifying products,
         we want to consider only the products with pending not fully reserved moves
@@ -21,12 +21,15 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         demand for this product at the destination location.
 
         :param location: stock.location record
-        :param horizon: dateime, time horizon to consider for the replenishment
+        :param horizon: datetime, time horizon to consider for the replenishment
+        :param product_domain: domain to filter products
         :param products: product.product recordset or None
 
         :return: product.product recordset
         """
         if products:
+            if product_domain:
+                products = products.filtered_domain(product_domain)
             return products
         domain_move = self.env["stock.location"]._get_consuming_moves_domain(
             location.id
@@ -35,18 +38,43 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         stock_move_obj._flush_search(domain_move)
         query = stock_move_obj._where_calc(domain_move)
         stock_move_obj._apply_ir_rules(query, "read")
+
+        if product_domain:
+            product_obj = self.env["product.product"]
+            product_obj._flush_search(product_domain)
+            product_query = product_obj._where_calc(product_domain)
+            product_obj._apply_ir_rules(product_query, "read")
+
         from_clause, where_clause, params = query.get_sql()
         sql = f"""
             SELECT DISTINCT product_id
             FROM {from_clause}
             WHERE {where_clause}
         """
+        if product_domain:
+            (
+                from_clause_product,
+                where_clause_product,
+                params_product,
+            ) = product_query.get_sql()
+            sql += f"""
+                AND EXISTS (
+                    SELECT 1
+                    FROM {from_clause_product}
+                    WHERE {where_clause_product}
+                    AND product_product.id = stock_move.product_id
+                )
+            """
+            params += params_product
+
         self.env.cr.execute(sql, params)
         product_ids = [row[0] for row in self.env.cr.fetchall()]
         return self.env["product.product"].browse(product_ids)
 
     @api.model
-    def _compute_demand(self, location, horizon, products) -> dict[int, float]:
+    def _compute_demand(
+        self, location, horizon, product_domain, products
+    ) -> dict[int, float]:
         """
         Compute demand for the given products according to the fill-up strategy.
         The demand is computed as the quantity required to ensure that the
@@ -56,8 +84,11 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
 
         :param location: stock.location record
         :param horizon: datetime, time horizon to consider for the replenishment
-        :param products: product.product recordset
+        :param product_domain: domain to filter products
+        :param products: product.product recordset or None
         """
+        # we ignore the domain since the domain is already applied in
+        # the _get_candidate_products method
         demand_data = {}
         qties_on_location = products.with_context(
             location=location.id

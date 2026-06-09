@@ -8,6 +8,7 @@ from odoo import _, api, fields, models, tools
 from odoo.exceptions import ValidationError
 from odoo.osv import expression
 from odoo.tools import split_every
+from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.queue_job.job import identity_exact
 
@@ -83,6 +84,11 @@ class StockLocationOrderpoint(models.Model):
     )
     location_src_id = fields.Many2one(
         "stock.location", compute="_compute_location_src_id", store=True
+    )
+    product_domain_char = fields.Char(
+        string="Product domain",
+        help="Additional domain to filter products for this orderpoint. ",
+        default="[]",
     )
     replenish_limit_to_free_qty = fields.Boolean(
         string="Limit replenishment to free quantity at source location",
@@ -182,6 +188,10 @@ class StockLocationOrderpoint(models.Model):
     # -------------------------------------------------------------------------
     # Orderpoint selection and domains
     # -------------------------------------------------------------------------
+
+    def _get_product_domain(self):
+        self.ensure_one()
+        return safe_eval(self.product_domain_char) if self.product_domain_char else []
 
     def _prepare_orderpoint_domain_location(
         self, location_ids, location_field="location_id"
@@ -285,6 +295,12 @@ class StockLocationOrderpoint(models.Model):
         """Group impacted products by orderpoint using a domain provider."""
         products_by_orderpoint = defaultdict(self.env["product.product"].browse)
         for orderpoint in orderpoints:
+            product_domain = orderpoint._get_product_domain()
+            if product_domain:
+                authorized_product = moves.mapped("product_id").filtered_domain(
+                    product_domain
+                )
+                moves = moves.filtered(lambda m: m.product_id in authorized_product)
             moves_for_orderpoint = moves.filtered_domain(
                 get_moves_domain(orderpoint.id)
             )
@@ -403,6 +419,7 @@ class StockLocationOrderpoint(models.Model):
             "horizon": self._horizon_datetime,
             "replenish_limit_to_free_qty": self.replenish_limit_to_free_qty,
             "excluded_location_domain": self.stock_excluded_location_domain,
+            "product_domain": self._get_product_domain(),
         }
 
     # -------------------------------------------------------------------------
@@ -571,7 +588,10 @@ class StockLocationOrderpoint(models.Model):
         """
         self.ensure_one()
         return self._strategy_model._get_candidate_products(
-            self.location_id, self._horizon_datetime, products=products
+            self.location_id,
+            self._horizon_datetime,
+            self._get_product_domain(),
+            products=products,
         )
 
     def _build_procurements(self, procurement_data):

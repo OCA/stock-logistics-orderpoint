@@ -62,6 +62,9 @@ class StockLocationReplenishmentComputer(models.TransientModel):
         default=False,
         help="Optional domain to exclude some locations from availability computation. ",
     )
+    product_domain = fields.Binary(
+        default=[], help="Optional domain to filter products"
+    )
 
     # Strategy instance injected after new() — never persisted.
     # Set explicitly before calling compute():
@@ -135,7 +138,9 @@ class StockLocationReplenishmentComputer(models.TransientModel):
             location = location.with_context(
                 excluded_location_domain=self.excluded_location_domain
             )
-        return self._strategy._compute_demand(location, self.horizon, products)
+        return self._strategy._compute_demand(
+            location, self.horizon, self.product_domain, products
+        )
 
     def _compute_procurement_qty(self, demand_data, job_logs=None):
         """

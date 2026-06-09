@@ -69,17 +69,30 @@
                         <field name="replenish_limit_to_free_qty" />
                         <field name="replenish_horizon" />
                     </group>
-                    <group name="exclude_locations" string="Exclude Locations">
-                        <field
-                            name="stock_excluded_location_ids"
-                            widget="many2many_tags"
-                        />
-                        <field
-                            name="stock_excluded_location_domain_char"
-                            widget="domain"
-                            options="{'model': 'stock.quant'}"
-                        />
-                    </group>
+                    <notebook>
+                        <page name="filter_products" string="Filter products">
+                            <group>
+                                <field
+                                    name="product_domain_char"
+                                    widget="domain"
+                                    options="{'model': 'product.product'}"
+                                />
+                            </group>
+                        </page>
+                        <page name="filter_locations" string="Filter locations">
+                            <group name="exclude_locations">
+                                <field
+                                    name="stock_excluded_location_ids"
+                                    widget="many2many_tags"
+                                />
+                                <field
+                                    name="stock_excluded_location_domain_char"
+                                    widget="domain"
+                                    options="{'model': 'stock.quant'}"
+                                />
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
             </form>
         </field>
