@@ -264,7 +264,6 @@ class StockLocationOrderpoint(models.Model):
         )
 
     @api.model
-    @tools.ormcache("orderpoint_id")
     def _get_consuming_moves_domain(self, orderpoint_id):
         (
             _q,
@@ -277,7 +276,6 @@ class StockLocationOrderpoint(models.Model):
         return expression.AND([domain_move_out_loc, domain])
 
     @api.model
-    @tools.ormcache("orderpoint_id")
     def _get_supplying_moves_domain(self, orderpoint_id):
         (
             _q,
@@ -819,8 +817,6 @@ class StockLocationOrderpoint(models.Model):
 
     def _clear_caches(self):
         self._get_ids_by_parent_path.clear_cache(self)
-        self._get_consuming_moves_domain.clear_cache(self)
-        self._get_supplying_moves_domain.clear_cache(self)
         self._get_src_domains.clear_cache(self)
         self._get_dest_domains.clear_cache(self)
 
