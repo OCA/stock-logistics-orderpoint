@@ -115,7 +115,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         # --- STOCK MOVE (OUTGOING) with condition on products ---
         # --- for which we have an average daily sale at the location ---
 
-        outgoing_moves_domain = location._get_consuming_moves_domain(location.id)
+        outgoing_moves_domain = location._get_consuming_moves_domain()
         outgoing_moves_domain = expression.AND(
             [outgoing_moves_domain, [("date", "<=", horizon)]]
         )
@@ -141,7 +141,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
 
         # -- STOCK MOVE (INCOMING) with condition on products ---
         # --- for which we have an average daily sale at the location ---
-        incoming_moves_domain = location._get_replenishing_moves_domain(location.id)
+        incoming_moves_domain = location._get_replenishing_moves_domain()
         incoming_moves_domain = expression.AND(
             [incoming_moves_domain, [("date", "<=", horizon)]]
         )
@@ -166,7 +166,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         # --- for which we have an average daily sale at the location ---
 
         stock_quant_obj = self.env["stock.quant"]
-        domain_quant, _im, _om = location._get_stock_domains(location.id)
+        domain_quant, _im, _om = location._get_stock_domains()
         stock_quant_obj._flush_search(domain_quant)
         stock_quant_obj.flush_model(["quantity"])
 
