@@ -55,47 +55,34 @@ class StockLocation(models.Model):
     def _get_cached_stock_domains(self, location_id):
         return self.env["product.product"]._get_domain_locations_new(location_id)
 
-    def _get_stock_domains(self, location_id):
+    def _get_stock_domains(self):
+        self.ensure_one()
         domain = self.env.context.get("excluded_location_domain", [])
         return self.with_context(
             excluded_location_domain_cache_key=make_hashable(domain)
-        )._get_cached_stock_domains(location_id)
+        )._get_cached_stock_domains(self.id)
 
-    @api.model
-    def _get_consuming_moves_domain(self, location_id):
+    def _get_consuming_moves_domain(self):
         """Get the domain to apply on stock.move to get the consuming moves of a location."""
         (
             _q,
             _il,
             domain_move_out_loc,
-        ) = self._get_stock_domains(location_id)
+        ) = self._get_stock_domains()
         domain = [
             ("state", "in", ("confirmed", "partially_available")),
         ]
         return expression.AND([domain_move_out_loc, domain])
 
     @api.model
-    def _get_replenishing_moves_domain(self, location_id):
-        """Get the domain to apply on stock.move to get the moves replenishing a location."""
-        (
-            _q,
-            domain_move_in_loc,
-            _ol,
-        ) = self._get_stock_domains(location_id)
-        domain = [
-            ("state", "in", ("confirmed", "assigned", "partially_available")),
-        ]
-        return expression.AND([domain_move_in_loc, domain])
-
-    @api.model
-    def _get_replenished_moves_domain(self, location_id):
-        """Get the domain to apply on stock.move to get the move having repeished the
+    def _get_replenished_moves_domain(self):
+        """Get the domain to apply on stock.move to get the move having replenished the
         location."""
         (
             _q,
             domain_move_in_loc,
             _ol,
-        ) = self._get_stock_domains(location_id)
+        ) = self._get_stock_domains()
         domain = [
             ("state", "=", "done"),
         ]
