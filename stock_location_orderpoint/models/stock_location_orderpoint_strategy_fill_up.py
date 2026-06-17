@@ -31,9 +31,7 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
             if product_domain:
                 products = products.filtered_domain(product_domain)
             return products
-        domain_move = self.env["stock.location"]._get_consuming_moves_domain(
-            location.id
-        )
+        domain_move = location._get_consuming_moves_domain()
         stock_move_obj = self.env["stock.move"]
         stock_move_obj._flush_search(domain_move)
         query = stock_move_obj._where_calc(domain_move)
@@ -119,9 +117,7 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         replenishment_moves = super()._after_run_replenishment(
             location, replenishment_moves
         )
-        domain_move = self.env["stock.location"]._get_consuming_moves_domain(
-            location.id
-        )
+        domain_move = location._get_consuming_moves_domain()
         stock_move_obj = self.env["stock.move"]
         stock_move_obj._flush_search(domain_move)
         stock_move_obj.flush_model(["date"])

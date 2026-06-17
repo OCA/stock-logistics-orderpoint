@@ -82,6 +82,22 @@ class StockLocationReplenishmentComputer(models.TransientModel):
     def _strategy(self, value):
         self.__strategy = value
 
+    @property
+    def location(self):
+        """Return the location_id with the excluded_location_domain applied in context."""
+        self.ensure_one()
+        return self.location_id.with_context(
+            excluded_location_domain=self.excluded_location_domain
+        )
+
+    @property
+    def location_src(self):
+        """Return the location_src_id with the excluded_location_domain applied in context."""
+        self.ensure_one()
+        return self.location_src_id.with_context(
+            excluded_location_domain=self.excluded_location_domain
+        )
+
     # -------------------------------------------------------------------------
     # Public entry point
     # -------------------------------------------------------------------------
@@ -129,17 +145,13 @@ class StockLocationReplenishmentComputer(models.TransientModel):
         :return: dict {product_id: demand_qty}
         """
         self.ensure_one()
-        location = self.location_id
         if self.excluded_location_domain:
             if products is not None:
                 products = products.with_context(
                     excluded_location_domain=self.excluded_location_domain
                 )
-            location = location.with_context(
-                excluded_location_domain=self.excluded_location_domain
-            )
         return self._strategy._compute_demand(
-            location, self.horizon, self.product_domain, products
+            self.location, self.horizon, self.product_domain, products
         )
 
     def _compute_procurement_qty(self, demand_data, job_logs=None):
@@ -205,17 +217,11 @@ class StockLocationReplenishmentComputer(models.TransientModel):
         :return: dict {product_id: qty_available}
         """
         self.ensure_one()
-        location_model = self.env["stock.location"]
-        if self.excluded_location_domain:
-            location_model = location_model.with_context(
-                excluded_location_domain=self.excluded_location_domain
-            )
-
         (
             quant_domain,
             _move_in_domain,
             move_out_domain,
-        ) = location_model._get_stock_domains(self.location_src_id.id)
+        ) = self.location_src._get_stock_domains()
 
         if len(product_ids) < 500:
             # IN query too expensive with large product sets — skip when possible

@@ -144,6 +144,22 @@ class StockLocationOrderpoint(models.Model):
         self.ensure_one()
         return fields.Datetime.add(fields.Datetime.now(), days=self.replenish_horizon)
 
+    @property
+    def location(self):
+        """Return the location_id with the excluded_location_domain applied in context."""
+        self.ensure_one()
+        return self.location_id.with_context(
+            excluded_location_domain=self.stock_excluded_location_domain
+        )
+
+    @property
+    def location_src(self):
+        """Return the location_src_id with the excluded_location_domain applied in context."""
+        self.ensure_one()
+        return self.location_src_id.with_context(
+            excluded_location_domain=self.stock_excluded_location_domain
+        )
+
     # -------------------------------------------------------------------------
     # Validation and computed fields
     # -------------------------------------------------------------------------
@@ -263,32 +279,16 @@ class StockLocationOrderpoint(models.Model):
             trigger, locations=moves.location_dest_id, location_field="location_src_id"
         )
 
-    @api.model
-    def _get_consuming_moves_domain(self, orderpoint_id):
-        (
-            _q,
-            _il,
-            domain_move_out_loc,
-        ) = self._get_dest_domains(orderpoint_id)
-        domain = [
-            ("state", "in", ("confirmed", "partially_available")),
-        ]
-        return expression.AND([domain_move_out_loc, domain])
+    def _get_consuming_moves_domain(self):
+        return self.location._get_consuming_moves_domain()
+
+    def _get_supplying_moves_domain(self):
+        return self.location_src._get_replenished_moves_domain()
 
     @api.model
-    def _get_supplying_moves_domain(self, orderpoint_id):
-        (
-            _q,
-            domain_move_in_loc,
-            _ol,
-        ) = self._get_src_domains(orderpoint_id)
-        domain = [
-            ("state", "=", "done"),
-        ]
-        return expression.AND([domain_move_in_loc, domain])
-
-    @api.model
-    def _collect_products_by_orderpoint(self, moves, orderpoints, get_moves_domain):
+    def _collect_products_by_orderpoint(
+        self, moves, orderpoints, get_moves_domain_method: str
+    ):
         """Group impacted products by orderpoint using a domain provider."""
         products_by_orderpoint = defaultdict(self.env["product.product"].browse)
         for orderpoint in orderpoints:
@@ -299,7 +299,7 @@ class StockLocationOrderpoint(models.Model):
                 )
                 moves = moves.filtered(lambda m: m.product_id in authorized_product)
             moves_for_orderpoint = moves.filtered_domain(
-                get_moves_domain(orderpoint.id)
+                getattr(orderpoint, get_moves_domain_method)()
             )
             if not moves_for_orderpoint:
                 continue
@@ -321,7 +321,7 @@ class StockLocationOrderpoint(models.Model):
             trigger, locations=moves.location_id, location_field="location_id"
         )
         return self._collect_products_by_orderpoint(
-            moves, orderpoints, self._get_consuming_moves_domain
+            moves, orderpoints, "_get_consuming_moves_domain"
         )
 
     @api.model
@@ -339,41 +339,12 @@ class StockLocationOrderpoint(models.Model):
             trigger, locations=moves.location_dest_id, location_field="location_src_id"
         )
         return self._collect_products_by_orderpoint(
-            moves, orderpoints, self._get_supplying_moves_domain
-        )
-
-    @api.model
-    @tools.ormcache("orderpoint_id")
-    def _get_src_domains(self, orderpoint_id):
-        """Get the quant, move in and move out domains
-        for the orderpoint location source and its children locations
-        """
-        orderpoint = self.browse(orderpoint_id)
-        return orderpoint._product_model._get_domain_locations_new(
-            [orderpoint.location_src_id.id]
-        )
-
-    @api.model
-    @tools.ormcache("orderpoint_id")
-    def _get_dest_domains(self, orderpoint_id):
-        """Get the quant, move in and move out domains
-        for the orderpoint location destination and its children locations
-        """
-        orderpoint = self.browse(orderpoint_id)
-        return orderpoint._product_model._get_domain_locations_new(
-            [orderpoint.location_id.id]
+            moves, orderpoints, "_get_supplying_moves_domain"
         )
 
     # -------------------------------------------------------------------------
     # Context-aware model accessors
     # -------------------------------------------------------------------------
-
-    @property
-    def _product_model(self):
-        """Returns the product model scoped with the orderpoint's excluded
-        location domain."""
-        self.ensure_one()
-        return self.env["product.product"]
 
     @property
     def _strategy_model(self) -> StockLocationOrderpointStrategy:
@@ -585,7 +556,7 @@ class StockLocationOrderpoint(models.Model):
         """
         self.ensure_one()
         return self._strategy_model._get_candidate_products(
-            self.location_id,
+            self.location,
             self._horizon_datetime,
             self._get_product_domain(),
             products=products,
@@ -802,7 +773,7 @@ class StockLocationOrderpoint(models.Model):
                     picking.priority = new_priority
 
         return self._strategy_model._after_run_replenishment(
-            self.location_id, replenishment_moves
+            self.location, replenishment_moves
         )
 
     def _assign_replenishment_moves(self, moves_to_assign):
@@ -817,8 +788,6 @@ class StockLocationOrderpoint(models.Model):
 
     def _clear_caches(self):
         self._get_ids_by_parent_path.clear_cache(self)
-        self._get_src_domains.clear_cache(self)
-        self._get_dest_domains.clear_cache(self)
 
     @api.model_create_multi
     def create(self, vals_list):
