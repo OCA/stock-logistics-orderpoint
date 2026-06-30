@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 14.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2024-08-12 08:58+0000\n"
+"PO-Revision-Date: 2026-06-30 15:46+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.6.2\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #. module: stock_orderpoint_mto_as_mts
 #: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_stock_warehouse__archive_orderpoints_mto_removal
@@ -24,7 +24,7 @@ msgstr "Rimozione punti riordino MTO archiviati"
 #. module: stock_orderpoint_mto_as_mts
 #: model:ir.model,name:stock_orderpoint_mto_as_mts.model_stock_route
 msgid "Inventory Routes"
-msgstr "Percorsi di inventario"
+msgstr "Percorsi di magazzino"
 
 #. module: stock_orderpoint_mto_as_mts
 #: model:ir.model.fields,field_description:stock_orderpoint_mto_as_mts.field_stock_warehouse__mto_as_mts
