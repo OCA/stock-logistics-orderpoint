@@ -127,7 +127,12 @@ class StockLocationOrderpoint(models.Model):
             "location_route_unique",
             "unique(location_id, route_id, company_id, replenish_method)",
             "The combination of Company, Location, Route and Replenish method must be unique",
-        )
+        ),
+        (
+            "name_unique",
+            "unique(name, company_id)",
+            "The Orderpoint name must be unique per company",
+        ),
     ]
 
     def _selection_move_priorities(self):
