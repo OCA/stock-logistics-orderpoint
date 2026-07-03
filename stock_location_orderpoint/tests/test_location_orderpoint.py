@@ -354,17 +354,18 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         Create a stock move that should not create a replenishment:
           - A move from a new stock location 'WH/Stock 2' to Scrap
         """
-        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
+        job_func = orderpoint.run_replenishment
+        new_location = self.env["stock.location"].create(
+            {
+                "name": "Other Stock",
+                "location_id": self.location_dest.location_id.id,
+            }
+        )
+        self.location_dest = new_location
+        self._create_quants(self.product, self.location_dest, 10.0)
+
         with trap_jobs() as trap:
-            new_location = self.env["stock.location"].create(
-                {
-                    "name": "Other Stock",
-                    "location_id": self.location_dest.location_id.id,
-                }
-            )
-            _, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
-            self.location_dest = new_location
-            self._create_quants(self.product, self.location_dest, 10.0)
             move = self._create_scrap_move(10.0, self.location_dest)
             trap.assert_jobs_count(0, only=job_func)
             trap.perform_enqueued_jobs()

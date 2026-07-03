@@ -401,21 +401,6 @@ class StockLocationOrderpoint(models.Model):
         orderpoints.write({"last_cron_execution": self.env.cr.now()})
         return res
 
-    @api.model
-    def run_auto_replenishment(self, products, locations, location_field="location_id"):
-        """
-        Run the replenishment for all given products.
-        Selects the right orderpoints by locations and location_field.
-
-        :param products: browse record list of product.product
-        :param locations: browse record list of stock.location
-        :param location_field: should be location_id or location_src_id
-        """
-        if not locations or not products:
-            return
-        orderpoints = self._get_orderpoints("auto", locations, location_field)
-        orderpoints.run_replenishment(products)
-
     def run_replenishment(self, products=None, job_logs=None):
         """
         Public entry point to execute the replenishment rule.
