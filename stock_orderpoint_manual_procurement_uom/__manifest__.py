@@ -6,7 +6,7 @@
     "stock_orderpoint_manual_procurement",
     "version": "14.0.1.0.2",
     "author": "ForgeFlow, Odoo Community Association (OCA)",
-    "website": "https://github.com/OCA/stock-logistics-warehouse",
+    "website": "https://github.com/OCA/stock-logistics-orderpoint",
     "category": "Warehouse Management",
     "depends": ["stock_orderpoint_uom", "stock_orderpoint_manual_procurement"],
     "license": "AGPL-3",

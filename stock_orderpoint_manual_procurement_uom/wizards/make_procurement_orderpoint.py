@@ -9,7 +9,7 @@ class MakeProcurementOrderpoint(models.TransientModel):
 
     @api.model
     def _prepare_item(self, orderpoint):
-        vals = super(MakeProcurementOrderpoint, self)._prepare_item(orderpoint)
+        vals = super()._prepare_item(orderpoint)
         if orderpoint.procure_uom_id:
             product_uom = orderpoint.procure_uom_id
             vals["uom_id"] = product_uom.id
