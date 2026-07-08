@@ -67,6 +67,9 @@ Contributors
 - Bhavesh Odedra <bodedra@opensourceintegrators.com>
 - Kitti Upariphutthiphong <kittiu@ecosoft.co.th>
 - Pimolnat Suntian <pimolnats@ecosoft.co.th>
+- `NuoBiT <https://www.nuobit.com>`__:
+
+  - Deniz Gallo <dgallo@nuobit.com>
 
 Maintainers
 -----------
