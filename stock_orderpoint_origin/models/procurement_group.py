@@ -35,6 +35,9 @@ class ProcurementGroup(models.Model):
                     x.procurement_group_id if x._name != "stock.picking" else x.group_id
                     for x in source_docs
                 ]
+                source_groups = self.env["procurement.group"].browse(
+                    proc.id for proc in source_groups if proc
+                )
                 source_names = ", ".join([x.name for x in source_docs])
                 new_origin = self.env._(
                     "%(source_names)s (from %(procurement_origin)s)",
