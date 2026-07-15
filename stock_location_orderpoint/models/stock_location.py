@@ -88,18 +88,18 @@ class StockLocation(models.Model):
         ]
         return expression.AND([domain_move_in_loc, domain])
 
-    def _clear_caches(self):
+    def _lop_clear_caches(self):
         self._get_cached_stock_domains.clear_cache(self)
 
     @api.model_create_multi
     def create(self, vals_list):
-        self._clear_caches()
+        self._lop_clear_caches()
         return super().create(vals_list)
 
     def write(self, vals):
-        self._clear_caches()
+        self._lop_clear_caches()
         return super().write(vals)
 
     def unlink(self):
-        self._clear_caches()
+        self._lop_clear_caches()
         return super().unlink()
