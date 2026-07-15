@@ -43,6 +43,6 @@ class StockLocation(models.Model):
     # Cache lifecycle
     # -------------------------------------------------------------------------
 
-    def _clear_caches(self):  # pylint: disable=missing-return
-        super()._clear_caches()
+    def _lop_clear_caches(self):  # pylint: disable=missing-return
+        super()._lop_clear_caches()
         self._get_daily_usage_products_location_domain.clear_cache(self)
