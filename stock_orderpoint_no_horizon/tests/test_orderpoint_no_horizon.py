@@ -58,7 +58,6 @@ class TestOrderpointNoHorizon(BaseCommon):
 
         delivery_move = self.env["stock.move"].create(
             {
-                "name": "Delivery",
                 "date": datetime.today() + timedelta(days=5),
                 "product_id": self.product.id,
                 "product_uom": self.uom_unit.id,

@@ -7,8 +7,8 @@ from odoo import models
 class StockWarehouseOrderpoint(models.Model):
     _inherit = "stock.warehouse.orderpoint"
 
-    def _get_product_context(self, visibility_days=0):
-        ctx = super()._get_product_context(visibility_days=visibility_days)
+    def _get_product_context(self):
+        ctx = super()._get_product_context()
         if "to_date" in ctx:
             del ctx["to_date"]
         return ctx
