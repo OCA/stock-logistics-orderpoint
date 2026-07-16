@@ -1,5 +1,6 @@
 # Copyright 2023 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+import datetime
 from contextlib import contextmanager
 from unittest.mock import patch
 
@@ -9,7 +10,6 @@ from psycopg2 import IntegrityError
 from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tools import mute_logger
-from odoo.tools.date_utils import get_timedelta
 
 from odoo.addons.queue_job.job import identity_exact
 from odoo.addons.queue_job.tests.common import trap_jobs
@@ -20,10 +20,10 @@ from .common import TestLocationOrderpointCommon
 class TestLocationOrderpoint(TestLocationOrderpointCommon):
     def test_manual_replenishment(self):
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="manual"
+            "Stock2", trigger="manual", proc_run_async=False
         )
         orderpoint2, location_src2 = self._create_orderpoint_complete(
-            "Stock2.2", trigger="manual"
+            "Stock2.2", trigger="manual", proc_run_async=False
         )
 
         self.assertEqual(orderpoint.location_src_id, location_src)
@@ -77,10 +77,27 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         with self.assertRaises(ValidationError):
             self._create_orderpoint(route_id=self.warehouse.delivery_route_id)
 
+    def test_orderpoint_name_sequence(self):
+        sequence = self.env.ref(
+            "stock_location_orderpoint.sequence_location_orderpoint"
+        )
+        orderpoint1 = self._create_orderpoint(name="/")
+        orderpoint2 = self._create_orderpoint(name="/")
+        self.assertNotEqual(orderpoint1.name, orderpoint2.name)
+        self.assertTrue(orderpoint1.name.startswith(sequence.prefix))
+        self.assertTrue(orderpoint2.name.startswith(sequence.prefix))
+        # if I create a new orderpoint with a specific name, it should keep it
+        orderpoint3 = self._create_orderpoint(name="My custom name")
+        self.assertEqual(orderpoint3.name, "My custom name")
+        # if I update an orderpoint with name '/', it should get
+        # a new name from the sequence
+        orderpoint3.name = "/"
+        self.assertTrue(orderpoint3.name.startswith(sequence.prefix))
+
     def test_cron_replenishment(self):
         cron = self.env.ref("stock_location_orderpoint.ir_cron_location_replenishment")
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="cron"
+            "Stock2", trigger="cron", proc_run_async=False
         )
         # at this point the orderpoint has no last_cron_execution
         self.assertFalse(orderpoint.last_cron_execution)
@@ -97,12 +114,12 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self.assertFalse(replenish_move)
 
         # create the available quantity -> replenishment
-        tomorrow = now + get_timedelta(1, "day")
+        tomorrow = fields.Datetime.add(now, days=1)
         with self._freeze_time(tomorrow):
             self._set_qty_in_location(self.product, location_src, 12)
 
         self.product.invalidate_recordset()
-        day_after_tomorrow = now + get_timedelta(2, "day")
+        day_after_tomorrow = fields.Datetime.add(now, days=2)
         with self._freeze_time(day_after_tomorrow):
             cron.method_direct_trigger()
 
@@ -110,12 +127,60 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self._assert_replenishment_move(replenish_move, 12, orderpoint)
         self.assertEqual(orderpoint.last_cron_execution, day_after_tomorrow)
 
+    def test_replenishment_delay_procurement_run(self):
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="manual", proc_run_async=True
+        )
+        self._create_outgoing_move(12)
+        self._set_qty_in_location(self.product, location_src, 12)
+        with trap_jobs() as trap:
+            self._run_replenishment(orderpoint)
+            trap.assert_jobs_count(
+                1, only=self.env["stock.location.orderpoint"]._fulfill_procurement
+            )
+            self.product.invalidate_recordset()
+            trap.perform_enqueued_jobs()
+        replenish_move = self._get_replenishment_move(orderpoint)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
+
+    def test_replenishment_horizon(self):
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="manual", proc_run_async=True
+        )
+        horizon = orderpoint.replenish_horizon
+        self._set_qty_in_location(self.product, location_src, 12)
+        self._create_outgoing_move(
+            12, date=fields.Datetime.now() + datetime.timedelta(days=horizon + 1)
+        )
+        with trap_jobs() as trap:
+            self._run_replenishment(orderpoint)
+            trap.assert_jobs_count(
+                0, only=self.env["stock.location.orderpoint"]._fulfill_procurement
+            )
+        orderpoint.replenish_horizon = horizon + 1
+        with trap_jobs() as trap:
+            self._run_replenishment(orderpoint)
+            trap.assert_jobs_count(
+                1, only=self.env["stock.location.orderpoint"]._fulfill_procurement
+            )
+
+    def test_orderpoint_product_domain(self):
+        orderpoint, _location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="manual", proc_run_async=False
+        )
+        self._create_outgoing_move(12, product=self.product)
+        candidate_products = orderpoint._get_candidate_products()
+        self.assertIn(self.product, candidate_products)
+        orderpoint.product_domain_char = f'[("id", "!=", {self.product.id})]'
+        candidate_products = orderpoint._get_candidate_products()
+        self.assertNotIn(self.product, candidate_products)
+
     def test_auto_replenishment(self):
-        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        job_func = self.env["stock.location.orderpoint"].run_replenishment
         move_qty = 12
         with trap_jobs() as trap:
             move = self._create_outgoing_move(move_qty)
-            trap.assert_jobs_count(0, only=job_func)
+            trap.assert_jobs_count(0)
             trap.perform_enqueued_jobs()
             replenish_move = self.env["stock.move"].search(
                 [
@@ -128,12 +193,13 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2", trigger="auto"
         )
+        job_func = orderpoint.run_replenishment
         with trap_jobs() as trap:
             move = self._create_outgoing_move(move_qty)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.browse([]).run_auto_replenishment,
-                args=(move.product_id, move.location_id, "location_id"),
+                orderpoint.run_replenishment,
+                args=(move.product_id,),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
@@ -148,8 +214,8 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             move = self._create_incoming_move(move_qty, location_src)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.browse([]).run_auto_replenishment,
-                args=(move.product_id, move.location_dest_id, "location_src_id"),
+                orderpoint.run_replenishment,
+                args=(move.product_id,),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
@@ -166,8 +232,8 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             move = self._create_outgoing_move(move_qty)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.browse([]).run_auto_replenishment,
-                args=(move.product_id, move.location_id, "location_id"),
+                orderpoint.run_replenishment,
+                args=(move.product_id,),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
@@ -179,24 +245,58 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             self.assertEqual(replenish_move, replenish_move_new)
             self._assert_replenishment_move(replenish_move, move_qty * 2, orderpoint)
 
+    def test_auto_replenishment_with_product_domain(self):
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="auto"
+        )
+        orderpoint.product_domain_char = f'[("id", "!=", {self.product.id})]'
+        job_func = orderpoint.run_replenishment
+        with trap_jobs() as trap:
+            move = self._create_outgoing_move(12)
+            trap.assert_jobs_count(0, only=job_func)
+
+        # Create an incoming move to have available quantity, but no
+        # replenishment should be triggered because of the product domain
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(12, location_src)
+            trap.assert_jobs_count(0, only=job_func)
+
+        # If I remove the product domain, the replenishment should be triggered
+        orderpoint.product_domain_char = "[]"
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(1, location_src)
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.run_replenishment,
+                args=(move.product_id,),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+            self.product.invalidate_recordset()
+            trap.perform_enqueued_jobs()
+            replenish_move = self._get_replenishment_move(orderpoint)
+            self._assert_replenishment_move(replenish_move, 12, orderpoint)
+
     def test_auto_replenishment_channel(self):
         """
         Check that the channel for enqueud job is
         root.stock_location_orderpoint_auto_replenishment
         """
-        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
         move_qty = 12
 
         orderpoint, location_src = self._create_orderpoint_complete(
             "Stock2",
             trigger="auto",
         )
+        job_func = orderpoint.run_replenishment
         with trap_jobs() as trap:
             move = self._create_outgoing_move(move_qty)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.browse([]).run_auto_replenishment,
-                args=(move.product_id, move.location_id, "location_id"),
+                job_func,
+                args=(move.product_id,),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
@@ -211,8 +311,8 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             move = self._create_incoming_move(move_qty, location_src)
             trap.assert_jobs_count(1, only=job_func)
             trap.assert_enqueued_job(
-                orderpoint.browse([]).run_auto_replenishment,
-                args=(move.product_id, move.location_dest_id, "location_src_id"),
+                job_func,
+                args=(move.product_id,),
                 kwargs={},
                 properties=dict(
                     identity_key=identity_exact,
@@ -220,7 +320,9 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             )
             job = trap.enqueued_jobs[0]
             self.assertEqual(
-                job.channel, "root.stock_location_orderpoint_auto_replenishment"
+                job.channel,
+                "root.stock_location_orderpoint_replenishment."
+                "stock_location_orderpoint_auto_replenishment",
             )
 
     def test_auto_no_replenishment(self):
@@ -228,17 +330,18 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         Create a stock move that should not create a replenishment:
           - A move from a new stock location 'WH/Stock 2' to Scrap
         """
-        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
+        job_func = orderpoint.run_replenishment
+        new_location = self.env["stock.location"].create(
+            {
+                "name": "Other Stock",
+                "location_id": self.location_dest.location_id.id,
+            }
+        )
+        self.location_dest = new_location
+        self._create_quants(self.product, self.location_dest, 10.0)
+
         with trap_jobs() as trap:
-            new_location = self.env["stock.location"].create(
-                {
-                    "name": "Other Stock",
-                    "location_id": self.location_dest.location_id.id,
-                }
-            )
-            _, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
-            self.location_dest = new_location
-            self._create_quants(self.product, self.location_dest, 10.0)
             move = self._create_scrap_move(10.0, self.location_dest)
             trap.assert_jobs_count(0, only=job_func)
             trap.perform_enqueued_jobs()

@@ -13,10 +13,10 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         we need to exclude some locations from the available quantities (e.g.: Suppliers).
         """
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="manual"
+            "Stock2", trigger="manual", proc_run_async=False
         )
         orderpoint2, location_src2 = self._create_orderpoint_complete(
-            "Stock2.2", trigger="manual"
+            "Stock2.2", trigger="manual", proc_run_async=False
         )
 
         orderpoint.stock_excluded_location_domain = [

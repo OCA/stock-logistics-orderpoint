@@ -53,3 +53,8 @@ Location Orderpoint configuration
    for product available quantities when triggering a replenishment (e.g.: Supplier locations - 
    to avoid confirmed receptions taken into account), fill in the 
    'Domain to filter locations' field.
+
+When different orderpoints are defined on the same location, it could result in the creation of several
+replenishment moves for the same product. When this happens, if the moves are merged together, the
+resulting move will be linked to the orderpoint with the highest priority, ensuring that the move 
+inherits the correct priority and is processed accordingly.
