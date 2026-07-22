@@ -432,6 +432,34 @@ class StockLocationOrderpoint(models.Model):
         self.ensure_one()
         return (self.priority, self.location_id.id, product_id)
 
+    def _reclaim_replenishing_moves_from_lower_priority_orderpoints(self):
+        """Reassign existing replenishing moves from lower-priority orderpoints to this one.
+
+        Ensures higher-priority orderpoints inherit existing moves and bump their priority
+        instead of being ignored by the procurement engine.
+        """
+        self.ensure_one()
+        consumed_products_ids = [
+            x["product_id"]
+            for x in self.env["stock.move"].search_read(
+                self._get_consuming_moves_domain(), ["product_id"], load=None
+            )
+        ]
+        replenishment_moves = self.env["stock.move"].search(
+            [
+                ("location_orderpoint_id", "not in", [False, self.id]),
+                ("location_dest_id", "=", self.location_id.id),
+                ("priority", "<", self.priority),
+                ("product_id", "in", consumed_products_ids),
+                ("state", "not in", ("cancel", "done", "draft")),
+            ]
+        )
+        for move in replenishment_moves:
+            move.location_orderpoint_id = self.id
+            move.origin += f"/{self.name}"
+            move.name = self.name
+        return replenishment_moves
+
     def _run_replenishment(self, products=None, processed=None, job_logs=None):
         """
         Internal pipeline:
@@ -454,12 +482,14 @@ class StockLocationOrderpoint(models.Model):
           are always atomic within a single transaction. The number of jobs
           is bounded by the number of products with actual demand.
         """
-        result = self.env["stock.move"]
+
         processed = processed or set()
         self.ensure_one()
         is_delayed = self._must_delay_fulfill_procurement()
-
         products = self._get_candidate_products(products)
+        replenishment_moves = (
+            self._reclaim_replenishing_moves_from_lower_priority_orderpoints()
+        )
 
         # Filter out products already handled by a higher-priority orderpoint
         # sharing the same location. Only meaningful in the async path.
@@ -476,7 +506,7 @@ class StockLocationOrderpoint(models.Model):
                         orderpoint=self.display_name,
                     )
                 )
-            return result
+            return replenishment_moves
 
         # Single call to the computer:
         #   demand_only=True  → returns {product_id: demand_qty}  (async path)
@@ -505,12 +535,12 @@ class StockLocationOrderpoint(models.Model):
                         orderpoint=self.display_name,
                     )
                 )
-            return result
+            return self._after_replenishment(replenishment_moves)
 
         if is_delayed:
             for product_id, demand_qty in procurement_data.items():
                 self._enqueue_fulfill_procurement(product_id, demand_qty).delay()
-            return result
+            return self._after_replenishment(replenishment_moves)
 
         if job_logs is not None:
             job_logs.append(
@@ -524,10 +554,10 @@ class StockLocationOrderpoint(models.Model):
 
         procurements = self._build_procurements(procurement_data)
         if not procurements:
-            return result
+            return self._after_replenishment(replenishment_moves)
 
-        result = self._execute_run_procurements(procurements)
-        return self._after_replenishment(result)
+        replenishment_moves = self._execute_run_procurements(procurements)
+        return self._after_replenishment(replenishment_moves)
 
     # -------------------------------------------------------------------------
     # Replenishment execution pipeline (orderpoint-bound)
