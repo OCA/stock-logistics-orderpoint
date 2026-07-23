@@ -380,6 +380,8 @@ class StockLocationOrderpoint(models.Model):
         computer = self.env["stock.location.replenishment.computer"].new(
             self._prepare_replenishment_computer_values()
         )
+        computer = computer.with_context(orderpoint_id=self.id)
+        # computer.location_id = computer.location_id.with_context(orderpoint_id=self.id)
         computer._strategy = self._strategy_model
         return computer
 
@@ -387,7 +389,7 @@ class StockLocationOrderpoint(models.Model):
         """Prepare the values to instantiate the replenishment computer."""
         self.ensure_one()
         return {
-            "location_id": self.location_id.id,
+            "location_id": self.location_id.with_context(orderpoint_id=self.id),
             "location_src_id": self.location_src_id.id,
             "horizon": self._horizon_datetime,
             "replenish_limit_to_free_qty": self.replenish_limit_to_free_qty,
@@ -432,34 +434,6 @@ class StockLocationOrderpoint(models.Model):
         self.ensure_one()
         return (self.priority, self.location_id.id, product_id)
 
-    def _reclaim_replenishing_moves_from_lower_priority_orderpoints(self):
-        """Reassign existing replenishing moves from lower-priority orderpoints to this one.
-
-        Ensures higher-priority orderpoints inherit existing moves and bump their priority
-        instead of being ignored by the procurement engine.
-        """
-        self.ensure_one()
-        consumed_products_ids = [
-            x["product_id"]
-            for x in self.env["stock.move"].search_read(
-                self._get_consuming_moves_domain(), ["product_id"], load=None
-            )
-        ]
-        replenishment_moves = self.env["stock.move"].search(
-            [
-                ("location_orderpoint_id", "not in", [False, self.id]),
-                ("location_dest_id", "=", self.location_id.id),
-                ("priority", "<", self.priority),
-                ("product_id", "in", consumed_products_ids),
-                ("state", "not in", ("cancel", "done", "draft")),
-            ]
-        )
-        for move in replenishment_moves:
-            move.location_orderpoint_id = self.id
-            move.origin += f"/{self.name}"
-            move.name = self.name
-        return replenishment_moves
-
     def _run_replenishment(self, products=None, processed=None, job_logs=None):
         """
         Internal pipeline:
@@ -487,9 +461,7 @@ class StockLocationOrderpoint(models.Model):
         self.ensure_one()
         is_delayed = self._must_delay_fulfill_procurement()
         products = self._get_candidate_products(products)
-        replenishment_moves = (
-            self._reclaim_replenishing_moves_from_lower_priority_orderpoints()
-        )
+        replenishment_moves = self.env["stock.move"]
 
         # Filter out products already handled by a higher-priority orderpoint
         # sharing the same location. Only meaningful in the async path.

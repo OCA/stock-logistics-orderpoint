@@ -80,7 +80,9 @@ class StockLocationReplenishmentComputer(models.TransientModel):
 
     @_strategy.setter
     def _strategy(self, value):
-        self.__strategy = value
+        self.__strategy = value.with_context(
+            orderpoint_id=self.env.context.get("orderpoint_id")
+        )
 
     @property
     def location(self):
@@ -145,8 +147,11 @@ class StockLocationReplenishmentComputer(models.TransientModel):
         :return: dict {product_id: demand_qty}
         """
         self.ensure_one()
-        if self.excluded_location_domain:
-            if products is not None:
+        if products is not None:
+            products = products.with_context(
+                orderpoint_id=self.env.context.get("orderpoint_id")
+            )
+            if self.excluded_location_domain:
                 products = products.with_context(
                     excluded_location_domain=self.excluded_location_domain
                 )

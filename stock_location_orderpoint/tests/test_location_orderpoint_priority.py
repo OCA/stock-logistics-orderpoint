@@ -299,22 +299,22 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
 
     def test_orderpoint_priority_reassignment_on_shared_replenishment(self):
         product = self.product
-        orderpoint_1, replenish_loc_1 = self._create_orderpoint_complete(
-            "Replenish Area 1",
-            trigger="manual",
-            replenish_method="fill_up",
-            proc_run_async=False,
-        )
-        orderpoint_2, replenish_loc_2 = self._create_orderpoint_complete(
-            "Replenish Area 2",
-            trigger="manual",
-            replenish_method="fill_up",
-            priority="1",
-            proc_run_async=False,
+        self.env.cr.execute(
+            """
+                    ALTER TABLE stock_location_orderpoint
+                    DROP CONSTRAINT stock_location_orderpoint_location_route_unique;
+                    """
         )
 
+        (orderpoint_1, replenish_loc_1,) = self._create_orderpoint_complete(
+            "Reserve",
+            trigger="manual",
+            proc_run_async=False,
+        )
+        orderpoint_2 = orderpoint_1.copy({"priority": "1"})
+
         # Set inventory on replenishment locations
-        for repl_loc in [replenish_loc_1, replenish_loc_2]:
+        for repl_loc in [replenish_loc_1]:
             self.env["stock.quant"].with_context(inventory_mode=True).create(
                 {
                     "product_id": product.id,
