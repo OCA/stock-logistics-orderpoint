@@ -89,9 +89,12 @@ class TestLocationOrderpointCommon(BaseCommon):
     def _create_orderpoint(cls, location_dest=None, **kwargs):
         location_orderpoint = Form(cls.env["stock.location.orderpoint"])
         location_orderpoint.location_id = location_dest or cls.location_dest
+        proc_run_async = kwargs.pop("proc_run_async", True)
         for field, value in kwargs.items():
             setattr(location_orderpoint, field, value)
-        return location_orderpoint.save()
+        record = location_orderpoint.save()
+        record.proc_run_async = proc_run_async
+        return record
 
     @classmethod
     def _create_move(cls, name, qty, location, location_dest, product=None, **kwargs):

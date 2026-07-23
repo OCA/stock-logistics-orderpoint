@@ -20,10 +20,10 @@ from .common import TestLocationOrderpointCommon
 class TestLocationOrderpoint(TestLocationOrderpointCommon):
     def test_manual_replenishment(self):
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="manual", proc_run_async=False
+            "Stock2", trigger="manual", proc_run_async=False, sequence=1
         )
         orderpoint2, location_src2 = self._create_orderpoint_complete(
-            "Stock2.2", trigger="manual", proc_run_async=False
+            "Stock2.2", trigger="manual", proc_run_async=False, sequence=2
         )
 
         self.assertEqual(orderpoint.location_src_id, location_src)

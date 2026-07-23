@@ -21,4 +21,13 @@
         <field name="name">stock_location_orderpoint_procurement_run</field>
         <field name="parent_id" ref="channel_stock_location_orderpoint_replenishment" />
     </record>
+    <record
+        id="channel_stock_location_orderpoint_cancel_fulfilled_replenishment"
+        model="queue.job.channel"
+    >
+        <field
+            name="name"
+        >stock_location_orderpoint_cancel_fulfilled_replenishment</field>
+        <field name="parent_id" ref="channel_stock_location_orderpoint_replenishment" />
+    </record>
 </odoo>
