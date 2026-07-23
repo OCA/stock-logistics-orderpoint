@@ -364,6 +364,4 @@ class TestLocationOrderpointCleanup(TestLocationOrderpointCommon):
         action = orderpoint.with_context(
             active_ids=orderpoint.ids, active_model="stock.location.orderpoint"
         ).get_cleanup_action()
-        self.assertDictContainsSubset(
-            {"res_model": "stock.location.orderpoint.cleanup"}, action
-        )
+        self.assertEqual(action.get("res_model"), "stock.location.orderpoint.cleanup")
