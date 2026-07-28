@@ -6,13 +6,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2026-07-28 08:46+0000\n"
+"Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #. module: stock_location_orderpoint_average_daily_sale
 #: model:ir.model.fields,help:stock_location_orderpoint_average_daily_sale.field_stock_location_orderpoint__replenish_method
@@ -20,26 +22,33 @@ msgid ""
 "Defines how the qty to replenish gets computed\n"
 "Fill up = The replenishment will be triggered when a move is waiting availability and forecast quantity is negative at the location (i.e. min=0). The replenished quantity will bring back the forecast quantity to 0 (i.e. max=0) but will be limited to what is available at the source location to plan only reservable replenishment moves"
 msgstr ""
+"Definisce come le quantità da rifornire vengono calcolate\n"
+"Riempimento = il rifornimento viene attivato quando un movimento sta "
+"aspettando la disponibilità e la quantità prevista è negativa "
+"nell'ubicazione (i.e. min=0). La quantità rifornita riporterà la previsione "
+"quantità a 0 (i.e. max=0) ma sarà limitata a quello che è disponibile "
+"nell'ubicazione origine per pianificare solo movimenti di rifornimento "
+"prenotabili"
 
 #. module: stock_location_orderpoint_average_daily_sale
 #: model:ir.model,name:stock_location_orderpoint_average_daily_sale.model_stock_location
 msgid "Inventory Locations"
-msgstr ""
+msgstr "Ubicazioni di inventario"
 
 #. module: stock_location_orderpoint_average_daily_sale
 #: model:ir.model.fields.selection,name:stock_location_orderpoint_average_daily_sale.selection__stock_location_orderpoint__replenish_method__average_daily_usage
 msgid "Past Average Daily Usage"
-msgstr ""
+msgstr "Utilizzo giornaliero medio passato"
 
 #. module: stock_location_orderpoint_average_daily_sale
 #: model:ir.model.fields,field_description:stock_location_orderpoint_average_daily_sale.field_stock_location_orderpoint__replenish_method
 msgid "Replenish Method"
-msgstr ""
+msgstr "Metodo rifornimento"
 
 #. module: stock_location_orderpoint_average_daily_sale
 #: model:ir.model,name:stock_location_orderpoint_average_daily_sale.model_stock_location_orderpoint
 msgid "Stock location orderpoint"
-msgstr ""
+msgstr "Punto di riordino ubicazione di magazzino"
 
 #. module: stock_location_orderpoint_average_daily_sale
 #: model:ir.model,name:stock_location_orderpoint_average_daily_sale.model_stock_location_orderpoint_strategy_average_daily_usage
@@ -47,3 +56,5 @@ msgid ""
 "Stock location orderpoint strategy: replenish according to the past average "
 "daily usage"
 msgstr ""
+"Strategia del punto di riordino ubicazione di magazzino: rifornisci in base "
+"all'utilizzo giornaliero medio passato"
