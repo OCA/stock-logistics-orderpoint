@@ -156,7 +156,7 @@ class OrderpointTemplate(models.Model):
             # Flag equality so we compute the values just once
             auto_same_values = (
                 (record.auto_max_date_start == record.auto_min_date_start)
-                and (record.auto_max_date_end == record.auto_max_date_end)
+                and (record.auto_max_date_end == record.auto_min_date_end)
                 and (record.auto_max_qty_criteria == record.auto_min_qty_criteria)
             )
             stock_min_qty = stock_max_qty = {}
@@ -187,8 +187,14 @@ class OrderpointTemplate(models.Model):
                     vals["product_id"] = product_id.id
                     if record.auto_min_qty:
                         vals["product_min_qty"] = stock_min_qty.get(product_id.id, 0)
+                        # New min_qty must be lower thant max_qty
+                        if vals["product_min_qty"] > vals.get("product_max_qty", 0):
+                            vals["product_max_qty"] = vals["product_min_qty"]
                     if record.auto_max_qty:
                         vals["product_max_qty"] = stock_max_qty.get(product_id.id, 0)
+                        # New max_qty must be greater thant min_qty
+                        if vals["product_max_qty"] < vals.get("product_min_qty", 0):
+                            vals["product_min_qty"] = vals["product_max_qty"]
                     vals_list.append(vals)
             orderpoint_model.create(vals_list)
 
