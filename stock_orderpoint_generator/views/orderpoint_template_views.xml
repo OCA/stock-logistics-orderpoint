@@ -4,7 +4,7 @@
         <field name="name">stock.warehouse.orderpoint.template.tree</field>
         <field name="model">stock.warehouse.orderpoint.template</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name" />
                 <field name="warehouse_id" groups="stock.group_stock_multi_locations" />
                 <field name="location_id" groups="stock.group_stock_multi_locations" />
@@ -13,7 +13,7 @@
                 <field name="auto_min_qty" />
                 <field name="auto_max_qty" />
                 <field name="auto_generate" />
-            </tree>
+            </list>
         </field>
     </record>
     <record model="ir.ui.view" id="view_warehouse_orderpoint_template_search">
@@ -160,7 +160,7 @@
     <record id="action_orderpoint_template" model="ir.actions.act_window">
         <field name="name">Reordering Rule Templates</field>
         <field name="res_model">stock.warehouse.orderpoint.template</field>
-        <field name="view_mode">form,tree</field>
+        <field name="view_mode">form,list</field>
         <field name="view_id" ref="view_warehouse_orderpoint_template_tree" />
         <field name="search_view_id" ref="view_warehouse_orderpoint_template_search" />
         <field name="help" type="html">
