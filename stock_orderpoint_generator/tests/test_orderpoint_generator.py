@@ -4,31 +4,50 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 from odoo import models
 from odoo.exceptions import UserError
-from odoo.tests import TransactionCase
+
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestOrderpointGenerator(TransactionCase):
+class TestOrderpointGenerator(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+
+        def make_move(product, qty, location, location_dest, date):
+            move = cls.env["stock.move"].create(
+                {
+                    "name": product.name,
+                    "product_id": product.id,
+                    "product_uom": product.uom_id.id,
+                    "product_uom_qty": qty,
+                    "location_id": location.id,
+                    "location_dest_id": location_dest.id,
+                    "date": date,
+                }
+            )
+            move._action_confirm()
+            move._action_assign()
+            move.picked = True
+            move._action_done()
+            move.date = date
+            move.move_line_ids.date = date
+            return move
+
         cls.wizard_model = cls.env["stock.warehouse.orderpoint.generator"]
         cls.orderpoint_model = cls.env["stock.warehouse.orderpoint"]
         cls.orderpoint_template_model = cls.env["stock.warehouse.orderpoint.template"]
         cls.product_model = cls.env["product.product"]
-        cls.attr = cls.env["product.attribute"].create(
-            {"name": "stock_orderpoint_generator attribute"}
+        cls.quant_model = cls.env["stock.quant"]
+        cls.p1 = cls.product_model.create(
+            {"name": "Unittest P1", "type": "consu", "is_storable": True}
         )
-        cls.attr_value_a = cls.env["product.attribute.value"].create(
-            {"name": "A", "attribute_id": cls.attr.id}
+        cls.p2 = cls.product_model.create(
+            {"name": "Unittest P2", "type": "consu", "is_storable": True}
         )
-        cls.attr_value_b = cls.env["product.attribute.value"].create(
-            {"name": "B", "attribute_id": cls.attr.id}
-        )
-        cls.p1 = cls.product_model.create({"name": "Unittest P1", "type": "product"})
-        cls.p2 = cls.product_model.create({"name": "Unittest P2", "type": "product"})
         cls.wh1 = cls.env["stock.warehouse"].create(
             {"name": "TEST WH1", "code": "TST1"}
         )
+        cls.stock_loc = cls.wh1.lot_stock_id
         location_obj = cls.env["stock.location"]
         cls.supplier_loc = location_obj.create(
             {"name": "Test supplier location", "usage": "supplier"}
@@ -45,249 +64,38 @@ class TestOrderpointGenerator(TransactionCase):
             "qty_multiple": 1,
         }
         cls.template = cls.orderpoint_template_model.create(cls.orderpoint_fields_dict)
+
         # Create some moves for p1 and p2 so we can have a history to test
-        # p1 [100, 50, 45, 55, 52]
-        # t1 - p1 - stock.move location1 100 # 100
-        cls.p1m1 = cls.env["stock.move"].create(
-            {
-                "name": cls.p1.name,
-                "product_id": cls.p1.id,
-                "product_uom_qty": 100,
-                "product_uom": cls.p1.uom_id.id,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 01:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p1m1.id,
-                "product_id": cls.p1.id,
-                "quantity": 100,
-                "picked": True,
-                "product_uom_id": cls.p1.uom_id.id,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 01:00:00",
-            }
+        # p1 stock history: [100, 50, 45, 55, 52]
+        # p2 stock history: [1000, 950, 943, 1043, 1040]
+
+        # t1 - p1 initial stock 100
+        cls.quant_model._update_available_quantity(
+            cls.p1, cls.stock_loc, 100, in_date="2019-01-01 01:00:00"
         )
         # t2 - p1 - stock.move location1 -50 # 50
-        cls.p1m2 = cls.p1m1.copy(
-            {
-                "product_uom_qty": 50,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 02:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p1m2.id,
-                "product_id": cls.p1.id,
-                "quantity": 50,
-                "picked": True,
-                "product_uom_id": cls.p1.uom_id.id,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 02:00:00",
-            }
-        )
+        make_move(cls.p1, 50, cls.stock_loc, cls.customer_loc, "2019-01-01 02:00:00")
         # t3 - p1 - stock.move location1 -5 # 45
-        cls.p1m3 = cls.p1m1.copy(
-            {
-                "name": cls.p1.name,
-                "product_id": cls.p1.id,
-                "product_uom_qty": 5,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 03:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p1m3.id,
-                "product_id": cls.p1.id,
-                "quantity": 5,
-                "picked": True,
-                "product_uom_id": cls.p1.uom_id.id,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 03:00:00",
-            }
-        )
+        make_move(cls.p1, 5, cls.stock_loc, cls.customer_loc, "2019-01-01 03:00:00")
         # t4 - p1 - stock.move location1 10 # 55
-        cls.p1m4 = cls.p1m1.copy(
-            {
-                "product_uom_qty": 10,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 04:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p1m4.id,
-                "product_id": cls.p1.id,
-                "quantity": 10,
-                "picked": True,
-                "product_uom_id": cls.p1.uom_id.id,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 04:00:00",
-            }
-        )
+        make_move(cls.p1, 10, cls.supplier_loc, cls.stock_loc, "2019-01-01 04:00:00")
         # t5 - p1 - stock.move location1 -3 # 52
-        cls.p1m5 = cls.p1m1.copy(
-            {
-                "product_uom_qty": 3,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 05:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p1m5.id,
-                "product_id": cls.p1.id,
-                "quantity": 3,
-                "picked": True,
-                "product_uom_id": cls.p1.uom_id.id,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 05:00:00",
-            }
-        )
-        # p2
-        # t1 - p2 - stock.move location1 1000 # 1000
-        cls.p2m1 = cls.env["stock.move"].create(
-            {
-                "name": cls.p2.name,
-                "product_id": cls.p2.id,
-                "product_uom": cls.p2.uom_id.id,
-                "product_uom_qty": 1000,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 01:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p2m1.id,
-                "product_id": cls.p2.id,
-                "quantity": 1000,
-                "picked": True,
-                "product_uom_id": cls.p2.uom_id.id,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 01:00:00",
-            }
+        make_move(cls.p1, 3, cls.stock_loc, cls.customer_loc, "2019-01-01 05:00:00")
+
+        # t1 - p2 initial stock 1000
+        cls.quant_model._update_available_quantity(
+            cls.p2, cls.stock_loc, 1000, in_date="2019-01-01 01:00:00"
         )
         # t2 - p2 - stock.move location1 -50 # 950
-        cls.p2m2 = cls.p2m1.copy(
-            {
-                "product_uom_qty": 50,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 02:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p2m2.id,
-                "product_id": cls.p2.id,
-                "quantity": 50,
-                "picked": True,
-                "product_uom_id": cls.p2.uom_id.id,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 02:00:00",
-            }
-        )
+        make_move(cls.p2, 50, cls.stock_loc, cls.customer_loc, "2019-01-01 02:00:00")
         # t3 - p2 - stock.move location1 -7 # 943
-        cls.p2m3 = cls.p2m1.copy(
-            {
-                "product_uom_qty": 7,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 03:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p2m3.id,
-                "product_id": cls.p2.id,
-                "quantity": 7,
-                "picked": True,
-                "product_uom_id": cls.p2.uom_id.id,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 03:00:00",
-            }
-        )
+        make_move(cls.p2, 7, cls.stock_loc, cls.customer_loc, "2019-01-01 03:00:00")
         # t4 - p2 - stock.move location1 100 # 1043
-        cls.p2m4 = cls.p2m1.copy(
-            {
-                "product_uom_qty": 100,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 04:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p2m4.id,
-                "product_id": cls.p2.id,
-                "quantity": 100,
-                "picked": True,
-                "product_uom_id": cls.p2.uom_id.id,
-                "location_id": cls.supplier_loc.id,
-                "location_dest_id": cls.wh1.lot_stock_id.id,
-                "state": "done",
-                "date": "2019-01-01 04:00:00",
-            }
-        )
+        make_move(cls.p2, 100, cls.supplier_loc, cls.stock_loc, "2019-01-01 04:00:00")
         # t5 - p2 - stock.move location1 -3 # 1040
-        cls.p2m5 = cls.p2m1.copy(
-            {
-                "product_uom_qty": 3,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 05:00:00",
-            }
-        )
-        cls.env["stock.move.line"].create(
-            {
-                "move_id": cls.p2m5.id,
-                "product_id": cls.p2.id,
-                "quantity": 3,
-                "picked": True,
-                "product_uom_id": cls.p2.uom_id.id,
-                "location_id": cls.wh1.lot_stock_id.id,
-                "location_dest_id": cls.customer_loc.id,
-                "state": "done",
-                "date": "2019-01-01 05:00:00",
-            }
-        )
+        make_move(cls.p2, 3, cls.stock_loc, cls.customer_loc, "2019-01-01 05:00:00")
 
-    def check_orderpoint(self, products, template, fields_dict):
+    def check_orderpoint(self, products, template, expected_op_vals):
         orderpoints = self.orderpoint_model.search(
             [("name", "=", template.name)], order="product_id"
         )
@@ -295,11 +103,11 @@ class TestOrderpointGenerator(TransactionCase):
         for i, product in enumerate(products):
             self.assertEqual(product, orderpoints[i].product_id)
         for orderpoint in orderpoints:
-            for field in fields_dict.keys():
+            for field in expected_op_vals.keys():
                 op_field_value = orderpoint[field]
                 if isinstance(orderpoint[field], models.Model):
                     op_field_value = orderpoint[field].id
-                self.assertEqual(op_field_value, fields_dict[field])
+                self.assertEqual(op_field_value, expected_op_vals[field])
         return orderpoints
 
     def wizard_over_products(self, product, template):
@@ -330,6 +138,8 @@ class TestOrderpointGenerator(TransactionCase):
 
     def test_auto_qty(self):
         """Compute min and max qty  according to criteria"""
+        # p1 stock history: [100, 50, 45, 55, 52]
+
         # Max stock for p1: 100
         self.template.write(
             {
@@ -341,28 +151,33 @@ class TestOrderpointGenerator(TransactionCase):
         )
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict = self.orderpoint_fields_dict.copy()
-        orderpoint_auto_dict.update({"product_min_qty": 100.0})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
+        expected_op_vals = self.orderpoint_fields_dict.copy()
+        del expected_op_vals["product_max_qty"]
+        expected_op_vals.update({"product_min_qty": 100})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
         # Min stock for p1: 45
         self.template.write({"auto_min_qty_criteria": "min"})
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict.update({"product_min_qty": 45.0})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
-        # Median of stock for p1: 52
+        expected_op_vals.update({"product_min_qty": 45})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
+        # Median stock for p1: 52
         self.template.write({"auto_min_qty_criteria": "median"})
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict.update({"product_min_qty": 52.0})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
-        # Average of stock for p1: 60.4
+        expected_op_vals.update({"product_min_qty": 52})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
+        # Average stock for p1: 60.4
         self.template.write({"auto_min_qty_criteria": "avg"})
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict.update({"product_min_qty": 60.4})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
-        # Set auto values for min and max: 60.4 (avg) 100 (max)
+        expected_op_vals.update({"product_min_qty": 60.4})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
+        # auto_max_qty with max value (100) and auto_min_qty with avg value (60.4)
         self.template.write(
             {
                 "auto_max_qty": True,
@@ -373,34 +188,51 @@ class TestOrderpointGenerator(TransactionCase):
         )
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict.update({"product_max_qty": 100})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
-        # If they have the same values, only one is computed:
+        expected_op_vals.update({"product_max_qty": 100})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
+        # Both auto_max_qty and auto_min_qty with max value
         self.template.write({"auto_min_qty_criteria": "max"})
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict.update({"product_min_qty": 100})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
-        # Auto min max over a shorter period
+        expected_op_vals.update({"product_min_qty": 100})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
+        # Auto min and max over a shorter period
         self.template.write(
             {
-                "auto_max_date_start": "2019-01-01 02:30:00",
-                "auto_max_date_end": "2019-01-01 03:00:00",
-                "auto_min_date_start": "2019-01-01 04:00:00",
-                "auto_min_date_end": "2019-01-01 06:00:00",
+                # Stock history for min date range: [50, 45, 55]
+                "auto_min_date_start": "2019-01-01 02:30:00",
+                "auto_min_date_end": "2019-01-01 04:30:00",
+                "auto_min_qty_criteria": "avg",
+                # Stock history for max date range: [45, 55, 52]
+                "auto_max_date_start": "2019-01-01 03:30:00",
+                "auto_max_date_end": "2019-01-01 05:30:00",
+                "auto_max_qty_criteria": "max",
             }
         )
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict.update({"product_min_qty": 55, "product_max_qty": 50})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
-        # Check delivered
-        self.template.auto_min_qty_criteria = "delivered"
-        self.template.auto_max_qty_criteria = "delivered"
+        expected_op_vals.update({"product_min_qty": 50, "product_max_qty": 55})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
+        # Check delivered quantities
+        self.template.write(
+            {
+                # Stock move history for min date range [-50, -5, 10]
+                "auto_min_date_start": "2019-01-01 00:00:00",
+                "auto_min_date_end": "2019-01-01 04:30:00",
+                "auto_min_qty_criteria": "delivered",
+                # Stock move history for max date range [-50, -5, 10, -3]
+                "auto_max_date_start": "2019-01-01 00:00:00",
+                "auto_max_date_end": "2019-02-01 00:00:00",
+                "auto_max_qty_criteria": "delivered",
+            }
+        )
         wizard = self.wizard_over_products(self.p1, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict.update({"product_min_qty": 3, "product_max_qty": 5})
-        self.check_orderpoint(self.p1, self.template, orderpoint_auto_dict)
+        expected_op_vals.update({"product_min_qty": 55, "product_max_qty": 58})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
 
     def test_auto_qty_multi_products(self):
         """Each product has a different history"""
@@ -415,10 +247,47 @@ class TestOrderpointGenerator(TransactionCase):
         )
         wizard = self.wizard_over_products(products, self.template)
         wizard.action_configure()
-        orderpoint_auto_dict = self.orderpoint_fields_dict.copy()
-        del orderpoint_auto_dict["product_min_qty"]
-        orderpoints = self.check_orderpoint(
-            products, self.template, orderpoint_auto_dict
-        )
+        expected_op_vals = self.orderpoint_fields_dict.copy()
+        del expected_op_vals["product_min_qty"]
+        del expected_op_vals["product_max_qty"]
+        orderpoints = self.check_orderpoint(products, self.template, expected_op_vals)
         self.assertEqual(orderpoints[0].product_min_qty, 100)
         self.assertEqual(orderpoints[1].product_min_qty, 1043)
+
+    def test_max_greater_than_auto_min(self):
+        """Max qty must be greater than auto min qty"""
+
+        # p1 stock history: [100, 50, 45, 55, 52]
+        self.template.write(
+            {
+                "auto_min_qty": True,
+                "auto_min_date_start": "2019-01-01 01:30:00",
+                "auto_min_date_end": "2019-02-01 00:00:00",
+                "auto_min_qty_criteria": "max",
+                "product_max_qty": 15,
+            }
+        )
+        wizard = self.wizard_over_products(self.p1, self.template)
+        wizard.action_configure()
+        expected_op_vals = self.orderpoint_fields_dict.copy()
+        expected_op_vals.update({"product_min_qty": 100, "product_max_qty": 100})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
+
+    def test_min_lower_than_auto_max(self):
+        """Min qty must be lower than auto Max qty"""
+
+        # p1 stock history: [100, 50, 45, 55, 52]
+        self.template.write(
+            {
+                "auto_max_qty": True,
+                "auto_max_date_start": "2019-01-01 01:30:00",
+                "auto_max_date_end": "2019-02-01 00:00:00",
+                "auto_max_qty_criteria": "min",
+                "product_min_qty": 150,
+            }
+        )
+        wizard = self.wizard_over_products(self.p1, self.template)
+        wizard.action_configure()
+        expected_op_vals = self.orderpoint_fields_dict.copy()
+        expected_op_vals.update({"product_min_qty": 45, "product_max_qty": 45})
+        self.check_orderpoint(self.p1, self.template, expected_op_vals)
