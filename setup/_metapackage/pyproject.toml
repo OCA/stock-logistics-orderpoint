@@ -1,10 +1,11 @@
 [project]
 name = "odoo-addons-oca-stock-logistics-orderpoint"
-version = "18.0.20251212.0"
+version = "18.0.20260805.0"
 dependencies = [
     "odoo-addon-purchase_stock_product_replenish_supplier==18.0.*",
     "odoo-addon-stock_location_orderpoint==18.0.*",
     "odoo-addon-stock_orderpoint_default_location==18.0.*",
+    "odoo-addon-stock_orderpoint_generator==18.0.*",
     "odoo-addon-stock_orderpoint_manual_procurement==18.0.*",
     "odoo-addon-stock_orderpoint_move_link==18.0.*",
     "odoo-addon-stock_orderpoint_mto_as_mts==18.0.*",
