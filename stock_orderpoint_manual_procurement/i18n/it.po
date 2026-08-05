@@ -47,7 +47,6 @@ msgstr "Creato il"
 #. module: stock_orderpoint_manual_procurement
 #: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint__display_name
 #: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint_item__display_name
-#: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_stock_warehouse_orderpoint__display_name
 msgid "Display Name"
 msgstr "Nome visualizzato"
 
@@ -60,7 +59,6 @@ msgstr "Esegui"
 #. module: stock_orderpoint_manual_procurement
 #: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint__id
 #: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint_item__id
-#: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_stock_warehouse_orderpoint__id
 msgid "ID"
 msgstr "ID"
 
@@ -70,13 +68,6 @@ msgstr "ID"
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_manual_procurement.view_make_procurment_buffer_wizard
 msgid "Items"
 msgstr "Articoli"
-
-#. module: stock_orderpoint_manual_procurement
-#: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint____last_update
-#: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint_item____last_update
-#: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_stock_warehouse_orderpoint____last_update
-msgid "Last Modified on"
-msgstr "Ultima modifica il"
 
 #. module: stock_orderpoint_manual_procurement
 #: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint__write_uid
@@ -106,13 +97,19 @@ msgid "Make Procurements from Orderpoints"
 msgstr "Esegue approvvigionamenti da punti ordine"
 
 #. module: stock_orderpoint_manual_procurement
+#. odoo-javascript
+#: code:addons/stock_orderpoint_manual_procurement/static/src/views/stock_orderpoint_list_view.xml:0
+msgid "Manual Procurement"
+msgstr ""
+
+#. module: stock_orderpoint_manual_procurement
 #: model:ir.model,name:stock_orderpoint_manual_procurement.model_stock_warehouse_orderpoint
 msgid "Minimum Inventory Rule"
 msgstr "Regola giacenza minima"
 
 #. module: stock_orderpoint_manual_procurement
+#. odoo-python
 #: code:addons/stock_orderpoint_manual_procurement/wizards/make_procurement_orderpoint.py:0
-#, python-format
 msgid "No reordering rule found!"
 msgstr "Nessuna regola riordino trovata!"
 
@@ -149,8 +146,8 @@ msgid "Quantity"
 msgstr "Quantità"
 
 #. module: stock_orderpoint_manual_procurement
+#. odoo-python
 #: code:addons/stock_orderpoint_manual_procurement/wizards/make_procurement_orderpoint.py:0
-#, python-format
 msgid "Quantity must be positive."
 msgstr "La quantità deve essere positiva."
 
@@ -200,3 +197,6 @@ msgstr "Magazzino"
 #: model:ir.model.fields,field_description:stock_orderpoint_manual_procurement.field_make_procurement_orderpoint_item__wiz_id
 msgid "Wizard"
 msgstr "Procedura guidata"
+
+#~ msgid "Last Modified on"
+#~ msgstr "Ultima modifica il"
