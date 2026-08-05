@@ -19,16 +19,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #. module: stock_orderpoint_uom
+#. odoo-python
 #: code:addons/stock_orderpoint_uom/models/product_template.py:0
-#, python-format
 msgid ""
 "At least one reordering rule for this product has a different Procurement "
 "unit of measure category."
 msgstr ""
 
 #. module: stock_orderpoint_uom
+#. odoo-python
 #: code:addons/stock_orderpoint_uom/models/stock_warehouse_orderpoint.py:0
-#, python-format
 msgid ""
 "Error: The product default Unit of Measure and the procurement Unit of "
 "Measure must be in the same category."
@@ -52,10 +52,13 @@ msgstr ""
 
 #. module: stock_orderpoint_uom
 #: model:ir.model,name:stock_orderpoint_uom.model_product_template
-msgid "Product Template"
-msgstr "Plantilla del producte"
+msgid "Product"
+msgstr ""
 
 #. module: stock_orderpoint_uom
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_uom.view_warehouse_orderpoint_form
 msgid "Quantity Multiple is applied to the base UoM."
 msgstr ""
+
+#~ msgid "Product Template"
+#~ msgstr "Plantilla del producte"

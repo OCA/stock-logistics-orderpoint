@@ -20,8 +20,8 @@ msgstr ""
 "X-Generator: Weblate 4.17\n"
 
 #. module: stock_orderpoint_uom
+#. odoo-python
 #: code:addons/stock_orderpoint_uom/models/product_template.py:0
-#, python-format
 msgid ""
 "At least one reordering rule for this product has a different Procurement "
 "unit of measure category."
@@ -30,8 +30,8 @@ msgstr ""
 "unidad de medida de aprovisionamiento diferente."
 
 #. module: stock_orderpoint_uom
+#. odoo-python
 #: code:addons/stock_orderpoint_uom/models/stock_warehouse_orderpoint.py:0
-#, python-format
 msgid ""
 "Error: The product default Unit of Measure and the procurement Unit of "
 "Measure must be in the same category."
@@ -57,10 +57,13 @@ msgstr "UdM de abastecimiento"
 
 #. module: stock_orderpoint_uom
 #: model:ir.model,name:stock_orderpoint_uom.model_product_template
-msgid "Product Template"
-msgstr "Plantilla de producto"
+msgid "Product"
+msgstr ""
 
 #. module: stock_orderpoint_uom
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_uom.view_warehouse_orderpoint_form
 msgid "Quantity Multiple is applied to the base UoM."
 msgstr "Cantidad Múltiple se aplica a la MdM base."
+
+#~ msgid "Product Template"
+#~ msgstr "Plantilla de producto"
