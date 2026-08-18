@@ -2,7 +2,7 @@
 # Copyright 2019 David Vidal - Tecnativa
 # Copyright 2020 Víctor Martínez - Tecnativa
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
-from odoo import models
+from odoo import Command, models
 from odoo.exceptions import UserError
 
 from odoo.addons.base.tests.common import BaseCommon
@@ -16,7 +16,6 @@ class TestOrderpointGenerator(BaseCommon):
         def make_move(product, qty, location, location_dest, date):
             move = cls.env["stock.move"].create(
                 {
-                    "name": product.name,
                     "product_id": product.id,
                     "product_uom": product.uom_id.id,
                     "product_uom_qty": qty,
@@ -44,6 +43,37 @@ class TestOrderpointGenerator(BaseCommon):
         cls.p2 = cls.product_model.create(
             {"name": "Unittest P2", "type": "consu", "is_storable": True}
         )
+        attribute = cls.env["product.attribute"].create(
+            {"name": "Unittest attribute", "create_variant": "always"}
+        )
+        attribute_values = cls.env["product.attribute.value"].create(
+            [
+                {"name": "Unittest value 1", "attribute_id": attribute.id},
+                {"name": "Unittest value 2", "attribute_id": attribute.id},
+            ]
+        )
+        cls.multi_variant_tmpl = cls.env["product.template"].create(
+            {
+                "name": "Unittest multi variant",
+                "type": "consu",
+                "is_storable": True,
+                "attribute_line_ids": [
+                    Command.create(
+                        {
+                            "attribute_id": attribute.id,
+                            "value_ids": [Command.set(attribute_values.ids)],
+                        }
+                    )
+                ],
+            }
+        )
+        cls.uom_box_10 = cls.env["uom.uom"].create(
+            {
+                "name": "Unittest box of 10",
+                "relative_factor": 10.0,
+                "relative_uom_id": cls.p1.uom_id.id,
+            }
+        )
         cls.wh1 = cls.env["stock.warehouse"].create(
             {"name": "TEST WH1", "code": "TST1"}
         )
@@ -61,7 +91,7 @@ class TestOrderpointGenerator(BaseCommon):
             "name": "TEST-ORDERPOINT-001",
             "product_max_qty": 15.0,
             "product_min_qty": 5.0,
-            "qty_multiple": 1,
+            "replenishment_uom_id": cls.uom_box_10.id,
         }
         cls.template = cls.orderpoint_template_model.create(cls.orderpoint_fields_dict)
 
@@ -131,8 +161,8 @@ class TestOrderpointGenerator(BaseCommon):
 
     def test_template_variants_orderpoint(self):
         """Raise error if product has multiple variants"""
-        product_template = self.env.ref("product.product_product_11_product_template")
-        wizard = self.wizard_over_products(product_template, self.template)
+        self.assertGreater(len(self.multi_variant_tmpl.product_variant_ids), 1)
+        wizard = self.wizard_over_products(self.multi_variant_tmpl, self.template)
         with self.assertRaises(UserError):
             wizard.action_configure()
 

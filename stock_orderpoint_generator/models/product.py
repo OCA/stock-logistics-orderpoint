@@ -7,6 +7,7 @@ from collections import OrderedDict
 from datetime import timedelta
 
 from odoo import api, fields, models
+from odoo.fields import Domain
 
 
 class ProductProduct(models.Model):
@@ -35,10 +36,12 @@ class ProductProduct(models.Model):
         return result
 
     def _get_stock_move_domain(self, domain_move=False, from_date=False, to_date=False):
-        domain = [("product_id", "in", self.ids), ("state", "=", "done")] + domain_move
+        domain = Domain([("product_id", "in", self.ids), ("state", "=", "done")])
+        if domain_move:
+            domain &= Domain(domain_move)
         if from_date:
-            domain += [("date", ">=", from_date)]
-        domain += [("date", "<=", to_date)]
+            domain &= Domain("date", ">=", from_date)
+        domain &= Domain("date", "<=", to_date)
         return domain
 
     def _set_product_moves_dict(
@@ -117,10 +120,10 @@ class ProductProduct(models.Model):
             domain += [("date", ">=", from_date)]
         if to_date:
             domain += [("date", "<=", to_date)]
-        move_lines = self.env["stock.move.line"].read_group(
-            domain, ["product_id", "quantity"], ["product_id"]
+        move_lines = self.env["stock.move.line"]._read_group(
+            domain, ["product_id"], ["quantity:sum"]
         )
-        return {p["product_id"][0]: p["quantity"] for p in move_lines}
+        return {product.id: quantity for product, quantity in move_lines}
 
     def _compute_historic_quantities_dict(
         self, location_id=False, from_date=False, to_date=False

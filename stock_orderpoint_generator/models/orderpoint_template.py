@@ -26,7 +26,6 @@ class OrderpointTemplate(models.Model):
     _table = "stock_warehouse_orderpoint_template"
 
     name = fields.Char(copy=True)
-    group_id = fields.Many2one(copy=True)
     product_id = fields.Many2one(required=False)
     product_uom = fields.Many2one(required=False)
     product_min_qty = fields.Float(required=False)
@@ -78,9 +77,17 @@ class OrderpointTemplate(models.Model):
         "scheduled action for every product in this list.",
     )
     auto_last_generation = fields.Datetime(string="Last Automatic Generation")
-    # Disable stock.warehouse.orderpoint which are useless for the template
+    # Disable stock.warehouse.orderpoint fields that are useless for the
+    # template
+    qty_on_hand = fields.Float(compute=False, store=False)
     qty_forecast = fields.Float(compute=False, store=False)
+    qty_to_order = fields.Float(compute=False, inverse=False, search=False, store=False)
+    qty_to_order_computed = fields.Float(compute=False, store=False)
+    deadline_date = fields.Date(compute=False, store=False)
     product_category_id = fields.Many2one(related=False, store=False)
+    # The template isn't bound to any product, so the replenishment units can't
+    # be narrowed down to the ones of the product: allow all of them.
+    replenishment_uom_id = fields.Many2one(domain=[])
 
     allowed_warehouse_ids = fields.One2many(
         comodel_name="stock.warehouse", compute="_compute_allowed_warehouse_ids"
@@ -88,7 +95,11 @@ class OrderpointTemplate(models.Model):
 
     @api.depends("company_id")
     def _compute_allowed_warehouse_ids(self):
-        self.allowed_warehouse_ids = self.env["stock.warehouse"].search([])
+        warehouse_model = self.env["stock.warehouse"]
+        for record in self:
+            record.allowed_warehouse_ids = warehouse_model.search(
+                [("company_id", "in", [record.company_id.id, False])]
+            )
 
     def _template_fields_to_discard(self):
         """In order to create every orderpoint we should pop this template

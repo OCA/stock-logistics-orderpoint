@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 
-from odoo import _, fields, models
+from odoo import fields, models
 from odoo.exceptions import UserError
 
 _template_register = ["orderpoint_template_id"]
@@ -33,7 +33,7 @@ class OrderpointGenerator(models.TransientModel):
             product_ids = record_ids.mapped("product_variant_ids")
             if len(product_ids) != len(record_ids):
                 raise UserError(
-                    _(
+                    self.env._(
                         "Cannot apply because some of selected "
                         "products has multiple variants."
                     )
