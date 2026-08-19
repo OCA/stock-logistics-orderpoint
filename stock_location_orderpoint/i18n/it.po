@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2025-07-17 17:25+0000\n"
+"PO-Revision-Date: 2026-08-19 15:46+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10.4\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__active
@@ -25,6 +25,7 @@ msgstr "Attivo"
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__product_domain_char
 msgid "Additional domain to filter products for this orderpoint. "
 msgstr ""
+"Dominio aggiuntivo per filtrare i prodotti per questo punto di riordino. "
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
@@ -88,19 +89,19 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__proc_run_async
 msgid "Delay procurement execution"
-msgstr ""
+msgstr "Ritarda esecuzione approvvigionamento"
 
 #. module: stock_location_orderpoint
 #. odoo-python
 #: code:addons/stock_location_orderpoint/models/stock_location_replenishment_computer.py:0
 #, python-format
 msgid "Demand computed for location %(location)s: %(count)s products."
-msgstr ""
+msgstr "Fabbisogno calcolato per ubicazione %(location)s: %(count)s prodotti."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__location_id
 msgid "Destination Location"
-msgstr ""
+msgstr "Ubicazione di destinazione"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__display_name
@@ -116,7 +117,7 @@ msgstr "Dominio per filtrare le ubicazioni"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__excluded_location_domain
 msgid "Excluded Location Domain"
-msgstr ""
+msgstr "Dominio ubicazione esclusa"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_ids
@@ -144,12 +145,12 @@ msgstr "Riempimento"
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
 msgid "Filter locations"
-msgstr ""
+msgstr "Filtra ubicazioni"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.stock_location_orderpoint_form
 msgid "Filter products"
-msgstr ""
+msgstr "Filtra prodotti"
 
 #. module: stock_location_orderpoint
 #. odoo-python
@@ -159,11 +160,14 @@ msgid ""
 "Fulfilled procurement for product %(product_name)s in location "
 "%(location_name)s: %(move_count)s replenishment moves created."
 msgstr ""
+"Approvvigionamento completato per il prodotto %(product_name)s "
+"nell'ubicazione %(location_name)s: %(move_count)s movimenti di rifornimento "
+"creati."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__horizon
 msgid "Horizon Datetime"
-msgstr ""
+msgstr "Data ora orizzonte"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__id
@@ -178,6 +182,11 @@ msgid ""
 "processing this orderpoint. Only applies to 'cron' and 'manual' triggers. If "
 "disabled, all procurements will be run in the same transaction. "
 msgstr ""
+"Se abilitata, le procedure di approvvigionamento verranno eseguite in modo "
+"asincrono in processi ritardati durante l'elaborazione di questo punto di "
+"riordino. Si applica solo ai trigger 'cron' e 'manual'. Se disabilitata, "
+"tutte le procedure di approvvigionamento verranno eseguite nella stessa "
+"transazione. "
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__replenish_limit_to_free_qty
@@ -185,6 +194,8 @@ msgid ""
 "If enabled, the replenishment quantity will be limited to the free quantity "
 "at the source location. "
 msgstr ""
+"Se abilitata, la quantità di rifornimento sarà limitata alla quantità "
+"disponibile presso la sede di origine. "
 
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_location
@@ -223,6 +234,8 @@ msgstr "L'ultima volta che questo punto di riordino è stato elaborato dal cron"
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__replenish_limit_to_free_qty
 msgid "Limit replenishment to free quantity at source location"
 msgstr ""
+"Limitare il rifornimento alla quantità disponibile presso l'ubicazione di "
+"origine"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__location_id
@@ -280,6 +293,7 @@ msgstr "Nome"
 #, python-format
 msgid "No demand to replenish for orderpoint %(orderpoint)s"
 msgstr ""
+"Nessuna richiesta di rifornimento per il punto di riordino %(orderpoint)s"
 
 #. module: stock_location_orderpoint
 #. odoo-python
@@ -289,31 +303,34 @@ msgid ""
 "No orderpoints found for location %(location_name)s with priority "
 "%(priority)s"
 msgstr ""
+"Nessun punto di riordino trovato per l'ubicazione %(location_name)s con "
+"priorità %(priority)s"
 
 #. module: stock_location_orderpoint
 #. odoo-python
 #: code:addons/stock_location_orderpoint/models/stock_location_orderpoint.py:0
 #, python-format
 msgid "No products to replenish for orderpoint %(orderpoint)s"
-msgstr ""
+msgstr "Nessun prodotto da rifornire per il punto di riordino %(orderpoint)s"
 
 #. module: stock_location_orderpoint
 #. odoo-python
 #: code:addons/stock_location_orderpoint/models/stock_location_orderpoint.py:0
 #, python-format
 msgid "No strategy class available"
-msgstr ""
+msgstr "Nessuna classe strategia disponibile"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_replenishment_computer__excluded_location_domain
 msgid ""
 "Optional domain to exclude some locations from availability computation. "
 msgstr ""
+"Dominio opzionale per escludere alcune ubicazioni dal calcolo disponibilità. "
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_replenishment_computer__product_domain
 msgid "Optional domain to filter products"
-msgstr ""
+msgstr "Dominio opzionale per filtrare i prodotti"
 
 #. module: stock_location_orderpoint
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint.view_location_form
@@ -343,6 +360,8 @@ msgid ""
 "Procurement qty computed for location %(location)s: %(count)s products after "
 "availability cap."
 msgstr ""
+"Quantità di approvvigionamento calcolata per l'ubicazion %(location)s: %"
+"(count)s prodotti dopo il limite di disponibilità."
 
 #. module: stock_location_orderpoint
 #: model:ir.actions.server,name:stock_location_orderpoint.ir_cron_location_replenishment_ir_actions_server
@@ -353,17 +372,17 @@ msgstr "Approvvigionamento: esegui rifornimento ubicazione"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__product_domain
 msgid "Product Domain"
-msgstr ""
+msgstr "Dominio prodotto"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__product_domain_char
 msgid "Product domain"
-msgstr ""
+msgstr "Dominio prodotto"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__replenish_limit_to_free_qty
 msgid "Replenish Limit To Free Qty"
-msgstr ""
+msgstr "Limite rifornimento alla quantità disponibile"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__replenish_method
@@ -383,7 +402,7 @@ msgstr "Regola rifornimento"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__replenish_horizon
 msgid "Replenishment horizon (in days)"
-msgstr ""
+msgstr "Orizzonte rifornimento (in giorni)"
 
 #. module: stock_location_orderpoint
 #: model:stock.picking.type,name:stock_location_orderpoint.stock_picking_type_replenish
@@ -403,6 +422,8 @@ msgid ""
 "Running replenishment for orderpoint %(orderpoint)s for %(product_count)s "
 "products."
 msgstr ""
+"Esecuzione del rifornimento per il punto di riordino %(orderpoint)s per %"
+"(product_count)s prodotti."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields.selection,name:stock_location_orderpoint.selection__stock_location_orderpoint__trigger__cron
@@ -418,11 +439,13 @@ msgstr "Sequenza"
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__name
 msgid "Set to '/' and save if you want a default name to be proposed."
 msgstr ""
+"Impostare su '/' e salva se si desidera che venga proposto un nome "
+"predefinito."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__location_src_id
 msgid "Source Location"
-msgstr ""
+msgstr "Ubicazione di origine"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__stock_excluded_location_domain
@@ -443,7 +466,7 @@ msgstr "Punto di riordino ubicazione di magazzino"
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_location_replenishment_computer
 msgid "Stock Location Replenishment Computer"
-msgstr ""
+msgstr "Calcolatore rifornimento ubicazione magazzino"
 
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_move
@@ -464,17 +487,19 @@ msgstr "Punto di riordino ubicazione di magazzino"
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_location_orderpoint_strategy
 msgid "Stock location orderpoint strategy"
-msgstr ""
+msgstr "Strategia punto di riordino ubicazione magazzino"
 
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_stock_location_orderpoint_strategy_fill_up
 msgid "Stock location orderpoint strategy: fill up to the max quantity"
 msgstr ""
+"Strategia punto di riordino ubicazione magazzino: riempi alla massima "
+"quantità"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.constraint,message:stock_location_orderpoint.constraint_stock_location_orderpoint_name_unique
 msgid "The Orderpoint name must be unique per company"
-msgstr ""
+msgstr "Il nome del punto di riordino deve essere univoco per azienda"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.constraint,message:stock_location_orderpoint.constraint_stock_location_orderpoint_location_route_unique
@@ -502,6 +527,8 @@ msgid ""
 "Time horizon to consider for the replenishment. Limits the demand considered "
 "to what is expected in the horizon. "
 msgstr ""
+"Orizzonte temporale da considerare per il rifornimento. Limita la domanda "
+"considerata a quella prevista nell'arco temporale considerato. "
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_replenishment_computer__horizon
@@ -510,6 +537,9 @@ msgid ""
 "date_deadlineup to this datetime will be considered in the demand "
 "computation."
 msgstr ""
+"Orizzonte temporale da considerare per il rifornimento. Solo le "
+"movimentazioni con data_deadlineup fino a questa data e ora saranno "
+"considerate nel calcolo della domanda."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__trigger
@@ -524,6 +554,9 @@ msgid ""
 "Try to fulfill procurement for product %(product_name)s in location "
 "%(location_name)s for a demand of %(demand_qty)s with priority %(priority)s"
 msgstr ""
+"Prova a soddisfare l'approvvigionamento del prodotto %(product_name)s "
+"nell'ubicazione %(location_name)s per una domanda di %(demand_qty)s con "
+"priorità %(priority)s"
 
 #. module: stock_location_orderpoint
 #. odoo-python
@@ -533,6 +566,8 @@ msgid ""
 "Try to replenish quantities in location %(location_name)s for product "
 "%(product_name)s"
 msgstr ""
+"Prova a rifornire le quantità nella posizione %(location_name)s per il "
+"prodotto %(product_name)s"
 
 #~ msgid "Exclude Locations"
 #~ msgstr "Esclude ubicazioni"
