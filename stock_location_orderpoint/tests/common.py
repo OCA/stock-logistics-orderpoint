@@ -188,9 +188,19 @@ class TestLocationOrderpointCommon(BaseCommon):
     @classmethod
     def _get_replenishment_move(cls, orderpoints, product=None):
         product = product or cls.product
+
+        # Check if origin contains **any** of the orderpoint names
+        # (necessary in case of merged moves)
+        origin_domain = []
+        names = orderpoints.mapped("name")
+        if names:
+            origin_domain = ["|"] * (len(names) - 1)
+            for name in names:
+                origin_domain.append(("origin", "ilike", name))
+
         return cls.env["stock.move"].search(
-            [
-                ("origin", "in", orderpoints.mapped("name")),
+            origin_domain
+            + [
                 ("product_id", "=", product.id),
                 ("state", "!=", "cancel"),
             ]

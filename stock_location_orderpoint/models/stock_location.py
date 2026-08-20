@@ -51,7 +51,9 @@ class StockLocation(models.Model):
         return action
 
     @api.model
-    @tools.ormcache_context("location_id", keys=("excluded_location_domain_cache_key",))
+    @tools.ormcache_context(
+        "location_id", keys=("excluded_location_domain_cache_key", "orderpoint_id")
+    )
     def _get_cached_stock_domains(self, location_id):
         return self.env["product.product"]._get_domain_locations_new(location_id)
 

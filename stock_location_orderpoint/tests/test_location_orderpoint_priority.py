@@ -296,3 +296,44 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         # trigger creation of first orderpoint repl move
         manual_orderpoint_2.run_replenishment()
         self._assert_replenishment_move(repl_move, 40, manual_orderpoint_2)
+
+    def test_orderpoint_priority_reassignment_on_shared_replenishment(self):
+        product = self.product
+        self.env.cr.execute(
+            """
+                    ALTER TABLE stock_location_orderpoint
+                    DROP CONSTRAINT stock_location_orderpoint_location_route_unique;
+                    """
+        )
+
+        (orderpoint_1, replenish_loc_1,) = self._create_orderpoint_complete(
+            "Reserve",
+            trigger="manual",
+            proc_run_async=False,
+        )
+        orderpoint_2 = orderpoint_1.copy({"priority": "1"})
+
+        # Set inventory on replenishment locations
+        for repl_loc in [replenish_loc_1]:
+            self.env["stock.quant"].with_context(inventory_mode=True).create(
+                {
+                    "product_id": product.id,
+                    "location_id": repl_loc.id,
+                    "inventory_quantity": 50.0,
+                }
+            )._apply_inventory()
+
+        out_move = self._create_outgoing_move(11, orderpoint_1.location_id, product)
+        self._run_replenishment(orderpoint_1)
+        out_move._action_cancel()
+
+        replenish_move_1 = self._get_replenishment_move(orderpoint_1, product)
+        self.assertEqual(replenish_move_1.product_uom_qty, 11.0)
+        self.assertEqual(replenish_move_1.priority, "0")
+
+        # Create a need that is already covered by the existing repl move
+        self._create_outgoing_move(2, orderpoint_2.location_id, product)
+        self._run_replenishment(orderpoint_2)
+        replenish_move_2 = self._get_replenishment_move(orderpoint_2, product)
+        self.assertEqual(replenish_move_1, replenish_move_2)
+        self.assertEqual(replenish_move_2.priority, "1")

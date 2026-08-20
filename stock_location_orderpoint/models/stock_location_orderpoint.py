@@ -380,6 +380,8 @@ class StockLocationOrderpoint(models.Model):
         computer = self.env["stock.location.replenishment.computer"].new(
             self._prepare_replenishment_computer_values()
         )
+        computer = computer.with_context(orderpoint_id=self.id)
+        # computer.location_id = computer.location_id.with_context(orderpoint_id=self.id)
         computer._strategy = self._strategy_model
         return computer
 
@@ -387,7 +389,7 @@ class StockLocationOrderpoint(models.Model):
         """Prepare the values to instantiate the replenishment computer."""
         self.ensure_one()
         return {
-            "location_id": self.location_id.id,
+            "location_id": self.location_id.with_context(orderpoint_id=self.id),
             "location_src_id": self.location_src_id.id,
             "horizon": self._horizon_datetime,
             "replenish_limit_to_free_qty": self.replenish_limit_to_free_qty,
@@ -454,12 +456,12 @@ class StockLocationOrderpoint(models.Model):
           are always atomic within a single transaction. The number of jobs
           is bounded by the number of products with actual demand.
         """
-        result = self.env["stock.move"]
+
         processed = processed or set()
         self.ensure_one()
         is_delayed = self._must_delay_fulfill_procurement()
-
         products = self._get_candidate_products(products)
+        replenishment_moves = self.env["stock.move"]
 
         # Filter out products already handled by a higher-priority orderpoint
         # sharing the same location. Only meaningful in the async path.
@@ -476,7 +478,7 @@ class StockLocationOrderpoint(models.Model):
                         orderpoint=self.display_name,
                     )
                 )
-            return result
+            return replenishment_moves
 
         # Single call to the computer:
         #   demand_only=True  → returns {product_id: demand_qty}  (async path)
@@ -505,12 +507,12 @@ class StockLocationOrderpoint(models.Model):
                         orderpoint=self.display_name,
                     )
                 )
-            return result
+            return self._after_replenishment(replenishment_moves)
 
         if is_delayed:
             for product_id, demand_qty in procurement_data.items():
                 self._enqueue_fulfill_procurement(product_id, demand_qty).delay()
-            return result
+            return self._after_replenishment(replenishment_moves)
 
         if job_logs is not None:
             job_logs.append(
@@ -524,10 +526,10 @@ class StockLocationOrderpoint(models.Model):
 
         procurements = self._build_procurements(procurement_data)
         if not procurements:
-            return result
+            return self._after_replenishment(replenishment_moves)
 
-        result = self._execute_run_procurements(procurements)
-        return self._after_replenishment(result)
+        replenishment_moves = self._execute_run_procurements(procurements)
+        return self._after_replenishment(replenishment_moves)
 
     # -------------------------------------------------------------------------
     # Replenishment execution pipeline (orderpoint-bound)
