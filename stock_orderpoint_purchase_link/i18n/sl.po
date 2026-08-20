@@ -6,7 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2026-08-20 03:48+0000\n"
+"Last-Translator: Matjaz Mozetic <matjaz@luxim.si>\n"
 "Language-Team: none\n"
 "Language: sl\n"
 "MIME-Version: 1.0\n"
@@ -14,31 +15,32 @@ msgstr ""
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=4; plural=n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3;\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #. module: stock_orderpoint_purchase_link
 #: model:ir.model,name:stock_orderpoint_purchase_link.model_stock_warehouse_orderpoint
 msgid "Minimum Inventory Rule"
-msgstr ""
+msgstr "Pravilo minimalne zaloge"
 
 #. module: stock_orderpoint_purchase_link
 #: model:ir.model.fields,field_description:stock_orderpoint_purchase_link.field_purchase_order_line__orderpoint_ids
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_purchase_link.purchase_order_form
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_purchase_link.purchase_order_line_form2
 msgid "Orderpoints"
-msgstr ""
+msgstr "Točke naročanja"
 
 #. module: stock_orderpoint_purchase_link
 #: model:ir.model,name:stock_orderpoint_purchase_link.model_purchase_order_line
 msgid "Purchase Order Line"
-msgstr ""
+msgstr "Postavka nabavnega naloga"
 
 #. module: stock_orderpoint_purchase_link
 #: model:ir.model.fields,field_description:stock_orderpoint_purchase_link.field_stock_warehouse_orderpoint__purchase_line_ids
 #: model:ir.model.fields,field_description:stock_orderpoint_purchase_link.field_stock_warehouse_orderpoint_template__purchase_line_ids
 msgid "Purchase Order Lines"
-msgstr ""
+msgstr "Nabavne postavke"
 
 #. module: stock_orderpoint_purchase_link
 #: model:ir.model,name:stock_orderpoint_purchase_link.model_stock_rule
 msgid "Stock Rule"
-msgstr ""
+msgstr "Pravilo zalog"
