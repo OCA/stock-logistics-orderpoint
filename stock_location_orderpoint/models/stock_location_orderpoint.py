@@ -584,6 +584,12 @@ class StockLocationOrderpoint(models.Model):
     @api.model
     def _filter_moves_triggering_orderpoints(self, moves, trigger="auto"):
         """Filters moves that trigger orderpoints"""
+
+        # Optimization to reduce queries (instead of looping each move individually)
+        # 1. gather the orderpoints of all the moves' locations at once
+        # 2. Generate a move domain out of these orderpoints
+        # 3. Use the domain to filter the moves
+
         # move from location consume order point location -> DO I've to replenish?
         orderpoints = self._get_orderpoints(
             trigger, locations=moves.location_id, location_field="location_id"

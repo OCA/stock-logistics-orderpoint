@@ -22,34 +22,47 @@ class StockMove(models.Model):
         )
 
     def _prepare_auto_replenishment_for_outgoing_moves(self):
-        self._prepare_auto_replenishment("location_id")
-
-    def _prepare_auto_replenishment_for_incoming_moves(self):
-        self._prepare_auto_replenishment("location_dest_id")
-
-    def _prepare_auto_replenishment(self, location_field):
-        if not self or self.env.context.get("skip_auto_replenishment"):
-            return
-        locations_products = defaultdict(set)
-        location_ids = set()
-        product_obj = self.env["product.product"]
-
         moves = self.env[
             "stock.location.orderpoint"
         ]._filter_moves_triggering_orderpoints(self, trigger="auto")
-        for move in moves:
+        self._enqueue_auto_replenishment_jobs(
+            moves._collect_orderpoint_locations_products("location_id"),
+            # the move leaves the location the orderpoint fills
+            "location_id",
+        )
+
+    def _prepare_auto_replenishment_for_incoming_moves(self):
+        moves = self.env[
+            "stock.location.orderpoint"
+        ]._filter_moves_triggering_orderpoints(self, trigger="auto")
+        self._enqueue_auto_replenishment_jobs(
+            moves._collect_orderpoint_locations_products("location_dest_id"),
+            # the move arrives in the location the orderpoint takes stock from
+            "location_src_id",
+        )
+
+    def _collect_orderpoint_locations_products(self, location_field):
+        """Group the products of `self` by the location of `location_field`"""
+        if not self or self.env.context.get("skip_auto_replenishment"):
+            return {}
+        locations_products = defaultdict(set)
+        product_obj = self.env["product.product"]
+
+        for move in self:
             location = getattr(move, location_field)
             locations_products[location].add(move.product_id.id)
-            location_ids.add(location.id)
-        # Map the the move's location field
-        # to the correspoding stock.location.orderpoint's location field
-        location_field = (
-            location_field == "location_id" and location_field or "location_src_id"
-        )
+        return {
+            location: product_obj.browse(product_ids)
+            for location, product_ids in locations_products.items()
+        }
+
+    def _enqueue_auto_replenishment_jobs(self, locations_products, location_field):
+        if self.env.context.get("skip_auto_replenishment"):
+            return
         for location, products in locations_products.items():
             # if not orderpoints._is_location_parent_of(location, location_field):
             #    continue
-            for product in product_obj.browse(products):
+            for product in products:
                 self._enqueue_auto_replenishment(
                     location, product, location_field
                 ).delay()
@@ -87,15 +100,78 @@ class StockMove(models.Model):
         )
         return job
 
-    def _action_assign(self, *args, **kwargs):
-        """This triggers the replenishment for new moves which are waiting for stock"""
-        res = super()._action_assign(*args, **kwargs)
-        # When a move is assigned, it means that the stock is available on the
-        # location is decreased. So we need to trigger a check for replenishment
-        # on this location IOW if an orderpoint exists for this location as
-        # target location and the move has the expected characteristics (state, ...)
-        self._prepare_auto_replenishment_for_outgoing_moves()
+    def _prepare_auto_replenishment_for_rerouted_arrivals(self, new_location_dest_id):
+        """Replenish the locations these moves stop bringing stock to
+
+        Must be called before the write applying `new_location_dest_id`.
+
+        `_filter_moves_triggering_orderpoints` must not filter these moves: an
+        arrival is harmless while it stays on course, and only becomes a
+        shortage once its destination is rewritten. The trigger is the change,
+        not the move.
+        """
+        # The stock these moves were bringing will never arrive at their
+        # former destination: what was waiting for it there has to be
+        # replenished from somewhere else.
+        # => Read the former destination before the write replaces it.
+        rerouted = self.filtered(
+            lambda move: move.location_dest_id.id != new_location_dest_id
+            and move.state not in ("draft", "done", "cancel")
+        )
+        if not rerouted:
+            return
+        orderpoints = self.env["stock.location.orderpoint"]._get_orderpoints(
+            "auto", locations=rerouted.location_dest_id, location_field="location_id"
+        )
+        if not orderpoints:
+            return
+        rerouted = rerouted.filtered(
+            lambda move: orderpoints._is_location_parent_of(
+                move.location_dest_id, "location_id"
+            )
+        )
+        # => We need to replenish these location later
+        # NOTE: jobs won't run before the write
+        self._enqueue_auto_replenishment_jobs(
+            rerouted._collect_orderpoint_locations_products("location_dest_id"),
+            # the former destination is the location the orderpoint fills
+            "location_id",
+        )
+
+    def write(self, vals):
+        # `_action_confirm` and `_action_done` evaluate the replenishment on the
+        # locations the move had at that time. Any later rewrite of those
+        # locations would otherwise leave the new ones untriggered.
+
+        if "location_dest_id" in vals:
+            self._prepare_auto_replenishment_for_rerouted_arrivals(
+                vals["location_dest_id"]
+            )
+
+        res = super().write(vals)
+
+        if "location_dest_id" in vals:
+            self.filtered(
+                lambda move: move.state == "done"
+            )._prepare_auto_replenishment_for_incoming_moves()
+
+        if "location_id" in vals:
+            # `waiting` is excluded: an upstream move already supplies it.
+            self.filtered(
+                lambda move: move.state not in ("draft", "waiting", "done", "cancel")
+            )._prepare_auto_replenishment_for_outgoing_moves()
         return res
+
+    def _action_confirm(self, *args, **kwargs):
+        """This triggers the replenishment for newly confirmed moves"""
+        moves = super()._action_confirm(*args, **kwargs)
+        # A confirmed move is a need
+        # -> it decreases the forecasted stock of its source location.
+        # An orderpoint replenishes the forecast, not the reservation
+        # -> the check belongs here and not in `_action_assign`.
+        # NOTE: confirm may merge moves, so trigger on the returned records.
+        moves._prepare_auto_replenishment_for_outgoing_moves()
+        return moves
 
     def _action_done(self, *args, **kwargs):
         """

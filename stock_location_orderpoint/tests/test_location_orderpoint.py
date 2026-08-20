@@ -246,6 +246,91 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
                 job.channel, "root.stock_location_orderpoint_auto_replenishment"
             )
 
+    def test_auto_replenishment_on_source_location_change(self):
+        """The orderpoint of the new source location of a pending move is run
+
+        The source location of a move can be changed after it was confirmed,
+        either by a user or by a module such as stock_move_source_relocate.
+        Without the write() override the replenishment would only ever have
+        been evaluated on the former location.
+        """
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
+        unrelated_location = self._create_location("Unrelated Stock")
+
+        with trap_jobs() as trap:
+            move = self._create_outgoing_move(12, location=unrelated_location)
+            trap.assert_jobs_count(0, only=job_func)
+
+        with trap_jobs() as trap:
+            move.write({"location_id": self.location_dest.id})
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse().run_auto_replenishment,
+                args=(move.product_id, self.location_dest, "location_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+
+    def test_auto_replenishment_on_former_destination_location(self):
+        """The orderpoint of the location a pending arrival leaves is run
+
+        A move was going to bring stock to a location, and gets rerouted
+        somewhere else: that stock will never arrive, so whatever was counting
+        on it there has to be replenished from somewhere else.
+        """
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
+        unrelated_location = self._create_location("Unrelated Stock")
+
+        with trap_jobs() as trap:
+            # a pending arrival on the location the orderpoint replenishes
+            move = self._create_move(
+                "Receive",
+                12,
+                self.env.ref("stock.stock_location_suppliers"),
+                self.location_dest,
+            )
+            trap.assert_jobs_count(0, only=job_func)
+
+        with trap_jobs() as trap:
+            move.write({"location_dest_id": unrelated_location.id})
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse().run_auto_replenishment,
+                args=(move.product_id, self.location_dest, "location_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+
+    def test_auto_replenishment_on_destination_location_change(self):
+        """The orderpoint of the new destination location of a done move is run"""
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="auto"
+        )
+        unrelated_location = self._create_location("Unrelated Stock")
+
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(12, unrelated_location)
+            trap.assert_jobs_count(0, only=job_func)
+
+        with trap_jobs() as trap:
+            move.write({"location_dest_id": location_src.id})
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse().run_auto_replenishment,
+                args=(move.product_id, location_src, "location_src_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+
     def test_auto_no_replenishment(self):
         """
         Create a stock move that should not create a replenishment:
