@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Odoo Server 18.0\n"
+"Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -28,6 +28,11 @@ msgstr ""
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__allowed_location_ids
 msgid "Allowed Location"
+msgstr ""
+
+#. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__allowed_replenishment_uom_ids
+msgid "Allowed Replenishment Uom"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -133,13 +138,6 @@ msgid "Company"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__visibility_days
-msgid ""
-"Consider product forecast these many days in the future upon product replenishment, set to 0 for just-in-time.\n"
-"The value depends on the type of the route (Buy or Manufacture)"
-msgstr ""
-
-#. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__auto_generate
 msgid "Create Rules Automatically"
 msgstr ""
@@ -162,8 +160,22 @@ msgid "Criteria"
 msgstr ""
 
 #. module: stock_orderpoint_generator
+#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__deadline_date
+msgid ""
+"Date before which you should order to avoid falling below the minimum. If "
+"you have nothing to order while a deadline is found, it may be because a "
+"future arrival is expected after the minimum quantity is reached (potential "
+"stockout). Check the Forecast Report."
+msgstr ""
+
+#. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__days_to_order
 msgid "Days To Order"
+msgstr ""
+
+#. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__deadline_date
+msgid "Deadline"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -178,9 +190,22 @@ msgid "Delivered"
 msgstr ""
 
 #. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_product_product__display_name
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_generator__display_name
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__display_name
 msgid "Display Name"
+msgstr ""
+
+#. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__effective_route_id
+msgid "Effective Route"
+msgstr ""
+
+#. module: stock_orderpoint_generator
+#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__effective_route_id
+msgid ""
+"Either the route set directly or the one computed to be used by this "
+"replenishment"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -199,16 +224,12 @@ msgid "Generate Automatic Rules"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_search
-msgid "Group By"
-msgstr ""
-
-#. module: stock_orderpoint_generator
 #: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__snoozed_until
 msgid "Hidden until next scheduler."
 msgstr ""
 
 #. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_product_product__id
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_generator__id
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__id
 msgid "ID"
@@ -239,8 +260,13 @@ msgid "Last Updated on"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__lead_days_date
-msgid "Lead Days Date"
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__lead_days
+msgid "Lead Days"
+msgstr ""
+
+#. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__lead_horizon_date
+msgid "Lead Horizon Date"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -283,16 +309,8 @@ msgid "Most frequent"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__group_id
-msgid ""
-"Moves created through this orderpoint will be put in this procurement group."
-" If none is given, the moves generated by stock rules will be grouped into "
-"one big picking."
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__qty_multiple
-msgid "Multiple Quantity"
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__replenishment_uom_id
+msgid "Multiple"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -316,11 +334,6 @@ msgid "Orderpoint Generator"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__group_id
-msgid "Procurement Group"
-msgstr ""
-
-#. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_id
 msgid "Product"
 msgstr ""
@@ -328,11 +341,6 @@ msgstr ""
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_category_id
 msgid "Product Category"
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_supplier_id
-msgid "Product Supplier"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -354,16 +362,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__auto_product_ids
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_form
 msgid "Products"
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__purchase_visibility_days
-msgid "Purchase Visibility Days"
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_form
-msgid "Quantity Multiple"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -405,8 +403,18 @@ msgid ""
 msgstr ""
 
 #. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__replenishment_uom_id_placeholder
+msgid "Replenishment Uom Id Placeholder"
+msgstr ""
+
+#. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__route_id
 msgid "Route"
+msgstr ""
+
+#. module: stock_orderpoint_generator
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__route_id_placeholder
+msgid "Route Id Placeholder"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -430,8 +438,8 @@ msgid "Select a criteria to auto compute the minimum"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__show_supplier
-msgid "Show supplier column"
+#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__show_supply_warning
+msgid "Show Supply Warning"
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -440,8 +448,8 @@ msgid "Snoozed"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__supplier_id
-msgid "Supplier"
+#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_max_qty
+msgid "Stock level to reach when replenishing."
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -450,10 +458,15 @@ msgid "Templates"
 msgstr ""
 
 #. module: stock_orderpoint_generator
-#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__qty_multiple
+#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_min_qty
+msgid "The minimum Stock level that will trigger a replenishment."
+msgstr ""
+
+#. module: stock_orderpoint_generator
+#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__replenishment_uom_id
 msgid ""
-"The procurement quantity will be rounded up to a multiple of this field "
-"quantity. If it is 0, it is not rounded."
+"The procurement quantity will be rounded up to a multiple of this "
+"unit/packaging. If it is not set, it is not rounded."
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -488,27 +501,12 @@ msgstr ""
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_uom
-msgid "Unit of Measure"
+msgid "Unit"
 msgstr ""
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__unwanted_replenish
 msgid "Unwanted Replenish"
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__vendor_id
-msgid "Vendor"
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__visibility_days
-msgid "Visibility Days"
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__purchase_visibility_days
-msgid "Visibility Days applied on the purchase routes."
 msgstr ""
 
 #. module: stock_orderpoint_generator
@@ -530,20 +528,4 @@ msgid ""
 "When one or several automatic reordering rule is selected, a Scheduled "
 "Action will automatically generate or update the reordering rules of the "
 "product."
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_min_qty
-msgid ""
-"When the virtual stock goes below the Min Quantity specified for this field,"
-" Odoo generates a procurement to bring the forecasted quantity above of this"
-" Min Quantity."
-msgstr ""
-
-#. module: stock_orderpoint_generator
-#: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_max_qty
-msgid ""
-"When the virtual stock goes below the Min Quantity, Odoo generates a "
-"procurement to bring the forecasted quantity up to (or near to) the Max "
-"Quantity specified for this field (or to Min Quantity, whichever is bigger)."
 msgstr ""
