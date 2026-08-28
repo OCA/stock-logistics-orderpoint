@@ -25,6 +25,7 @@ Available addons
 ----------------
 addon | version | maintainers | summary
 --- | --- | --- | ---
+[stock_orderpoint_generator](stock_orderpoint_generator/) | 19.0.1.0.0 |  | Mass configuration of stock order points
 [stock_orderpoint_safety_stock](stock_orderpoint_safety_stock/) | 19.0.1.0.1 | <a href='https://github.com/ivantodorovich'><img src='https://github.com/ivantodorovich.png' width='32' height='32' style='border-radius:50%;' alt='ivantodorovich'/></a> | Automatically compute the safety stock for orderpoints
 
 [//]: # (end addons)
