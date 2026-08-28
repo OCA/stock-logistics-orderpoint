@@ -133,6 +133,58 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self._assert_replenishment_move(replenish_move, 12, orderpoint)
         self.assertEqual(orderpoint.last_cron_execution, day_after_tomorrow)
 
+    def test_cron_replenishment_of_move_predating_the_last_run(self):
+        """A need still unserved is replenished, whenever it was created
+
+        Scenario:
+            Orderpoint in place: "keep X filled, by transferring from Y". The cron
+            applies it every 5 min. It only moves stock between locations: by
+            design it supports neither purchase nor manufacturing.
+
+            1. 10:00 - a customer delivery from X is confirmed and waits: X is empty.
+            2. 10:05 - the cron sees the delivery, but Y is empty too: nothing to move.
+                       It still records 10:05 as its last run.
+            3. 10:06 - an incoming shipment fills Y.
+            4. 10:10 - the cron skips the delivery, dated before 10:05: X stays empty.
+
+        Expected:
+            step 4 replenishes X, because the need is still waiting and
+            the stock is now available in Y.
+        Actual:
+            nothing is replenished, because the cron only looks at moves
+            dated after its previous run.
+
+        `test_cron_replenishment` only passes because its outgoing move happens
+        to be dated after the first cron run. Here the move is dated one second
+        before it, which is what happens whenever a second elapses between the
+        creation of the move and the run of the cron.
+        """
+        cron = self.env.ref("stock_location_orderpoint.ir_cron_location_replenishment")
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="cron"
+        )
+        move = self._create_outgoing_move(12)
+
+        # no stock yet -> this run replenishes nothing, it only sets the date
+        self.product.invalidate_recordset()
+        now = fields.Datetime.add(move.date, seconds=1)
+        with self._freeze_time(now):
+            cron.method_direct_trigger()
+        self.assertFalse(self._get_replenishment_move(orderpoint))
+
+        tomorrow = fields.Datetime.add(now, days=1)
+        with self._freeze_time(tomorrow):
+            self._set_qty_in_location(self.product, location_src, 12)
+
+        self.product.invalidate_recordset()
+        day_after_tomorrow = fields.Datetime.add(tomorrow, days=1)
+        with self._freeze_time(day_after_tomorrow):
+            cron.method_direct_trigger()
+
+        replenish_move = self._get_replenishment_move(orderpoint)
+        self.assertTrue(replenish_move)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
+
     def test_auto_replenishment(self):
         job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
         move_qty = 12
