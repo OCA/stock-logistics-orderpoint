@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="xyz_classification_level_list_view" model="ir.ui.view">
+        <field name="name">xyz.classification.level.list</field>
+        <field name="model">xyz.classification.level</field>
+        <field name="arch" type="xml">
+            <list
+                string="XYZ Classification Levels"
+                editable="bottom"
+                decoration-muted="not active"
+            >
+                <field name="sequence" widget="handle" />
+                <field name="active" column_invisible="1" />
+                <field name="name" placeholder="e.g. X" width="120" />
+                <field name="company_id" groups="base.group_multi_company" />
+                <field name="replenishment_interval_days" string="Interval" />
+                <button
+                    name="action_reset_replenishment_windows"
+                    type="object"
+                    string="Reset windows"
+                    icon="fa-refresh"
+                    invisible="not id"
+                    confirm="Every product of this level will be considered again on the next run of the procurement scheduler."
+                />
+            </list>
+        </field>
+    </record>
+    <record id="xyz_classification_level_search_view" model="ir.ui.view">
+        <field name="name">xyz.classification.level.search</field>
+        <field name="model">xyz.classification.level</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+            </search>
+        </field>
+    </record>
+    <record id="xyz_classification_level_action" model="ir.actions.act_window">
+        <field name="name">XYZ Classification Levels</field>
+        <field name="res_model">xyz.classification.level</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your XYZ levels</p>
+            <p>
+                Order them from the steadiest demand to the most erratic one,
+                for instance X, Y and Z, and give each of them the number of
+                days the procurement scheduler should wait before looking at
+                its products again.
+            </p>
+        </field>
+    </record>
+    <menuitem
+        action="xyz_classification_level_action"
+        id="menu_xyz_classification_level_config_stock"
+        parent="stock.menu_product_in_config_stock"
+        sequence="11"
+    />
+</odoo>
