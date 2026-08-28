@@ -133,6 +133,58 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
         self._assert_replenishment_move(replenish_move, 12, orderpoint)
         self.assertEqual(orderpoint.last_cron_execution, day_after_tomorrow)
 
+    def test_cron_replenishment_of_move_predating_the_last_run(self):
+        """A need still unserved is replenished, whenever it was created
+
+        Scenario:
+            Orderpoint in place: "keep X filled, by transferring from Y". The cron
+            applies it every 5 min. It only moves stock between locations: by
+            design it supports neither purchase nor manufacturing.
+
+            1. 10:00 - a customer delivery from X is confirmed and waits: X is empty.
+            2. 10:05 - the cron sees the delivery, but Y is empty too: nothing to move.
+                       It still records 10:05 as its last run.
+            3. 10:06 - an incoming shipment fills Y.
+            4. 10:10 - the cron skips the delivery, dated before 10:05: X stays empty.
+
+        Expected:
+            step 4 replenishes X, because the need is still waiting and
+            the stock is now available in Y.
+        Actual:
+            nothing is replenished, because the cron only looks at moves
+            dated after its previous run.
+
+        `test_cron_replenishment` only passes because its outgoing move happens
+        to be dated after the first cron run. Here the move is dated one second
+        before it, which is what happens whenever a second elapses between the
+        creation of the move and the run of the cron.
+        """
+        cron = self.env.ref("stock_location_orderpoint.ir_cron_location_replenishment")
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="cron"
+        )
+        move = self._create_outgoing_move(12)
+
+        # no stock yet -> this run replenishes nothing, it only sets the date
+        self.product.invalidate_recordset()
+        now = fields.Datetime.add(move.date, seconds=1)
+        with self._freeze_time(now):
+            cron.method_direct_trigger()
+        self.assertFalse(self._get_replenishment_move(orderpoint))
+
+        tomorrow = fields.Datetime.add(now, days=1)
+        with self._freeze_time(tomorrow):
+            self._set_qty_in_location(self.product, location_src, 12)
+
+        self.product.invalidate_recordset()
+        day_after_tomorrow = fields.Datetime.add(tomorrow, days=1)
+        with self._freeze_time(day_after_tomorrow):
+            cron.method_direct_trigger()
+
+        replenish_move = self._get_replenishment_move(orderpoint)
+        self.assertTrue(replenish_move)
+        self._assert_replenishment_move(replenish_move, 12, orderpoint)
+
     def test_auto_replenishment(self):
         job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
         move_qty = 12
@@ -244,6 +296,91 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
             job = trap.enqueued_jobs[0]
             self.assertEqual(
                 job.channel, "root.stock_location_orderpoint_auto_replenishment"
+            )
+
+    def test_auto_replenishment_on_source_location_change(self):
+        """The orderpoint of the new source location of a pending move is run
+
+        The source location of a move can be changed after it was confirmed,
+        either by a user or by a module such as stock_move_source_relocate.
+        Without the write() override the replenishment would only ever have
+        been evaluated on the former location.
+        """
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
+        unrelated_location = self._create_location("Unrelated Stock")
+
+        with trap_jobs() as trap:
+            move = self._create_outgoing_move(12, location=unrelated_location)
+            trap.assert_jobs_count(0, only=job_func)
+
+        with trap_jobs() as trap:
+            move.write({"location_id": self.location_dest.id})
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse().run_auto_replenishment,
+                args=(move.product_id, self.location_dest, "location_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+
+    def test_auto_replenishment_on_former_destination_location(self):
+        """The orderpoint of the location a pending arrival leaves is run
+
+        A move was going to bring stock to a location, and gets rerouted
+        somewhere else: that stock will never arrive, so whatever was counting
+        on it there has to be replenished from somewhere else.
+        """
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, _ = self._create_orderpoint_complete("Stock2", trigger="auto")
+        unrelated_location = self._create_location("Unrelated Stock")
+
+        with trap_jobs() as trap:
+            # a pending arrival on the location the orderpoint replenishes
+            move = self._create_move(
+                "Receive",
+                12,
+                self.env.ref("stock.stock_location_suppliers"),
+                self.location_dest,
+            )
+            trap.assert_jobs_count(0, only=job_func)
+
+        with trap_jobs() as trap:
+            move.write({"location_dest_id": unrelated_location.id})
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse().run_auto_replenishment,
+                args=(move.product_id, self.location_dest, "location_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
+            )
+
+    def test_auto_replenishment_on_destination_location_change(self):
+        """The orderpoint of the new destination location of a done move is run"""
+        job_func = self.env["stock.location.orderpoint"].run_auto_replenishment
+        orderpoint, location_src = self._create_orderpoint_complete(
+            "Stock2", trigger="auto"
+        )
+        unrelated_location = self._create_location("Unrelated Stock")
+
+        with trap_jobs() as trap:
+            move = self._create_incoming_move(12, unrelated_location)
+            trap.assert_jobs_count(0, only=job_func)
+
+        with trap_jobs() as trap:
+            move.write({"location_dest_id": location_src.id})
+            trap.assert_jobs_count(1, only=job_func)
+            trap.assert_enqueued_job(
+                orderpoint.browse().run_auto_replenishment,
+                args=(move.product_id, location_src, "location_src_id"),
+                kwargs={},
+                properties=dict(
+                    identity_key=identity_exact,
+                ),
             )
 
     def test_auto_no_replenishment(self):

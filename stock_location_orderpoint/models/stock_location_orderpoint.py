@@ -162,46 +162,12 @@ class StockLocationOrderpoint(models.Model):
             "location_orderpoint_id": self.id,
         }
 
-    def _get_group_by_domain_config(self):
-        """Returns a list of orederpoints fields for which orderpoints
-        with the same value will generate the same domain for the moves
-        The location_id should be excluded. The location domain will be applied
-        to each group of orderpoints.
-        """
-        return ["last_cron_execution", "trigger", "replenish_method"]
-
-    def _group_by_domain_config(self):
-        """Returns an iterator of orderpoints for which the values of the fields
-        returned by _get_group_by_domain_config will be the same.
-        """
-        groups = defaultdict(list)
-        for orderpoint in self:
-            group_key = tuple(
-                getattr(orderpoint, field)
-                for field in orderpoint._get_group_by_domain_config()
-            )
-            groups[group_key].append(orderpoint.id)
-        for group in groups.values():
-            yield self.browse(group)
-
-    def _get_consuming_moves_domain_for_group(self):
-        """Returns a domain which selects moves the outgoings that could
-        introduce a shortage at the location for a list of orderpoints
-        with the same characteristics except the location_id
-        """
-        first = self[0]
-        domain = []
-        if first.trigger == "cron":
-            if not first.last_cron_execution:
-                # initialize a date 1 week ago to avoid selecting all moves
-                # when the cron is executed for the first time
-                first.last_cron_execution = self.env.cr.now() - timedelta(days=7)
-            domain.append(("date", ">=", first.last_cron_execution))
-        if first.replenish_method == "fill_up":
-            # with fillup, we know that a replenishment is required when
-            # move are waiting availability
-            domain.append(("state", "in", ["confirmed", "partially_available"]))
-        return domain
+    def _get_consuming_moves_domain_extra(self):
+        extra = []
+        replenish_methods = self.mapped("replenish_method")
+        if "fill_up" in replenish_methods:
+            extra.append([("state", "in", ["confirmed", "partially_available"])])
+        return extra
 
     def _get_consuming_moves_domain(self):
         """Returns a domain which selects moves the outgoings that could
@@ -212,29 +178,21 @@ class StockLocationOrderpoint(models.Model):
         ]
         if self:
             domain.append(("location_id", "child_of", self.location_id.ids))
-        groups = []
-        for orderpoints in self._group_by_domain_config():
-            group_domain = orderpoints._get_consuming_moves_domain_for_group()
-            if group_domain:
-                groups.append(group_domain)
-        if not groups:
+        extra = self._get_consuming_moves_domain_extra()
+        if not extra:
             return domain
-        return expression.AND([domain, expression.OR(groups)])
+        return expression.AND([domain, expression.OR(extra)])
 
-    def _get_replenishment_moves_domain_for_group(self):
-        """Returns a domain which selects the incomig moves that could
-        allow a replenishment at the location for a list of orderpoints
-        with the same characteristics except the location_id
-        """
-        first = self[0]
-        domain = []
-        if first.trigger == "cron":
-            if not first.last_cron_execution:
-                # initialize a date 1 week ago to avoid selecting all moves
-                # when the cron is executed for the first time
-                first.last_cron_execution = self.env.cr.now() - timedelta(days=7)
-            domain.append(("date", ">=", first.last_cron_execution))
-        return domain
+    def _get_replenishment_moves_domain_extra(self):
+        extra = []
+        # ORing one date per orderpoint amounts to keeping the oldest of them.
+        # `run_replenishment` guarantees a value on the "cron" ones.
+        cron_dates = self.filtered(
+            lambda orderpoint: orderpoint.trigger == "cron"
+        ).mapped("last_cron_execution")
+        if cron_dates:
+            extra.append([("date", ">=", min(cron_dates))])
+        return extra
 
     def _get_replenishment_moves_domain(self):
         """Returns a domain which selects moves that could replenish
@@ -245,14 +203,10 @@ class StockLocationOrderpoint(models.Model):
         ]
         if self:
             domain.append(("location_dest_id", "child_of", self.location_src_id.ids))
-        groups = []
-        for orderpoints in self._group_by_domain_config():
-            group_domain = orderpoints._get_replenishment_moves_domain_for_group()
-            if group_domain:
-                groups.append(group_domain)
-        if not groups:
+        extra = self._get_replenishment_moves_domain_extra()
+        if not extra:
             return domain
-        return expression.AND([domain, expression.OR(groups)])
+        return expression.AND([domain, expression.OR(extra)])
 
     @api.model
     @tools.ormcache("ids")
@@ -480,6 +434,13 @@ class StockLocationOrderpoint(models.Model):
 
     def run_replenishment(self, products=False):
         """Run the replenishment for all potential products or only a selection"""
+        # The domains below read `last_cron_execution`, and group the orderpoints
+        # by it, so it has to hold a value before they are built. Initialize a
+        # date 1 week ago to avoid selecting all moves on the first run.
+        self.filtered(
+            lambda orderpoint: orderpoint.trigger == "cron"
+            and not orderpoint.last_cron_execution
+        ).write({"last_cron_execution": self.env.cr.now() - timedelta(days=7)})
         procurements = self._prepare_procurements(products)
         if not procurements:
             return
@@ -584,6 +545,12 @@ class StockLocationOrderpoint(models.Model):
     @api.model
     def _filter_moves_triggering_orderpoints(self, moves, trigger="auto"):
         """Filters moves that trigger orderpoints"""
+
+        # Optimization to reduce queries (instead of looping each move individually)
+        # 1. gather the orderpoints of all the moves' locations at once
+        # 2. Generate a move domain out of these orderpoints
+        # 3. Use the domain to filter the moves
+
         # move from location consume order point location -> DO I've to replenish?
         orderpoints = self._get_orderpoints(
             trigger, locations=moves.location_id, location_field="location_id"
