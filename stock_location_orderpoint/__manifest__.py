@@ -7,7 +7,7 @@
     "author": "MT Software, BCIM, ACSONE SA/NV, Odoo Community Association (OCA)",
     "summary": "Declare orderpoint on a location "
     "allowing to replenish any product with the same criteria.",
-    "version": "16.0.3.0.0",
+    "version": "16.0.3.1.0",
     "data": [
         "security/ir.model.access.csv",
         "security/stock_location_orderpoint_security.xml",
