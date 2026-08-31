@@ -42,6 +42,15 @@ msgid ""
 msgstr ""
 
 #. module: stock_location_orderpoint
+#. odoo-python
+#: code:addons/stock_location_orderpoint/models/stock_move.py:0
+#, python-format
+msgid ""
+"Check if replenishment moves in location %(location_name)s are still needed "
+"for %(product_count)s product(s)"
+msgstr ""
+
+#. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__company_id
 msgid "Company"
 msgstr ""
@@ -68,6 +77,11 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__proc_run_async
 msgid "Delay procurement execution"
+msgstr ""
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__unlink_fulfilled_replenishment_moves
+msgid "Delete fulfilled replenishment moves"
 msgstr ""
 
 #. module: stock_location_orderpoint
@@ -145,6 +159,15 @@ msgstr ""
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__id
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__id
 msgid "ID"
+msgstr ""
+
+#. module: stock_location_orderpoint
+#: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__unlink_fulfilled_replenishment_moves
+msgid ""
+"If enabled, not-yet-started replenishment moves whose demand is already "
+"fulfilled are deleted instead of cancelled. If such a move was the only one "
+"of its picking, the picking is deleted as well. If disabled, they are "
+"cancelled and kept for traceability."
 msgstr ""
 
 #. module: stock_location_orderpoint
@@ -323,6 +346,11 @@ msgstr ""
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_replenishment_computer__product_domain
 msgid "Product Domain"
+msgstr ""
+
+#. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_product_product
+msgid "Product Variant"
 msgstr ""
 
 #. module: stock_location_orderpoint
