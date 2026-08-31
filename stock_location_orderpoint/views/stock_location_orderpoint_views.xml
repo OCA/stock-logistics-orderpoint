@@ -70,6 +70,7 @@
                     <field name="priority" />
                     <field name="replenish_limit_to_free_qty" />
                     <field name="replenish_horizon" />
+                    <field name="unlink_fulfilled_replenishment_moves" />
                 </group>
                 <notebook>
                     <page name="filter_products" string="Filter products">
