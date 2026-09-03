@@ -3,6 +3,7 @@
 # Copyright 2025 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
+from odoo.fields import Command
 from odoo.tests import tagged
 
 from odoo.addons.base.tests.common import BaseCommon
@@ -42,7 +43,7 @@ class TestStockOrderpointMtoAsMts(BaseCommon):
                 "name": "Test MTO",
                 "type": "consu",
                 "is_storable": True,
-                "route_ids": [(6, 0, [self.mto_route.id])],
+                "route_ids": [Command.link(self.mto_route.id)],
                 "is_mto": True,
             }
         )

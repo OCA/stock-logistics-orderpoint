@@ -10,16 +10,21 @@ class StockRoute(models.Model):
     def write(self, vals):
         if "is_mto" not in vals:
             return super().write(vals)
-        products = self.product_ids.product_variant_ids
-        products |= self.env["product.product"].search(
-            [("categ_id", "child_of", self.categ_ids.ids)]
-        )
-        products = products.with_context(orderpoint_mto_as_mts=True)
         if vals["is_mto"]:
-            products.is_mto = True
-        else:
-            mto_routes = self.env["stock.route"].search([("is_mto", "=", True)])
-            if not mto_routes:
-                # When the last mto route is unflagged
-                products.is_mto = False
-        return super().write(vals)
+            products = self.product_ids.product_variant_ids
+            products |= self.env["product.product"].search(
+                [("categ_id", "child_of", self.categ_ids.ids)]
+            )
+            # flag before super() so that stock_orderpoint_mto_as_mts creates
+            # the orderpoints on the route write
+            products.with_context(orderpoint_mto_as_mts=True).is_mto = True
+            return super().write(vals)
+        # exclude self: it is still flagged as MTO until super().write
+        remaining_mto_routes = self.env["stock.route"].search(
+            [("is_mto", "=", True), ("id", "not in", self.ids)]
+        )
+        res = super().write(vals)
+        if not remaining_mto_routes:
+            # when the last mto route is unflagged, no product can be mto anymore
+            self.env["product.product"].search([("is_mto", "=", True)]).is_mto = False
+        return res
