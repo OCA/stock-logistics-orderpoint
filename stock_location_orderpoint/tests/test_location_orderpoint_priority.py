@@ -104,7 +104,8 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         product_2 = self.env["product.product"].create(
             {
                 "name": "Product 2",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
             }
         )
         move_qty = 10
@@ -198,7 +199,8 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         product_2 = self.env["product.product"].create(
             {
                 "name": "Product 2",
-                "type": "product",
+                "type": "consu",
+                "is_storable": True,
             }
         )
         move_qty = 12

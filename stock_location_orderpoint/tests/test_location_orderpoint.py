@@ -63,7 +63,7 @@ class TestLocationOrderpoint(TestLocationOrderpointCommon):
     def test_need_on_child_location(self):
         """Outgoing move is on a child location of the orderpoint location"""
         orderpoint, location_src = self._create_orderpoint_complete(
-            "Stock2", trigger="manual"
+            "Stock2", trigger="manual", proc_run_async=False
         )
         self.assertEqual(orderpoint.location_src_id, location_src)
         location_child = self.location_dest.create(

@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import api, models
-from odoo.tools import float_compare
+from odoo.tools import SQL, float_compare
 
 
 class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
@@ -33,39 +33,27 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
             return products
         domain_move = location._get_consuming_moves_domain()
         stock_move_obj = self.env["stock.move"]
-        stock_move_obj._flush_search(domain_move)
+        self.env.flush_all()
         query = stock_move_obj._where_calc(domain_move)
         stock_move_obj._apply_ir_rules(query, "read")
 
         if product_domain:
             product_obj = self.env["product.product"]
-            product_obj._flush_search(product_domain)
+            self.env.flush_all()
             product_query = product_obj._where_calc(product_domain)
             product_obj._apply_ir_rules(product_query, "read")
-
-        from_clause, where_clause, params = query.get_sql()
-        sql = f"""
-            SELECT DISTINCT product_id
-            FROM {from_clause}
-            WHERE {where_clause}
-        """
-        if product_domain:
-            (
-                from_clause_product,
-                where_clause_product,
-                params_product,
-            ) = product_query.get_sql()
-            sql += f"""
-                AND EXISTS (
-                    SELECT 1
-                    FROM {from_clause_product}
-                    WHERE {where_clause_product}
-                    AND product_product.id = stock_move.product_id
+            # Restrict the moves to the products matching the orderpoint's
+            # product domain, as a correlated sub-query on the move's product.
+            product_query.add_where(
+                SQL(
+                    "%s = %s",
+                    SQL.identifier(product_query.table, "id"),
+                    SQL.identifier(query.table, "product_id"),
                 )
-            """
-            params += params_product
+            )
+            query.add_where(SQL("EXISTS %s", product_query.subselect(SQL("1"))))
 
-        self.env.cr.execute(sql, params)
+        self.env.cr.execute(query.select(SQL("DISTINCT product_id")))
         product_ids = [row[0] for row in self.env.cr.fetchall()]
         return self.env["product.product"].browse(product_ids)
 
@@ -119,19 +107,12 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         )
         domain_move = location._get_consuming_moves_domain()
         stock_move_obj = self.env["stock.move"]
-        stock_move_obj._flush_search(domain_move)
+        self.env.flush_all()
         stock_move_obj.flush_model(["date"])
         query = stock_move_obj._where_calc(domain_move)
         stock_move_obj._apply_ir_rules(query, "read")
-        from_clause, where_clause, params = query.get_sql()
-        sql = f"""
-            SELECT product_id,
-                  min (date)
-            FROM {from_clause}
-            WHERE {where_clause}
-            GROUP BY product_id
-        """
-        self.env.cr.execute(sql, params)
+        query.groupby = SQL("product_id")
+        self.env.cr.execute(query.select(SQL("product_id"), SQL("min(date)")))
         dates_by_product = {row[0]: row[1] for row in self.env.cr.fetchall()}
         picking_change_date_ids = set()
         for move in replenishment_moves:

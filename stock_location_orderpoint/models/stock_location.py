@@ -89,7 +89,8 @@ class StockLocation(models.Model):
         return expression.AND([domain_move_in_loc, domain])
 
     def _lop_clear_caches(self):
-        self._get_cached_stock_domains.clear_cache(self)
+        # Since 18.0, ormcache-decorated methods no longer expose clear_cache()
+        self.env.registry.clear_cache()
 
     @api.model_create_multi
     def create(self, vals_list):

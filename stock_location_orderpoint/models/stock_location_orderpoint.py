@@ -194,9 +194,8 @@ class StockLocationOrderpoint(models.Model):
         for orderpoint in self:
             location = False
             if orderpoint.location_id and orderpoint.route_id:
-                location = orderpoint.location_id._get_source_location_from_route(
-                    orderpoint.route_id,
-                    "make_to_stock",
+                location = orderpoint.route_id._get_source_location(
+                    orderpoint.location_id
                 )
             orderpoint.location_src_id = location
 
@@ -777,7 +776,8 @@ class StockLocationOrderpoint(models.Model):
     # -------------------------------------------------------------------------
 
     def _clear_caches(self):
-        self._get_ids_by_parent_path.clear_cache(self)
+        # Since 18.0, ormcache-decorated methods no longer expose clear_cache()
+        self.env.registry.clear_cache()
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 from odoo import _, fields, models
 from odoo.osv import expression
-from odoo.tools import float_compare
+from odoo.tools import SQL, float_compare
 
 
 class StockLocationReplenishmentComputer(models.TransientModel):
@@ -246,45 +246,45 @@ class StockLocationReplenishmentComputer(models.TransientModel):
 
         # --- STOCK MOVE (OUTGOING) ---
         stock_move_obj = self.env["stock.move"]
-        stock_move_obj._flush_search(move_out_domain)
+        self.env.flush_all()
         stock_move_obj.flush_model(["product_uom_qty"])
         move_query = stock_move_obj._where_calc(move_out_domain)
         stock_move_obj._apply_ir_rules(move_query, "read")
-        move_tables, move_where, move_params = move_query.get_sql()
-        move_sql = f"""
-            SELECT
-                {stock_move_obj._table}.product_id,
-                - SUM({stock_move_obj._table}.product_uom_qty) AS qty
-            FROM {move_tables}
-            WHERE {move_where}
-            GROUP BY {stock_move_obj._table}.product_id
-        """
+        move_query.groupby = SQL.identifier(stock_move_obj._table, "product_id")
+        move_sql = move_query.select(
+            SQL.identifier(stock_move_obj._table, "product_id"),
+            SQL(
+                "- SUM(%s) AS qty",
+                SQL.identifier(stock_move_obj._table, "product_uom_qty"),
+            ),
+        )
 
         # --- STOCK QUANT ---
         stock_quant_obj = self.env["stock.quant"]
-        stock_quant_obj._flush_search(quant_domain)
+        self.env.flush_all()
         stock_quant_obj.flush_model(["quantity"])
         quant_query = stock_quant_obj._where_calc(quant_domain)
         stock_quant_obj._apply_ir_rules(quant_query, "read")
-        quant_tables, quant_where, quant_params = quant_query.get_sql()
-        quant_sql = f"""
-            SELECT
-                {stock_quant_obj._table}.product_id,
-                SUM({stock_quant_obj._table}.quantity) AS qty
-            FROM {quant_tables}
-            WHERE {quant_where}
-            GROUP BY {stock_quant_obj._table}.product_id
-        """
+        quant_query.groupby = SQL.identifier(stock_quant_obj._table, "product_id")
+        quant_sql = quant_query.select(
+            SQL.identifier(stock_quant_obj._table, "product_id"),
+            SQL("SUM(%s) AS qty", SQL.identifier(stock_quant_obj._table, "quantity")),
+        )
 
         # --- UNION ---
-        final_sql = f"""
+        self.env.cr.execute(
+            SQL(
+                """
             SELECT product_id, SUM(qty) AS qty
             FROM (
-                {move_sql}
+                %s
                 UNION ALL
-                {quant_sql}
+                %s
             ) AS combined
             GROUP BY product_id
-        """
-        self.env.cr.execute(final_sql, move_params + quant_params)
+        """,
+                move_sql,
+                quant_sql,
+            )
+        )
         return dict(self.env.cr.fetchall())
