@@ -1,0 +1,3 @@
+# [18.0][FIX] product_variant_route_mto: variant creation fix
+# https://github.com/OCA/product-attribute/pull/2397
+odoo-addon-product_variant_route_mto @ git+https://github.com/OCA/product-attribute.git@refs/pull/2397/head#subdirectory=product_variant_route_mto
