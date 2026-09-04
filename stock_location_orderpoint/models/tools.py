@@ -5,11 +5,12 @@ import contextvars
 
 class MovesTouchTracker:
     """
-    Context manager to track stock moves that are created or updated during its execution.
+    Context manager to track stock moves created or updated during its
+    execution.
 
-    This is useful for the stock location orderpoint module to determine which moves were
-    affected by the orderpoint processing, allowing it to post-process those moves after
-    their creation or update.
+    This is useful for the stock location orderpoint module to determine which
+    moves were affected by the orderpoint processing, allowing it to
+    post-process those moves after their creation or update.
     """
 
     _current_move_ids = contextvars.ContextVar("current_touched_move_ids", default=None)

@@ -11,8 +11,8 @@ class StockLocationOrderpointStrategy(models.AbstractModel):
     @api.model
     def _get_candidate_products(self, location, horizon, product_domain, products=None):
         """
-        Get the candidate products to compute the demand for according to a specific strategy.
-        By default, we consider that all stockable products are candidates.
+        Get the candidate products to compute the demand for, according to a
+        specific strategy. By default, all stockable products are candidates.
 
         :param location: stock.location record
         :param horizon: datetime, time horizon to consider for the replenishment
@@ -45,12 +45,13 @@ class StockLocationOrderpointStrategy(models.AbstractModel):
         This model is meant to be inherited to implement different strategies
         to compute the demand.
 
-        In some cases, the candidate products could be computed directly from the demand
-        computation. In such case, the _get_candidate_products method of the strategy will
-        return None and the _compute_demand method will be responsible to compute the
-         candidate products and the demand at the same time. That's why the _compute_demand
-         method receives the same parameters as the _get_candidate_products method, to be
-         able to compute the candidate products if needed.
+        In some cases, the candidate products could be computed directly from
+        the demand computation. In such case, the _get_candidate_products method
+        of the strategy will return None and the _compute_demand method will be
+        responsible to compute the candidate products and the demand at the same
+        time. That's why the _compute_demand method receives the same parameters
+        as the _get_candidate_products method, to be able to compute the
+        candidate products if needed.
 
         The demand is the quantity to replenish to meet the orderpoint's rules.
         """
@@ -61,9 +62,10 @@ class StockLocationOrderpointStrategy(models.AbstractModel):
     @api.model
     def _after_run_replenishment(self, location, replenishment_moves):
         """
-        Method called after the replenishment moves have been created for an orderpoint.
-        This allows to implement specific logic after the replenishment, like changing the
-        priority of the replenishment moves according to the strategy.
+        Method called after the replenishment moves have been created for an
+        orderpoint. This allows to implement specific logic after the
+        replenishment, like changing the priority of the replenishment moves
+        according to the strategy.
 
         :param location: stock.location record
         :param replenishment_moves: stock.move recordset of the replenishment moves that

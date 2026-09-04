@@ -60,11 +60,11 @@ class StockLocationOrderpoint(models.Model):
         default="fill_up",
         required=True,
         help="Defines how the qty to replenish gets computed\n"
-        "Fill up = The replenishment will be triggered when a move is waiting availability "
-        "and forecast quantity is negative at the location (i.e. min=0). "
-        "The replenished quantity will bring back the forecast quantity to 0 (i.e. max=0) "
-        "but will be limited to what is available at the source location "
-        "to plan only reservable replenishment moves",
+        "Fill up = The replenishment will be triggered when a move is waiting "
+        "availability and forecast quantity is negative at the location (i.e. "
+        "min=0). The replenished quantity will bring back the forecast quantity "
+        "to 0 (i.e. max=0) but will be limited to what is available at the "
+        "source location to plan only reservable replenishment moves",
     )
     sequence = fields.Integer(default=10)
     route_id = fields.Many2one(
@@ -113,9 +113,10 @@ class StockLocationOrderpoint(models.Model):
     )
     proc_run_async = fields.Boolean(
         string="Delay procurement execution",
-        help="If enabled, procurements will be run asynchronously in delayed jobs "
-        "when processing this orderpoint. Only applies to 'cron' and 'manual' triggers. "
-        "If disabled, all procurements will be run in the same transaction. ",
+        help="If enabled, procurements will be run asynchronously in delayed "
+        "jobs when processing this orderpoint. Only applies to 'cron' and "
+        "'manual' triggers. If disabled, all procurements will be run in the "
+        "same transaction. ",
         compute="_compute_proc_run_async",
         store=True,
         readonly=False,
@@ -126,7 +127,8 @@ class StockLocationOrderpoint(models.Model):
         (
             "location_route_unique",
             "unique(location_id, route_id, company_id, replenish_method)",
-            "The combination of Company, Location, Route and Replenish method must be unique",
+            "The combination of Company, Location, Route and Replenish method "
+            "must be unique",
         ),
         (
             "name_unique",
@@ -144,14 +146,14 @@ class StockLocationOrderpoint(models.Model):
 
     @property
     def _horizon_datetime(self):
-        """Compute the replenishment horizon as a datetime based on the current time and the
-        replenish_horizon field expressed in days."""
+        """Compute the replenishment horizon as a datetime, from the current
+        time and the replenish_horizon field expressed in days."""
         self.ensure_one()
         return fields.Datetime.add(fields.Datetime.now(), days=self.replenish_horizon)
 
     @property
     def location(self):
-        """Return the location_id with the excluded_location_domain applied in context."""
+        """Return location_id with the excluded_location_domain in context."""
         self.ensure_one()
         return self.location_id.with_context(
             excluded_location_domain=self.stock_excluded_location_domain
@@ -159,7 +161,7 @@ class StockLocationOrderpoint(models.Model):
 
     @property
     def location_src(self):
-        """Return the location_src_id with the excluded_location_domain applied in context."""
+        """Return location_src_id with the excluded_location_domain in context."""
         self.ensure_one()
         return self.location_src_id.with_context(
             excluded_location_domain=self.stock_excluded_location_domain
@@ -301,7 +303,9 @@ class StockLocationOrderpoint(models.Model):
                 authorized_product = moves.mapped("product_id").filtered_domain(
                     product_domain
                 )
-                moves = moves.filtered(lambda m: m.product_id in authorized_product)
+                moves = moves.filtered(
+                    lambda m, allowed=authorized_product: m.product_id in allowed
+                )
             moves_for_orderpoint = moves.filtered_domain(
                 getattr(orderpoint, get_moves_domain_method)()
             )
@@ -338,7 +342,8 @@ class StockLocationOrderpoint(models.Model):
         :param trigger: the trigger to consider to select the orderpoints to replenish
         :return: dict {orderpoint: products}
         """
-        # move to src location replenish order point source location -> DO I've to replenish?
+        # move to src location replenish order point source location -> DO I've
+        # to replenish?
         orderpoints = self._get_orderpoints(
             trigger, locations=moves.location_dest_id, location_field="location_src_id"
         )
@@ -660,8 +665,9 @@ class StockLocationOrderpoint(models.Model):
         job_options.setdefault(
             "description",
             _(
-                "Try to fulfill procurement for product %(product_name)s in location "
-                "%(location_name)s for a demand of %(demand_qty)s with priority %(priority)s",
+                "Try to fulfill procurement for product %(product_name)s in "
+                "location %(location_name)s for a demand of %(demand_qty)s "
+                "with priority %(priority)s",
                 product_name=self.env["product.product"]
                 .browse(product_id)
                 .display_name,
@@ -723,8 +729,8 @@ class StockLocationOrderpoint(models.Model):
         )
         job_logs.append(
             _(
-                "Fulfilled procurement for product %(product_name)s "
-                "in location %(location_name)s: %(move_count)s replenishment moves created.",
+                "Fulfilled procurement for product %(product_name)s in location "
+                "%(location_name)s: %(move_count)s replenishment moves created.",
                 product_name=product.display_name,
                 location_name=orderpoints[0].location_id.display_name,
                 move_count=len(result),

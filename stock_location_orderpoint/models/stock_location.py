@@ -63,7 +63,7 @@ class StockLocation(models.Model):
         )._get_cached_stock_domains(self.id)
 
     def _get_consuming_moves_domain(self):
-        """Get the domain to apply on stock.move to get the consuming moves of a location."""
+        """Get the domain on stock.move selecting a location's consuming moves."""
         (
             _q,
             _il,

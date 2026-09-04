@@ -187,8 +187,8 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         The picking must have the highest priority between the 2 moves (i.e. 'urgent')
 
         """
-        # we drop the unique constraint here because ideally we want to create orderpoints
-        # for the same location with different priority
+        # we drop the unique constraint here because ideally we want to create
+        # orderpoints for the same location with different priority
         self.env.cr.execute(
             """
             ALTER TABLE stock_location_orderpoint
@@ -251,9 +251,9 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
               location should be linked to orderpoint '1' (and have a priority of '1')
         """
 
-        # ↓ we drop the unique constraint here because ideally we want to create orderpoints
-        # that have exactly the same characteristics except for the replenish_method (in order
-        # to make sure the moves get merged)
+        # ↓ we drop the unique constraint here because ideally we want to
+        # create orderpoints that have exactly the same characteristics except
+        # for the replenish_method (in order to make sure the moves get merged)
         # However, we only have 1 replenish_method available and we do not want to
         # add another dependency (e.g. avg_daily_sale)
         self.env.cr.execute(

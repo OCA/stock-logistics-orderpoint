@@ -13,11 +13,12 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
     @api.model
     def _get_candidate_products(self, location, horizon, product_domain, products=None):
         """
-        In the fill-up strategy, if the orderpoint is triggered without specifying products,
-        we want to consider only the products with pending not fully reserved moves
-        from the destination location of the orderpoint as candidates to compute the demand for.
-        This is because the fill-up strategy is meant to fill up the stock at the destination
-        location, and if there are no pending moves for a product, it means that there is no
+        In the fill-up strategy, if the orderpoint is triggered without
+        specifying products, we want to consider only the products with pending
+        not fully reserved moves from the destination location of the orderpoint
+        as candidates to compute the demand for. This is because the fill-up
+        strategy is meant to fill up the stock at the destination location, and
+        if there are no pending moves for a product, it means that there is no
         demand for this product at the destination location.
 
         :param location: stock.location record
@@ -79,8 +80,8 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         qties_on_location = products.with_context(
             location=location.id
         )._compute_quantities_dict(None, None, None, to_date=horizon)
-        for product_id, qties_on_location in qties_on_location.items():
-            virtual_available_on_dest = qties_on_location["virtual_available"]
+        for product_id, qties in qties_on_location.items():
+            virtual_available_on_dest = qties["virtual_available"]
             if (
                 float_compare(
                     virtual_available_on_dest,

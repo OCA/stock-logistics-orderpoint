@@ -52,15 +52,17 @@ class StockLocationReplenishmentComputer(models.TransientModel):
     horizon = fields.Datetime(
         required=True,
         string="Horizon Datetime",
-        help="Time horizon to consider for the replenishment. Only moves with a date_deadline"
-        "up to this datetime will be considered in the demand computation.",
+        help="Time horizon to consider for the replenishment. Only moves with "
+        "a date_deadline up to this datetime will be considered in the demand "
+        "computation.",
     )
     replenish_limit_to_free_qty = fields.Boolean(
         default=True,
     )
     excluded_location_domain = fields.Json(
         default=False,
-        help="Optional domain to exclude some locations from availability computation. ",
+        help="Optional domain to exclude some locations from availability "
+        "computation. ",
     )
     product_domain = fields.Binary(
         default=[], help="Optional domain to filter products"
@@ -84,7 +86,7 @@ class StockLocationReplenishmentComputer(models.TransientModel):
 
     @property
     def location(self):
-        """Return the location_id with the excluded_location_domain applied in context."""
+        """Return location_id with the excluded_location_domain in context."""
         self.ensure_one()
         return self.location_id.with_context(
             excluded_location_domain=self.excluded_location_domain
@@ -92,7 +94,7 @@ class StockLocationReplenishmentComputer(models.TransientModel):
 
     @property
     def location_src(self):
-        """Return the location_src_id with the excluded_location_domain applied in context."""
+        """Return location_src_id with the excluded_location_domain in context."""
         self.ensure_one()
         return self.location_src_id.with_context(
             excluded_location_domain=self.excluded_location_domain

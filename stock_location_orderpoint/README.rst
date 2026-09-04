@@ -1,7 +1,3 @@
-.. image:: https://odoo-community.org/readme-banner-image
-   :target: https://odoo-community.org/get-involved?utm_source=readme
-   :alt: Odoo Community Association
-
 =========================
 Stock Location Orderpoint
 =========================
@@ -17,7 +13,7 @@ Stock Location Orderpoint
 .. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
     :alt: Beta
-.. |badge2| image:: https://img.shields.io/badge/license-AGPL--3-blue.png
+.. |badge2| image:: https://img.shields.io/badge/licence-AGPL--3-blue.png
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 .. |badge3| image:: https://img.shields.io/badge/github-OCA%2Fstock--logistics--orderpoint-lightgray.png?logo=github
@@ -117,6 +113,13 @@ Location Orderpoint configuration
     receptions taken into account), fill in the 'Domain to filter
     locations' field.
 
+When different orderpoints are defined on the same location, it could
+result in the creation of several replenishment moves for the same
+product. When this happens, if the moves are merged together, the
+resulting move will be linked to the orderpoint with the highest
+priority, ensuring that the move inherits the correct priority and is
+processed accordingly.
+
 Bug Tracker
 ===========
 
@@ -135,6 +138,7 @@ Authors
 
 * MT Software
 * BCIM
+* ACSONE SA/NV
 
 Contributors
 ------------
@@ -142,6 +146,8 @@ Contributors
 - Michael Tietz (MT Software) <mtietz@mt-software.de>
 - Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 - Denis Roussel <denis.roussel@acsone.eu>
+- Nicolas Delbovier <nicolas.delbovier@acsone.eu>
+- Laurent Mignon <laurent.mignon@acsone.eu>
 
 Maintainers
 -----------
@@ -162,10 +168,13 @@ promote its widespread use.
 .. |maintainer-jbaudoux| image:: https://github.com/jbaudoux.png?size=40px
     :target: https://github.com/jbaudoux
     :alt: jbaudoux
+.. |maintainer-lmignon| image:: https://github.com/lmignon.png?size=40px
+    :target: https://github.com/lmignon
+    :alt: lmignon
 
 Current `maintainers <https://odoo-community.org/page/maintainer-role>`__:
 
-|maintainer-mt-software-de| |maintainer-jbaudoux| 
+|maintainer-mt-software-de| |maintainer-jbaudoux| |maintainer-lmignon| 
 
 This module is part of the `OCA/stock-logistics-orderpoint <https://github.com/OCA/stock-logistics-orderpoint/tree/18.0/stock_location_orderpoint>`_ project on GitHub.
 
