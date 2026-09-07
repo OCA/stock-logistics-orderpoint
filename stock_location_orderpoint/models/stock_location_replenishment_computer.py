@@ -248,33 +248,48 @@ class StockLocationReplenishmentComputer(models.TransientModel):
 
         # --- STOCK MOVE (OUTGOING) ---
         stock_move_obj = self.env["stock.move"]
-        self.env.flush_all()
-        stock_move_obj.flush_model(["product_uom_qty"])
         move_query = stock_move_obj._where_calc(move_out_domain)
         stock_move_obj._apply_ir_rules(move_query, "read")
         move_query.groupby = SQL.identifier(stock_move_obj._table, "product_id")
         move_sql = move_query.select(
-            SQL.identifier(stock_move_obj._table, "product_id"),
+            SQL.identifier(
+                stock_move_obj._table,
+                "product_id",
+                to_flush=stock_move_obj._fields["product_id"],
+            ),
             SQL(
                 "- SUM(%s) AS qty",
-                SQL.identifier(stock_move_obj._table, "product_uom_qty"),
+                SQL.identifier(
+                    stock_move_obj._table,
+                    "product_uom_qty",
+                    to_flush=stock_move_obj._fields["product_uom_qty"],
+                ),
             ),
         )
 
         # --- STOCK QUANT ---
         stock_quant_obj = self.env["stock.quant"]
-        self.env.flush_all()
-        stock_quant_obj.flush_model(["quantity"])
         quant_query = stock_quant_obj._where_calc(quant_domain)
         stock_quant_obj._apply_ir_rules(quant_query, "read")
         quant_query.groupby = SQL.identifier(stock_quant_obj._table, "product_id")
         quant_sql = quant_query.select(
-            SQL.identifier(stock_quant_obj._table, "product_id"),
-            SQL("SUM(%s) AS qty", SQL.identifier(stock_quant_obj._table, "quantity")),
+            SQL.identifier(
+                stock_quant_obj._table,
+                "product_id",
+                to_flush=stock_quant_obj._fields["product_id"],
+            ),
+            SQL(
+                "SUM(%s) AS qty",
+                SQL.identifier(
+                    stock_quant_obj._table,
+                    "quantity",
+                    to_flush=stock_quant_obj._fields["quantity"],
+                ),
+            ),
         )
 
         # --- UNION ---
-        self.env.cr.execute(
+        rows = self.env.execute_query(
             SQL(
                 """
             SELECT product_id, SUM(qty) AS qty
@@ -289,4 +304,4 @@ class StockLocationReplenishmentComputer(models.TransientModel):
                 quant_sql,
             )
         )
-        return dict(self.env.cr.fetchall())
+        return dict(rows)

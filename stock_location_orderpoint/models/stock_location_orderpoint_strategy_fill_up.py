@@ -34,13 +34,11 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
             return products
         domain_move = location._get_consuming_moves_domain()
         stock_move_obj = self.env["stock.move"]
-        self.env.flush_all()
         query = stock_move_obj._where_calc(domain_move)
         stock_move_obj._apply_ir_rules(query, "read")
 
         if product_domain:
             product_obj = self.env["product.product"]
-            self.env.flush_all()
             product_query = product_obj._where_calc(product_domain)
             product_obj._apply_ir_rules(product_query, "read")
             # Restrict the moves to the products matching the orderpoint's
@@ -54,8 +52,16 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
             )
             query.add_where(SQL("EXISTS %s", product_query.subselect(SQL("1"))))
 
-        self.env.cr.execute(query.select(SQL("DISTINCT product_id")))
-        product_ids = [row[0] for row in self.env.cr.fetchall()]
+        rows = self.env.execute_query(
+            query.select(
+                SQL(
+                    "DISTINCT %s",
+                    SQL.identifier(query.table, "product_id"),
+                    to_flush=stock_move_obj._fields["product_id"],
+                )
+            )
+        )
+        product_ids = [row[0] for row in rows]
         return self.env["product.product"].browse(product_ids)
 
     @api.model
@@ -108,13 +114,20 @@ class StockLocationOrderpointStrategyFillUp(models.AbstractModel):
         )
         domain_move = location._get_consuming_moves_domain()
         stock_move_obj = self.env["stock.move"]
-        self.env.flush_all()
-        stock_move_obj.flush_model(["date"])
         query = stock_move_obj._where_calc(domain_move)
         stock_move_obj._apply_ir_rules(query, "read")
         query.groupby = SQL("product_id")
-        self.env.cr.execute(query.select(SQL("product_id"), SQL("min(date)")))
-        dates_by_product = {row[0]: row[1] for row in self.env.cr.fetchall()}
+        rows = self.env.execute_query(
+            query.select(
+                SQL.identifier(query.table, "product_id"),
+                SQL(
+                    "min(%s)",
+                    SQL.identifier(query.table, "date"),
+                    to_flush=stock_move_obj._fields["date"],
+                ),
+            )
+        )
+        dates_by_product = {row[0]: row[1] for row in rows}
         picking_change_date_ids = set()
         for move in replenishment_moves:
             if move.product_id.id not in dates_by_product:
