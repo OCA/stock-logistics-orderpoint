@@ -114,7 +114,7 @@ class ProductProduct(models.Model):
     @api.model
     def _get_daily_demand_aggregated_vals(
         self, warehouse: StockWarehouse, days: int
-    ) -> dict[str, Any]:
+    ) -> dict[Self, dict[str, Any]]:
         """Get the aggregated values of the daily demand per product
 
         The values are in the product's base unit of measure.
