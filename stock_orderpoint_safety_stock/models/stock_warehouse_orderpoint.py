@@ -108,6 +108,14 @@ class StockWarehouseOrderpoint(models.Model):
         # Group by warehouse and demand history days to batch read groups of stock moves
         grouped = self.grouped(lambda rec: (rec.warehouse_id, rec.demand_history_days))
         for (warehouse, days), orderpoints in grouped.items():
+            # A bunch of fields/methods depend on having the correct company set in the
+            # transaction's env; since both WH's and OP's ``company_id`` fields are
+            # required, and OP's ``warehouse_id`` is marked with ``check_company=True``,
+            # we can safely rely on the WH's company to be exactly the same as the OP's,
+            # so we use that to update recordsets' contexts
+            company = warehouse.company_id
+            warehouse = warehouse.with_company(company)
+            orderpoints = orderpoints.with_company(company)
             products = orderpoints.product_id
             aggregated_vals_by_product = products._get_daily_demand_aggregated_vals(
                 warehouse=warehouse,
