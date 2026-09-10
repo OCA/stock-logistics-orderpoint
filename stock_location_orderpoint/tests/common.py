@@ -20,7 +20,16 @@ class TestLocationOrderpointCommon(BaseCommon):
             }
         )
         cls.warehouse = cls.env.ref("stock.warehouse0")
-        cls.location_dest = cls.warehouse.lot_stock_id
+        # isolate tests by creating a dedicated location instead of
+        # using the shared stock location to ensure that only the moves
+        # created in the test are considered by the orderpoint
+        cls.location_dest = cls.env["stock.location"].create(
+            {
+                "name": "Test Location",
+                "location_id": cls.warehouse.lot_stock_id.id,
+            }
+        )
+
         cls.env["stock.location.orderpoint"].search([]).write({"active": False})
 
     @classmethod
@@ -101,7 +110,7 @@ class TestLocationOrderpointCommon(BaseCommon):
         vals.update(kwargs)
         move = cls.env["stock.move"].create(vals)
         move._write({"create_date": datetime.now()})
-        move._action_confirm()
+        move._action_confirm(merge=False)
         return move
 
     @classmethod
@@ -122,19 +131,22 @@ class TestLocationOrderpointCommon(BaseCommon):
             cls.env.ref("stock.stock_location_suppliers"),
             location,
             product=product,
+            picking_type_id=cls.warehouse.in_type_id.id,
         )
         move.move_line_ids.write({"quantity": qty, "picked": True})
         move._action_done()
         return move
 
     @classmethod
-    def _create_outgoing_move(cls, qty, location=None, product=None):
+    def _create_outgoing_move(cls, qty, location=None, product=None, **kwargs):
         move = cls._create_move(
             "Delivery",
             qty,
             location or cls.location_dest,
             cls.env.ref("stock.stock_location_customers"),
             product=product,
+            picking_type_id=cls.warehouse.out_type_id.id,
+            **kwargs,
         )
         move._action_assign()
         return move
@@ -197,7 +209,7 @@ class TestLocationOrderpointCommon(BaseCommon):
         cls, location_name, location_dest=None, warehouse=None, **kwargs
     ):
         location = cls._create_location(location_name, location_dest=location_dest)
-        picking_type, route = cls._create_picking_type_route_rule(
+        _picking_type, route = cls._create_picking_type_route_rule(
             location, location_dest=location_dest, warehouse=warehouse
         )
         values = kwargs or {}

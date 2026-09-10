@@ -1,7 +1,16 @@
 # Copyright 2023 ACSONE SA/NV
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-from odoo import fields, models
+from odoo import api, fields, models, tools
+from odoo.osv import expression
 from odoo.tools.safe_eval import safe_eval
+
+
+def make_hashable(val):
+    if isinstance(val, list):
+        return tuple(make_hashable(v) for v in val)
+    if isinstance(val, dict):
+        return tuple(sorted((k, make_hashable(v)) for k, v in val.items()))
+    return val
 
 
 class StockLocation(models.Model):
@@ -40,3 +49,58 @@ class StockLocation(models.Model):
             else:
                 action["context"] = str({"default_location_id": self.id})
         return action
+
+    @api.model
+    @tools.ormcache_context("location_id", keys=("excluded_location_domain_cache_key",))
+    def _get_cached_stock_domains(self, location_id):
+        return self.env["product.product"]._get_domain_locations_new(location_id)
+
+    def _get_stock_domains(self):
+        self.ensure_one()
+        domain = self.env.context.get("excluded_location_domain", [])
+        return self.with_context(
+            excluded_location_domain_cache_key=make_hashable(domain)
+        )._get_cached_stock_domains(self.id)
+
+    def _get_consuming_moves_domain(self):
+        """Get the domain on stock.move selecting a location's consuming moves."""
+        (
+            _q,
+            _il,
+            domain_move_out_loc,
+        ) = self._get_stock_domains()
+        domain = [
+            ("state", "in", ("confirmed", "partially_available")),
+        ]
+        return expression.AND([domain_move_out_loc, domain])
+
+    @api.model
+    def _get_replenished_moves_domain(self):
+        """Get the domain to apply on stock.move to get the move having replenished the
+        location."""
+        (
+            _q,
+            domain_move_in_loc,
+            _ol,
+        ) = self._get_stock_domains()
+        domain = [
+            ("state", "=", "done"),
+        ]
+        return expression.AND([domain_move_in_loc, domain])
+
+    def _lop_clear_caches(self):
+        # Since 18.0, ormcache-decorated methods no longer expose clear_cache()
+        self.env.registry.clear_cache()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        self._lop_clear_caches()
+        return super().create(vals_list)
+
+    def write(self, vals):
+        self._lop_clear_caches()
+        return super().write(vals)
+
+    def unlink(self):
+        self._lop_clear_caches()
+        return super().unlink()
