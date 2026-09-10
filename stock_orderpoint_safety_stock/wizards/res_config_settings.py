@@ -11,3 +11,7 @@ class ResConfigSettings(models.TransientModel):
         related="company_id.demand_history_days",
         readonly=False,
     )
+    demand_serie_skip_leading_0s = fields.Boolean(
+        related="company_id.demand_serie_skip_leading_0s",
+        readonly=False,
+    )

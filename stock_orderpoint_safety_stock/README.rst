@@ -62,16 +62,16 @@ Theory
 The backbone of this approach is the Cycle Service Level (CSL), a widely
 used supply chain metric:
 
-- **CSL Definition:** The chance that your inventory will fully cover
-  demand during a restocking cycle.
-- **Example:** A CSL of 95% means that only 5% of cycles will risk a
-  stockout.
+-  **CSL Definition:** The chance that your inventory will fully cover
+   demand during a restocking cycle.
+-  **Example:** A CSL of 95% means that only 5% of cycles will risk a
+   stockout.
 
 This system assumes demand is random (not fixed), so it uses statistical
 methods:
 
-- **Average daily demand** (μ)
-- **Standard deviation of daily demand** (σ)
+-  **Average daily demand** (μ)
+-  **Standard deviation of daily demand** (σ)
 
 Because demand can fluctuate during the lead time, safety stock acts as
 a buffer to reduce the risk of running out of stock.
@@ -82,49 +82,49 @@ a buffer to reduce the risk of running out of stock.
 
 Where:
 
-- **σ_L:** Standard deviation of demand over the lead time
-- **z:** Z-score for your desired CSL (e.g., 1.65 for 95% CSL)
-- **g:** Growth factor (optional, lets you add a margin)
+-  **σ_L:** Standard deviation of demand over the lead time
+-  **z:** Z-score for your desired CSL (e.g., 1.65 for 95% CSL)
+-  **g:** Growth factor (optional, lets you add a margin)
 
 **Three zones are needed to define how min and max are derived:**
 
-- **Red zone = safety stock:**
+-  **Red zone = safety stock:**
 
-  - This zone should never be touched. It acts as the buffer for
-    unexpected variation.
-  - Refer to the safety stock formula above.
+   -  This zone should never be touched. It acts as the buffer for
+      unexpected variation.
+   -  Refer to the safety stock formula above.
 
-- **Yellow zone = expected demand during the lead time:**
+-  **Yellow zone = expected demand during the lead time:**
 
-  - This zone represents the expected stock consumption from the moment
-    you click on replenish, until the moment you receive your purchase
-    order.
-  - Formula: ``average daily demand × lead time in days``
+   -  This zone represents the expected stock consumption from the
+      moment you click on replenish, until the moment you receive your
+      purchase order.
+   -  Formula: ``average daily demand × lead time in days``
 
-- **Green zone = expected demand during the cycle:**
+-  **Green zone = expected demand during the cycle:**
 
-  - Represents the stock consumption during the desired reordering cycle
-    (the time between two replenishments)
-  - Formula: ``average daily demand × cycle days``
+   -  Represents the stock consumption during the desired reordering
+      cycle (the time between two replenishments)
+   -  Formula: ``average daily demand × cycle days``
 
 Where:
 
-- **lead time:** The time it takes to receive the order.
-- **cycle days:** The desired number of days between orders.
+-  **lead time:** The time it takes to receive the order.
+-  **cycle days:** The desired number of days between orders.
 
 From these three zones, the min and max quantities are derived as
 follows:
 
-- **Minimum (min):** Red + Yellow
-- **Maximum (max):** Red + Yellow + Green
+-  **Minimum (min):** Red + Yellow
+-  **Maximum (max):** Red + Yellow + Green
 
 **Why does it work?**
 
-- Odoo triggers replenishment whenever stock falls below the min, which
-  should be enough to cover variance (safety stock) and lead time
-  demand.
-- The max level is set high enough to cover all expected demand until
-  the next restock, plus a buffer to cover the desired cycle days.
+-  Odoo triggers replenishment whenever stock falls below the min, which
+   should be enough to cover variance (safety stock) and lead time
+   demand.
+-  The max level is set high enough to cover all expected demand until
+   the next restock, plus a buffer to cover the desired cycle days.
 
 This makes inventory management both more data-driven and easier to
 maintain.
@@ -155,6 +155,18 @@ Company-specific.
 
 |demand_history_days|
 
+Postpone Demand History Start to 1st Move
+-----------------------------------------
+
+In the **General Settings >Inventory**, under *Advanced Scheduling*, you
+have the possibility to postpone **Demand History** start date.
+
+If selected, the demand history computations will start from the
+earliest moved quantity's date within the rolling window. Not checked by
+default. Company-specific.
+
+|image1|
+
 Cycle Service Levels
 --------------------
 
@@ -166,6 +178,7 @@ can create more according to your needs.
 |cycle_service_levels|
 
 .. |demand_history_days| image:: https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/settings-demand-history-days.png
+.. |image1| image:: https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/settings-demand-serie-skip-leading-0s.png
 .. |cycle_service_levels| image:: https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/cycle-service-levels.png
 
 Usage
@@ -182,11 +195,11 @@ Reordering Rule Parameters
 
 **Safety Stock Method**
 
-- **Manual**: The product's min and max quantities are set manually
-  (standard Odoo behavior).
-- **Cycle Service Level**: The product's min and max quantities are
-  computed based on the target cycle service level, growth factor, order
-  cycle and lead times.
+-  **Manual**: The product's min and max quantities are set manually
+   (standard Odoo behavior).
+-  **Cycle Service Level**: The product's min and max quantities are
+   computed based on the target cycle service level, growth factor,
+   order cycle and lead times.
 
 **Cycle Service Level**
 
@@ -231,13 +244,13 @@ Min & Max computation
 All the statistics and safety stock are non-stored fields computed
 on-the-fly, while min & max quantities are computed either:
 
-- Manually by clicking on the replenishment's 🔄 button
+-  Manually by clicking on the replenishment's 🔄 button
 
-  |orderpoint-refresh-manual|
+   |orderpoint-refresh-manual|
 
-- Automatically by a daily scheduled action
+-  Automatically by a daily scheduled action
 
-  |orderpoint-refresh-cron|
+   |orderpoint-refresh-cron|
 
 Usability filters
 -----------------
@@ -274,9 +287,9 @@ Authors
 Contributors
 ------------
 
-- Ivan Todorovich <ivan.todorovich@camptocamp.com>
-- Gaëtan Vaujour <gaetan.vaujour@camptocamp.com>
-- Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
+-  Ivan Todorovich <ivan.todorovich@camptocamp.com>
+-  Gaëtan Vaujour <gaetan.vaujour@camptocamp.com>
+-  Jacques-Etienne Baudoux (BCIM) <je@bcim.be>
 
 Maintainers
 -----------

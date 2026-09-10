@@ -8,6 +8,14 @@ It defines the rolling window for the historical analysis to compute the average
 
 ![demand_history_days](../static/description/settings-demand-history-days.png)
 
+## Postpone Demand History Start to 1st Move
+
+In the **General Settings >Inventory**, under *Advanced Scheduling*, you have the possibility to postpone **Demand History** start date.
+
+If selected, the demand history computations will start from the earliest moved quantity's date within the rolling window. Not checked by default. Company-specific.
+
+![demand_history_days](../static/description/settings-demand-serie-skip-leading-0s.png)
+
 ## Cycle Service Levels
 
 They define the target probability of meeting all demand during a replenishment cycle without running out of stock.

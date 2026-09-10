@@ -55,6 +55,9 @@ class StockWarehouseOrderpoint(models.Model):
         string="Demand History Days",
         related="company_id.demand_history_days",
     )
+    demand_serie_skip_leading_0s = fields.Boolean(
+        related="company_id.demand_serie_skip_leading_0s",
+    )
     demand_avg_qty = fields.Float(
         string="Average Daily Demand",
         compute="_compute_daily_demand",
@@ -106,8 +109,14 @@ class StockWarehouseOrderpoint(models.Model):
         self.demand_avg_qty = 0.0
         self.demand_std_dev = 0.0
         # Group by warehouse and demand history days to batch read groups of stock moves
-        grouped = self.grouped(lambda rec: (rec.warehouse_id, rec.demand_history_days))
-        for (warehouse, days), orderpoints in grouped.items():
+        grouped = self.grouped(
+            lambda rec: (
+                rec.warehouse_id,
+                rec.demand_history_days,
+                rec.demand_serie_skip_leading_0s,
+            )
+        )
+        for (warehouse, days, skip_leading_0s), orderpoints in grouped.items():
             # A bunch of fields/methods depend on having the correct company set in the
             # transaction's env; since both WH's and OP's ``company_id`` fields are
             # required, and OP's ``warehouse_id`` is marked with ``check_company=True``,
@@ -120,6 +129,7 @@ class StockWarehouseOrderpoint(models.Model):
             aggregated_vals_by_product = products._get_daily_demand_aggregated_vals(
                 warehouse=warehouse,
                 days=days,
+                skip_leading_0s=skip_leading_0s,
             )
             for orderpoint in orderpoints:
                 vals = aggregated_vals_by_product.get(orderpoint.product_id, {})

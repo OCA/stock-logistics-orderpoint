@@ -430,15 +430,15 @@ unexpected variation.</li>
 </ul>
 </li>
 <li><strong>Yellow zone = expected demand during the lead time:</strong><ul>
-<li>This zone represents the expected stock consumption from the moment
-you click on replenish, until the moment you receive your purchase
-order.</li>
+<li>This zone represents the expected stock consumption from the
+moment you click on replenish, until the moment you receive your
+purchase order.</li>
 <li>Formula: <tt class="docutils literal">average daily demand × lead time in days</tt></li>
 </ul>
 </li>
 <li><strong>Green zone = expected demand during the cycle:</strong><ul>
-<li>Represents the stock consumption during the desired reordering cycle
-(the time between two replenishments)</li>
+<li>Represents the stock consumption during the desired reordering
+cycle (the time between two replenishments)</li>
 <li>Formula: <tt class="docutils literal">average daily demand × cycle days</tt></li>
 </ul>
 </li>
@@ -485,6 +485,15 @@ average daily demand and resulting safety stock. Defaults to <tt class="docutils
 Company-specific.</p>
 <p><img alt="demand_history_days" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/settings-demand-history-days.png" /></p>
 </div>
+<div class="section" id="postpone-demand-history-start-to-1st-move">
+<h2>Postpone Demand History Start to 1st Move</h2>
+<p>In the <strong>General Settings &gt;Inventory</strong>, under <em>Advanced Scheduling</em>, you
+have the possibility to postpone <strong>Demand History</strong> start date.</p>
+<p>If selected, the demand history computations will start from the
+earliest moved quantity’s date within the rolling window. Not checked by
+default. Company-specific.</p>
+<p><img alt="image1" src="https://raw.githubusercontent.com/OCA/stock-logistics-orderpoint/19.0/stock_orderpoint_safety_stock/static/description/settings-demand-serie-skip-leading-0s.png" /></p>
+</div>
 <div class="section" id="cycle-service-levels">
 <h2>Cycle Service Levels</h2>
 <p>They define the target probability of meeting all demand during a
@@ -508,8 +517,8 @@ parameters you set.</p>
 <li><strong>Manual</strong>: The product’s min and max quantities are set manually
 (standard Odoo behavior).</li>
 <li><strong>Cycle Service Level</strong>: The product’s min and max quantities are
-computed based on the target cycle service level, growth factor, order
-cycle and lead times.</li>
+computed based on the target cycle service level, growth factor,
+order cycle and lead times.</li>
 </ul>
 <p><strong>Cycle Service Level</strong></p>
 <p>Defines the target probability of meeting all demand during a
