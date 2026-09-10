@@ -224,7 +224,9 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         self.assertTrue(replenish_move_1)
         self.assertTrue(replenish_move_2)
 
-        self.assertEqual("0", replenish_move_1.priority)
+        # Since we have escalated the replenishment priority,
+        # both moves should have priority '1'
+        self.assertEqual("1", replenish_move_1.priority)
         self.assertEqual("1", replenish_move_2.priority)
         self.assertEqual(move_date, replenish_move_2.date)
         self.assertEqual(replenish_move_1.picking_id, replenish_move_2.picking_id)
@@ -296,3 +298,189 @@ class TestLocationOrderpointPriority(TestLocationOrderpointCommon):
         # trigger creation of first orderpoint repl move
         manual_orderpoint_2.run_replenishment()
         self._assert_replenishment_move(repl_move, 40, manual_orderpoint_2)
+
+    def test_orderpoint_priority_reassignment_on_shared_replenishment(self):
+        # Here we test the reassignment of orderpoint priority when multiple
+        # orderpoints share the same replenishment move.
+        product = self.product
+        orderpoint_1, replenish_loc_1 = self._create_orderpoint_complete(
+            "Replenish Area 1",
+            trigger="manual",
+            replenish_method="fill_up",
+            proc_run_async=False,
+        )
+        orderpoint_2, replenish_loc_2 = self._create_orderpoint_complete(
+            "Replenish Area 2",
+            trigger="manual",
+            replenish_method="fill_up",
+            priority="1",
+            proc_run_async=False,
+        )
+
+        # Set inventory on replenishment locations
+        for repl_loc in [replenish_loc_1, replenish_loc_2]:
+            self.env["stock.quant"].with_context(inventory_mode=True).create(
+                {
+                    "product_id": product.id,
+                    "location_id": repl_loc.id,
+                    "inventory_quantity": 50.0,
+                }
+            )._apply_inventory()
+
+        out_move = self._create_outgoing_move(11, orderpoint_1.location_id, product)
+        self._run_replenishment(orderpoint_1)
+        out_move._action_cancel()
+
+        replenish_move_1 = self._get_replenishment_move(orderpoint_1, product)
+        self.assertEqual(replenish_move_1.product_uom_qty, 11.0)
+        self.assertEqual(replenish_move_1.priority, "0")
+
+        # Create a need that is already covered by the existing repl move
+        self._create_outgoing_move(2, orderpoint_2.location_id, product)
+        self._run_replenishment(orderpoint_2)
+        replenish_move_2 = self._get_replenishment_move(orderpoint_2, product)
+        self.assertEqual(replenish_move_1, replenish_move_2)
+        self.assertEqual(replenish_move_2.priority, "1")
+
+    def test_orderpoint_priority_reassignment_on_partial_batch(self):
+        """
+        Same as above but with multiple products involved in the replenishment run.
+        A first replenishment run is done by the lower-priority orderpoint
+        for the 1 product involved.
+        The lower-priority orderpoint's move for product_2 is canceled,
+        leaving it partially covered and available for escalation by the
+        higher-priority orderpoint.
+        We then create a demand for 2 products involved (product_1 and product_2).
+        We then trigger a replenishment run for the higher-priority orderpoint to
+        check if it correctly escalates the existing move and creates new ones as needed.
+        """
+        product_1 = self.product
+        product_2 = self.env["product.product"].create(
+            {
+                "name": "Product 2",
+                "type": "product",
+            }
+        )
+        orderpoint_1, replenish_loc_1 = self._create_orderpoint_complete(
+            "Replenish Area 1",
+            trigger="manual",
+            replenish_method="fill_up",
+            proc_run_async=False,
+        )
+        orderpoint_2, replenish_loc_2 = self._create_orderpoint_complete(
+            "Replenish Area 2",
+            trigger="manual",
+            replenish_method="fill_up",
+            priority="1",
+            proc_run_async=False,
+        )
+
+        # Set inventory on replenishment locations for both products
+        for product in (product_1, product_2):
+            for repl_loc in (replenish_loc_1, replenish_loc_2):
+                self.env["stock.quant"].with_context(inventory_mode=True).create(
+                    {
+                        "product_id": product.id,
+                        "location_id": repl_loc.id,
+                        "inventory_quantity": 50.0,
+                    }
+                )._apply_inventory()
+
+        # orderpoint_1 (low priority) creates a replenishment move for
+        # product_2, whose demand then vanishes, leaving the move pending
+        # with nothing left to cover.
+        out_move_2 = self._create_outgoing_move(11, orderpoint_1.location_id, product_2)
+        (product_1 | product_2).invalidate_recordset()
+        orderpoint_1.run_replenishment()
+        out_move_2._action_cancel()
+
+        covering_move = self._get_replenishment_move(orderpoint_1, product_2)
+        self.assertEqual(covering_move.priority, "0")
+
+        # New demand for both products on orderpoint_2 (higher priority) in
+        # a single run:
+        # - product_1 has no existing coverage -> a new move must be created
+        # - product_2's demand is already covered by orderpoint_1's move
+        self._create_outgoing_move(5, orderpoint_2.location_id, product_1)
+        self._create_outgoing_move(2, orderpoint_2.location_id, product_2)
+
+        (product_1 | product_2).invalidate_recordset()
+        orderpoint_2.run_replenishment()
+
+        replenish_move_1 = self._get_replenishment_move(orderpoint_2, product_1)
+        self.assertTrue(replenish_move_1)
+        self.assertEqual(replenish_move_1.product_uom_qty, 5.0)
+        self.assertEqual(replenish_move_1.priority, "1")
+        self.assertEqual(replenish_move_1.location_orderpoint_id, orderpoint_2)
+
+        replenish_move_2 = self._get_replenishment_move(orderpoint_2, product_2)
+        self.assertEqual(replenish_move_2, covering_move)
+        self.assertEqual(replenish_move_2.priority, "1")
+        self.assertEqual(replenish_move_2.location_orderpoint_id, orderpoint_2)
+
+    def test_orderpoint_no_escalation_when_stock_covers_demand_on_its_own(self):
+        """
+        A lower-priority orderpoint's pending replenishment move must not be
+        escalated just because it happens to be incoming to the same
+        location as a higher-priority orderpoint with no demand of its own.
+
+        Escalation is only warranted when, excluding that move's own
+        quantity from the forecast, the higher-priority orderpoint would
+        actually face a shortfall. Here, stock that arrives at the shared
+        location independently of the pending move (e.g. from another
+        source, unrelated to any orderpoint) already covers the new demand
+        on its own, so the pending move has nothing to do with it and must
+        be left untouched: same orderpoint, same priority.
+        """
+        product = self.product
+        orderpoint_1, replenish_loc_1 = self._create_orderpoint_complete(
+            "Replenish Area 1",
+            trigger="manual",
+            replenish_method="fill_up",
+            proc_run_async=False,
+        )
+        orderpoint_2, replenish_loc_2 = self._create_orderpoint_complete(
+            "Replenish Area 2",
+            trigger="manual",
+            replenish_method="fill_up",
+            priority="1",
+            proc_run_async=False,
+        )
+
+        self.env["stock.quant"].with_context(inventory_mode=True).create(
+            {
+                "product_id": product.id,
+                "location_id": replenish_loc_1.id,
+                "inventory_quantity": 50.0,
+            }
+        )._apply_inventory()
+
+        # orderpoint_1 (low priority) creates a pending replenishment move,
+        # then its own demand vanishes, leaving the move pending with
+        # nothing left to cover -- as in the shared-replenishment case.
+        out_move = self._create_outgoing_move(11, orderpoint_1.location_id, product)
+        self._run_replenishment(orderpoint_1)
+        out_move._action_cancel()
+
+        covering_move = self._get_replenishment_move(orderpoint_1, product)
+        self.assertEqual(covering_move.priority, "0")
+
+        # New demand for orderpoint_2 (higher priority), while its own
+        # location is still empty so the move is picked up as a candidate.
+        out_move_2 = self._create_outgoing_move(2, orderpoint_2.location_id, product)
+        self.assertEqual(out_move_2.state, "confirmed")
+
+        # Stock that lands on orderpoint_2's location on its own (no move
+        # involved, so no interference with the outgoing move's reservation
+        # or with the not-started-move cancellation mechanism) is already
+        # enough to cover the new demand without the pending covering_move.
+        self._create_quants(product, orderpoint_2.location_id, 5)
+
+        self._run_replenishment(orderpoint_2)
+
+        # No new move was needed, and the existing move must stay
+        # untouched: escalating it would have been unjustified since
+        # stock on hand already covers the demand without it.
+        self.assertFalse(self._get_replenishment_move(orderpoint_2, product))
+        self.assertEqual(covering_move.location_orderpoint_id, orderpoint_1)
+        self.assertEqual(covering_move.priority, "0")
