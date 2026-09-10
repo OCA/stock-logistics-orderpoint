@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-08-19 15:46+0000\n"
+"PO-Revision-Date: 2026-09-10 10:37+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -59,6 +59,8 @@ msgid ""
 "Check if replenishment moves in location %(location_name)s are still needed "
 "for %(product_count)s product(s)"
 msgstr ""
+"Verificare se sono ancora necessari movimenti di rifornimento "
+"nell'ubicazione %(location_name)s per %(product_count)s prodotto/i"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__company_id
@@ -103,7 +105,7 @@ msgstr "Ritarda esecuzione approvvigionamento"
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__unlink_fulfilled_replenishment_moves
 msgid "Delete fulfilled replenishment moves"
-msgstr ""
+msgstr "Eliminare i movimenti di rifornimento completati"
 
 #. module: stock_location_orderpoint
 #. odoo-python
@@ -197,6 +199,11 @@ msgid ""
 "of its picking, the picking is deleted as well. If disabled, they are "
 "cancelled and kept for traceability."
 msgstr ""
+"Se l'opzione è abilitata, i movimenti di rifornimento non ancora avviati la "
+"cui domanda è già stata soddisfatta vengono eliminati anziché annullati. Se "
+"tale movimento era l'unico del relativo prelievo, anche il prelievo viene "
+"eliminato. Se l'opzione è disabilitata, i movimenti vengono annullati e "
+"conservati a fini di tracciabilità."
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,help:stock_location_orderpoint.field_stock_location_orderpoint__proc_run_async
@@ -400,7 +407,7 @@ msgstr "Dominio prodotto"
 #. module: stock_location_orderpoint
 #: model:ir.model,name:stock_location_orderpoint.model_product_product
 msgid "Product Variant"
-msgstr ""
+msgstr "Variante prodotto"
 
 #. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__product_domain_char
