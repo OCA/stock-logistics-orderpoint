@@ -23,12 +23,16 @@ class OrderpointSafetyStockCommon(TransactionCase):
         cls.today = fields.Date.today()
         cls.warehouse = cls.env.ref("stock.warehouse0")
         cls.customer_location = cls.env.ref("stock.stock_location_customers")
+        cls.product_categ = cls.env["product.category"].create(
+            {"name": "Test Product Category"}
+        )
         cls.product = cls.env["product.product"].create(
             {
                 "name": "Test Product",
                 "type": "consu",
                 "is_storable": True,
                 "uom_id": cls.env.ref("uom.product_uom_unit").id,
+                "categ_id": cls.product_categ.id,
             }
         )
         # Quick reference to common CSLs

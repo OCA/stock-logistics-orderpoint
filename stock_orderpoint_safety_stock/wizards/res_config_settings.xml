@@ -19,6 +19,24 @@
                     <field name="demand_history_days" class="oe_inline" />
                     <span> days</span>
                 </setting>
+                <setting
+                    company_dependent="1"
+                    help="Select this option to ignore historical analysis's initial values up to the first non-null item."
+                >
+                    <field
+                        name="demand_serie_skip_leading_0s"
+                        string="Postpone Demand History Start to 1st Move"
+                    />
+                    <div class="text-muted">
+                        <span>
+                            For example: if you sold 10 units of a product 5 days ago, and Demand History Days is set to 20,
+                            the historical analysis will yield an average of 10units / 20days = 0.5 units per day.<br
+                        />
+                            If this feature is active, instead, the history timerange will start from the first non-null date,
+                            which is 5 days ago, and the historical analysis will yield an average of 10units / 5days = 2 units per day.
+                        </span>
+                    </div>
+                </setting>
             </xpath>
         </field>
     </record>

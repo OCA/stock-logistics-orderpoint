@@ -164,3 +164,90 @@ class TestStockOrderpointSafetyStockScenarios(OrderpointSafetyStockCommon):
                 }
             ],
         )
+
+    def test_scenario_demand_serie_skip_leading_0s(self):
+        """Test the safety stock computations when series' leading 0s are skipped
+
+        We test that moving 5 units of a product 5 days ago with a company configured
+        to go back 10 days results in:
+            - ``demand_avg_qty = 0.5`` units/day if series' leading 0s are allowed
+            - ``demand_avg_qty = 1.0`` units/day if series' leading 0s are not allowed
+
+        Also, we test that activating the ``demand_serie_skip_leading_0s`` feature does
+        not break the ``product._get_daily_demand_aggregated_vals()`` method: it uses
+        ``statistics.fmean|stdev()`` to compute the average and standard deviation, and
+        they have a strict requirement on the number of datapoints they receive, being
+        exactly 2. We check that the method is safe against that error by lowering the
+        number of days in the past to just 3 days when the skip-leading-0s feature is
+        active: that would retrieve a serie of ``0.0``s, that the feature will clear
+        to an empty serie via ``_zero_fill_demand_serie()``.
+        And an empty serie doesn't contain 2 datapoints...   :'(
+        """
+        company = self.orderpoint.company_id
+        product = self.product
+        get_aggregated_vals = product._get_daily_demand_aggregated_vals
+        warehouse = self.warehouse
+
+        # Base setup: create 1 move 5 days in the past
+        self._create_moves_from_serie(product, [(self.today - timedelta(days=5), 5)])
+
+        # Test with feature disabled
+        company.demand_serie_skip_leading_0s = False
+        self.assertFalse(self.orderpoint.demand_serie_skip_leading_0s)
+        self.assertEqual(
+            get_aggregated_vals(warehouse, 10, skip_leading_0s=False)[product],
+            {
+                # 10 datapoints: nr of days we're testing w/o skip-leading-0s feature
+                "_serie": [0.0, 0.0, 0.0, 0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0],
+                "demand_avg_qty": 0.5,
+                "demand_std_dev": 1.5811388300841898,
+            },
+        )
+
+        # Test with feature enabled
+        company.demand_serie_skip_leading_0s = True
+        self.assertTrue(self.orderpoint.demand_serie_skip_leading_0s)
+        self.assertEqual(
+            get_aggregated_vals(warehouse, 10, skip_leading_0s=True)[product],
+            {
+                # 5 datapoints: nr of days from 1st moved qty
+                "_serie": [5.0, 0.0, 0.0, 0.0, 0.0],
+                "demand_avg_qty": 1.0,
+                "demand_std_dev": 2.23606797749979,
+            },
+        )
+
+        # Create another move 7 days in the past and check it's included in the result
+        self._create_moves_from_serie(product, [(self.today - timedelta(days=7), 9)])
+        self.assertEqual(
+            get_aggregated_vals(warehouse, 10, skip_leading_0s=True)[product],
+            {
+                # 7 datapoints: nr of days from 1st moved qty
+                "_serie": [9.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0],
+                "demand_avg_qty": 2.0,
+                "demand_std_dev": 3.605551275463989,
+            },
+        )
+
+        # Test with feature enabled, but start from 3 days ago => we test both the raw
+        # values returned by method ``_zero_fill_demand_serie()`` and the
+        # values returned by method ``_get_daily_demand_aggregated_vals()``: this
+        # ensures that the skip-leading-0s feature is not breaking the latter.
+        self.assertEqual(
+            product._zero_fill_demand_serie(
+                demands={},
+                skip_leading_0s=True,
+                start=self.today - timedelta(days=3),
+                days=3,
+                today=self.today,
+            ),
+            [],  # Raw serie data => an empty list
+        )
+        self.assertEqual(
+            get_aggregated_vals(warehouse, 3, skip_leading_0s=True)[product],
+            {
+                "_serie": [],
+                "demand_avg_qty": 0.0,
+                "demand_std_dev": 0.0,
+            },
+        )
