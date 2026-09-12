@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: stock-logistics-warehouse (9.0)\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-15 10:54+0000\n"
-"PO-Revision-Date: 2026-09-12 05:53+0000\n"
+"PO-Revision-Date: 2026-09-12 06:28+0000\n"
 "Last-Translator: Matjaz Mozetic <matjaz@luxim.si>\n"
 "Language-Team: Slovenian (http://www.transifex.com/oca/OCA-stock-logistics-"
 "warehouse-9-0/language/sl/)\n"
@@ -259,7 +259,7 @@ msgstr "Lokacija"
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_max_qty
 msgid "Max Quantity"
-msgstr ""
+msgstr "Maks. količina"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields.selection,name:stock_orderpoint_generator.selection__stock_warehouse_orderpoint_template__auto_max_qty_criteria__max
@@ -270,7 +270,7 @@ msgstr "Maksimum"
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_min_qty
 msgid "Min Quantity"
-msgstr ""
+msgstr "Min. količina"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields.selection,name:stock_orderpoint_generator.selection__stock_warehouse_orderpoint_template__auto_max_qty_criteria__min
@@ -287,7 +287,7 @@ msgstr "Razno"
 #: model:ir.model.fields.selection,name:stock_orderpoint_generator.selection__stock_warehouse_orderpoint_template__auto_max_qty_criteria__median
 #: model:ir.model.fields.selection,name:stock_orderpoint_generator.selection__stock_warehouse_orderpoint_template__auto_min_qty_criteria__median
 msgid "Most frequent"
-msgstr ""
+msgstr "Najbolj pogosto"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__group_id
@@ -303,7 +303,7 @@ msgstr ""
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__qty_multiple
 msgid "Multiple Quantity"
-msgstr ""
+msgstr "Večkratna količina"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__name
@@ -313,7 +313,7 @@ msgstr "Naziv"
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__qty_on_hand
 msgid "On Hand"
-msgstr ""
+msgstr "Na voljo"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model,name:stock_orderpoint_generator.model_stock_warehouse_orderpoint_generator
@@ -323,7 +323,7 @@ msgstr "Generator točk naročanja"
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__route_id
 msgid "Preferred Route"
-msgstr ""
+msgstr "Prednostne proge"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__group_id
@@ -339,22 +339,22 @@ msgstr "Proizvod"
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_category_id
 msgid "Product Category"
-msgstr ""
+msgstr "Kategorija proizvoda"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__supplier_id
 msgid "Product Supplier"
-msgstr ""
+msgstr "Dobavitelj proizvoda"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_tmpl_id
 msgid "Product Template"
-msgstr ""
+msgstr "Predloga proizvoda"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_uom_name
 msgid "Product unit of measure label"
-msgstr ""
+msgstr "Oznaka merske enote proizvoda"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__auto_product_ids
@@ -365,12 +365,12 @@ msgstr "Proizvodi"
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_form
 msgid "Quantity Multiple"
-msgstr ""
+msgstr "Večkratnik količine"
 
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_form
 msgid "Reordering Rule Template"
-msgstr ""
+msgstr "Predloga pravila za ponovno naročanje"
 
 #. module: stock_orderpoint_generator
 #: model:ir.actions.act_window,name:stock_orderpoint_generator.action_orderpoint_template
@@ -379,7 +379,7 @@ msgstr ""
 #: model:ir.ui.menu,name:stock_orderpoint_generator.menu_orderpoint_template
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_search
 msgid "Reordering Rule Templates"
-msgstr ""
+msgstr "Predloge pravil za ponovno naročanje"
 
 #. module: stock_orderpoint_generator
 #: model:ir.actions.server,name:stock_orderpoint_generator.ir_cron_auto_orderpoint_template_ir_actions_server
@@ -391,14 +391,14 @@ msgstr "Generator predlog pravil dopolnjevanja"
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_search
 msgid "Reordering Rule Templates Search"
-msgstr ""
+msgstr "Iskanje pravil za ponovno naročanje"
 
 #. module: stock_orderpoint_generator
 #: model:ir.actions.act_window,name:stock_orderpoint_generator.act_create_product_conf
 #: model:ir.actions.act_window,name:stock_orderpoint_generator.act_create_product_template_conf
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.orderpoint_generator_view
 msgid "Reordering Rules Generator"
-msgstr ""
+msgstr "Generator pravil za ponovno naročanje"
 
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_form
@@ -406,6 +406,8 @@ msgid ""
 "Reordering rules will be created for the selected products. This is "
 "equivalent to the Scheduled Action action."
 msgstr ""
+"Za izbrane proizvode bodo ustvarjena pravila za ponovno naročanje. To je "
+"enakovredno zagonu razporejevalnika."
 
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_form
@@ -415,32 +417,32 @@ msgstr "Pravila"
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__rule_ids
 msgid "Rules used"
-msgstr ""
+msgstr "Uporabljena pravila"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__auto_max_qty_criteria
 msgid "Select a criteria to auto compute the maximum"
-msgstr ""
+msgstr "Izberite merilo za samodejni izračun največje vrednosti"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__auto_min_qty_criteria
 msgid "Select a criteria to auto compute the minimum"
-msgstr ""
+msgstr "Izberite merilo za samodejni izračun najnižje vrednosti"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__show_bom
 msgid "Show BoM column"
-msgstr ""
+msgstr "Prikaži stolpec kosovnice"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__show_supplier
 msgid "Show supplier column"
-msgstr ""
+msgstr "Prikaži stolpec dobavitelja"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__snoozed_until
 msgid "Snoozed"
-msgstr ""
+msgstr "Preloženo"
 
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.orderpoint_generator_view
@@ -459,38 +461,37 @@ msgstr ""
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.orderpoint_generator_view
 msgid "This wizard will apply the following orderpoint to selected product(s)"
-msgstr ""
-"Ta čarovnik uveljavi naslednjo točko naročanja za vse izbrane proizvode."
+msgstr "Ta čarovnik uveljavi naslednjo točko naročanja za vse izbrane proizvode"
 
 #. module: stock_orderpoint_generator
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_generator.view_warehouse_orderpoint_template_form
 msgid "To"
-msgstr ""
+msgstr "do"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__qty_to_order
 msgid "To Order"
-msgstr ""
+msgstr "Naročiti"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__trigger
 msgid "Trigger"
-msgstr ""
+msgstr "Sprožilec"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_uom
 msgid "Unit of Measure"
-msgstr ""
+msgstr "Enota mere"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__vendor_id
 msgid "Vendor"
-msgstr ""
+msgstr "Dobavitelj"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__vendor_id
 msgid "Vendor of this product"
-msgstr ""
+msgstr "Dobavitelj tega proizvoda"
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,field_description:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__warehouse_id
@@ -504,6 +505,8 @@ msgid ""
 "When checked, the 'Reordering Rule Templates Generator' scheduled action "
 "will automatically update the rules of a selection of products."
 msgstr ""
+"Ko je označeno, bo načrtovano dejanje 'Generator predlog pravil "
+"dopolnjevanja' samodejno posodabljalo pravila izbranih proizvodov."
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,help:stock_orderpoint_generator.field_product_product__auto_orderpoint_template_ids
@@ -512,6 +515,9 @@ msgid ""
 "Action will automatically generate or update the reordering rules of the "
 "product."
 msgstr ""
+"Ko je izbrano eno ali več samodejnih pravil za ponovno naročanje, bo "
+"načrtovano dejanje samodejno ustvarilo ali posodobilo pravila za ponovno "
+"naročanje proizvoda."
 
 #. module: stock_orderpoint_generator
 #: model:ir.model.fields,help:stock_orderpoint_generator.field_stock_warehouse_orderpoint_template__product_min_qty
