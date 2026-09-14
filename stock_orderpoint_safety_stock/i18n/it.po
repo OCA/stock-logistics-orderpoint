@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 19.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-03-26 12:45+0000\n"
+"PO-Revision-Date: 2026-09-14 16:24+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -47,6 +47,18 @@ msgid ""
 "will yield an average of 10units / 5days = 2 units per day.\n"
 "                        </span>"
 msgstr ""
+"<span>\n"
+"                            Ad esempio: se si sono vendute 10 unità di un "
+"prodotto 5 giorni fa e il parametro \"Giorni di storico della domanda\" è "
+"impostato su 20,\n"
+"                            l'analisi storica restituirà una media di 10 "
+"unità / 20 giorni = 0,5 unità al giorno.<br/>\n"
+"                            Se invece questa funzionalità è attiva, "
+"l'intervallo temporale dello storico inizierà dalla prima data con valore "
+"diverso da zero,\n"
+"                            ovvero 5 giorni fa, e l'analisi storica "
+"restituirà una media di 10 unità / 5 giorni = 2 unità al giorno. \n"
+"</span>"
 
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.res_config_settings_view_form
@@ -190,7 +202,7 @@ msgstr "Giorni cronologia domanda"
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint__demand_serie_skip_leading_0s
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_warehouse_orderpoint_template__demand_serie_skip_leading_0s
 msgid "Demand Serie Skip Leading 0S"
-msgstr ""
+msgstr "Ignora gli zeri iniziali serie richiesta"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_product_product__display_name
@@ -231,6 +243,12 @@ msgid ""
 "within the selected timerange; else, they will be computed from the "
 "beginning of the timerange."
 msgstr ""
+"Se l'opzione è selezionata, tutti i punti di riordino collegati a uno dei "
+"magazzini dell'azienda calcoleranno i valori dei campi \"Domanda giornaliera "
+"media\" e \"Deviazione standard della domanda giornaliera\" a partire dal "
+"giorno in cui è stata registrata la prima movimentazione del prodotto "
+"nell'intervallo di tempo selezionato; in caso contrario, tali valori saranno "
+"calcolati a partire dall'inizio dell'intervallo di tempo."
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model.fields,field_description:stock_orderpoint_safety_stock.field_stock_cycle_service_level__write_uid
@@ -279,7 +297,7 @@ msgstr "Conteggio punti di riordino"
 #. module: stock_orderpoint_safety_stock
 #: model_terms:ir.ui.view,arch_db:stock_orderpoint_safety_stock.res_config_settings_view_form
 msgid "Postpone Demand History Start to 1st Move"
-msgstr ""
+msgstr "Posticipa l'inizio dello storico della domanda al primo movimento"
 
 #. module: stock_orderpoint_safety_stock
 #: model:ir.model,name:stock_orderpoint_safety_stock.model_product_product
@@ -317,6 +335,8 @@ msgid ""
 "Select this option to ignore historical analysis's initial values up to the "
 "first non-null item."
 msgstr ""
+"Selezionare questa opzione per ignorare i valori iniziali dell'analisi "
+"storica fino al primo elemento non nullo."
 
 #. module: stock_orderpoint_safety_stock
 #. odoo-javascript
