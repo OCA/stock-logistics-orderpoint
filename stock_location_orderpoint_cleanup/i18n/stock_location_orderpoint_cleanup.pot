@@ -59,6 +59,11 @@ msgid "ID"
 msgstr ""
 
 #. module: stock_location_orderpoint_cleanup
+#: model:res.groups,name:stock_location_orderpoint_cleanup.group_location_cleanup
+msgid "Inventory: Location Orderpoint Cleanup"
+msgstr ""
+
+#. module: stock_location_orderpoint_cleanup
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup____last_update
 msgid "Last Modified on"
 msgstr ""
@@ -71,11 +76,6 @@ msgstr ""
 #. module: stock_location_orderpoint_cleanup
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup__write_date
 msgid "Last Updated on"
-msgstr ""
-
-#. module: stock_location_orderpoint_cleanup
-#: model:res.groups,name:stock_location_orderpoint_cleanup.group_location_cleanup
-msgid "Location Orderpoint Cleanup"
 msgstr ""
 
 #. module: stock_location_orderpoint_cleanup
