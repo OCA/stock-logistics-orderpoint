@@ -64,6 +64,11 @@ msgid "ID"
 msgstr "ID"
 
 #. module: stock_location_orderpoint_cleanup
+#: model:res.groups,name:stock_location_orderpoint_cleanup.group_location_cleanup
+msgid "Inventory: Location Orderpoint Cleanup"
+msgstr ""
+
+#. module: stock_location_orderpoint_cleanup
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup____last_update
 msgid "Last Modified on"
 msgstr "Son Değiştirilme Tarihi"
@@ -77,11 +82,6 @@ msgstr "Son Güncelleyen"
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup__write_date
 msgid "Last Updated on"
 msgstr "Son Güncellenme Tarihi"
-
-#. module: stock_location_orderpoint_cleanup
-#: model:res.groups,name:stock_location_orderpoint_cleanup.group_location_cleanup
-msgid "Location Orderpoint Cleanup"
-msgstr "Konum Sipariş Noktası Temizleme"
 
 #. module: stock_location_orderpoint_cleanup
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup__orderpoint_ids
@@ -124,8 +124,10 @@ msgstr ""
 #. module: stock_location_orderpoint_cleanup
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint_cleanup.stock_location_orderpoint_cleanup_form_view
 msgid ""
-"This will launch the cleanup process for all selected location orderpoints.<br/>\n"
-"                    Check the \"Run After\" box if you want to run the orderpoints after\n"
+"This will launch the cleanup process for all selected location orderpoints."
+"<br/>\n"
+"                    Check the \"Run After\" box if you want to run the "
+"orderpoints after\n"
 "                    that cleanup."
 msgstr ""
 "Bu, seçilen tüm konum sipariş noktaları için temizleme işlemini "
@@ -143,3 +145,6 @@ msgstr "Transfer Et"
 #: model:ir.model,name:stock_location_orderpoint_cleanup.model_stock_location_orderpoint_cleanup
 msgid "Wizard to cleanup the generated moves through location orderpoints"
 msgstr "Konum sipariş noktalarında oluşturulan hareketleri temizleyen sihirbaz"
+
+#~ msgid "Location Orderpoint Cleanup"
+#~ msgstr "Konum Sipariş Noktası Temizleme"

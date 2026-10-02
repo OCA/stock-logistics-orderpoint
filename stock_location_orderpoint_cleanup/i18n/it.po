@@ -63,6 +63,11 @@ msgid "ID"
 msgstr "ID"
 
 #. module: stock_location_orderpoint_cleanup
+#: model:res.groups,name:stock_location_orderpoint_cleanup.group_location_cleanup
+msgid "Inventory: Location Orderpoint Cleanup"
+msgstr ""
+
+#. module: stock_location_orderpoint_cleanup
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup____last_update
 msgid "Last Modified on"
 msgstr "Ultima modifica il"
@@ -76,11 +81,6 @@ msgstr "Ultimo aggiornamento di"
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup__write_date
 msgid "Last Updated on"
 msgstr "Ultimo aggiornamento il"
-
-#. module: stock_location_orderpoint_cleanup
-#: model:res.groups,name:stock_location_orderpoint_cleanup.group_location_cleanup
-msgid "Location Orderpoint Cleanup"
-msgstr "Pulizia punto riordino ubicazione"
 
 #. module: stock_location_orderpoint_cleanup
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup__orderpoint_ids
@@ -123,8 +123,10 @@ msgstr ""
 #. module: stock_location_orderpoint_cleanup
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint_cleanup.stock_location_orderpoint_cleanup_form_view
 msgid ""
-"This will launch the cleanup process for all selected location orderpoints.<br/>\n"
-"                    Check the \"Run After\" box if you want to run the orderpoints after\n"
+"This will launch the cleanup process for all selected location orderpoints."
+"<br/>\n"
+"                    Check the \"Run After\" box if you want to run the "
+"orderpoints after\n"
 "                    that cleanup."
 msgstr ""
 "Questo avvierà il processo di pulizia per tutti i punti di riordino "
@@ -144,3 +146,6 @@ msgid "Wizard to cleanup the generated moves through location orderpoints"
 msgstr ""
 "Procedura guidata per pulire i movimentigenerati attraverso i punti di "
 "riordino dell'ubicazione"
+
+#~ msgid "Location Orderpoint Cleanup"
+#~ msgstr "Pulizia punto riordino ubicazione"
