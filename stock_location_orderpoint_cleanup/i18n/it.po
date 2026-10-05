@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 16.0\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2024-11-11 14:06+0000\n"
+"PO-Revision-Date: 2026-10-05 10:46+0000\n"
 "Last-Translator: mymage <stefano.consolaro@mymage.it>\n"
 "Language-Team: none\n"
 "Language: it\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.6.2\n"
+"X-Generator: Weblate 5.15.2\n"
 
 #. module: stock_location_orderpoint_cleanup
 #: model_terms:ir.ui.view,arch_db:stock_location_orderpoint_cleanup.stock_location_orderpoint_cleanup_form_view
@@ -65,7 +65,7 @@ msgstr "ID"
 #. module: stock_location_orderpoint_cleanup
 #: model:res.groups,name:stock_location_orderpoint_cleanup.group_location_cleanup
 msgid "Inventory: Location Orderpoint Cleanup"
-msgstr ""
+msgstr "Magazzino: pulizia punto di riordino ubicazione"
 
 #. module: stock_location_orderpoint_cleanup
 #: model:ir.model.fields,field_description:stock_location_orderpoint_cleanup.field_stock_location_orderpoint_cleanup____last_update
