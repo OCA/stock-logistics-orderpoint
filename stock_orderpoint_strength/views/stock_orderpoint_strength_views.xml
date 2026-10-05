@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="stock_orderpoint_strength_view_list" model="ir.ui.view">
+        <field name="name">stock.orderpoint.strength.list</field>
+        <field name="model">stock.orderpoint.strength</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="active == False">
+                <field name="location_id" />
+                <field name="strength" />
+                <field name="date_start" />
+                <field name="date_stop" />
+                <field name="active" column_invisible="True" />
+            </list>
+        </field>
+    </record>
+    <record id="stock_orderpoint_strength_view_form" model="ir.ui.view">
+        <field name="name">stock.orderpoint.strength.form</field>
+        <field name="model">stock.orderpoint.strength</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <group>
+                            <field name="location_id" />
+                            <field name="strength" />
+                            <field
+                                name="company_id"
+                                groups="base.group_multi_company"
+                            />
+                            <field name="active" invisible="1" />
+                        </group>
+                        <group>
+                            <field name="date_start" />
+                            <field name="date_stop" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="stock_orderpoint_strength_view_search" model="ir.ui.view">
+        <field name="name">stock.orderpoint.strength.search</field>
+        <field name="model">stock.orderpoint.strength</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="location_id" />
+                <filter
+                    name="inactive"
+                    string="Archived"
+                    domain="[('active', '=', False)]"
+                />
+                <group>
+                    <filter
+                        name="group_by_location"
+                        string="Location"
+                        context="{'group_by': 'location_id'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="stock_orderpoint_strength_action" model="ir.actions.act_window">
+        <field name="name">Orderpoint Strengths</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.orderpoint.strength</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="stock_orderpoint_strength_view_search" />
+    </record>
+    <menuitem
+        id="stock_orderpoint_strength_menu"
+        name="Orderpoint Strengths"
+        parent="stock.menu_warehouse_config"
+        action="stock_orderpoint_strength_action"
+        groups="stock.group_stock_manager"
+        sequence="60"
+    />
+</odoo>
