@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_xyz_classification_level_user,xyz.classification.level.user,model_xyz_classification_level,base.group_user,1,0,0,0
+access_xyz_classification_level_manager,xyz.classification.level.manager,model_xyz_classification_level,stock.group_stock_manager,1,1,1,1
+access_xyz_classification_product_level_user,xyz.classification.product.level.user,model_xyz_classification_product_level,base.group_user,1,0,0,0
+access_xyz_classification_product_level_manager,xyz.classification.product.level.manager,model_xyz_classification_product_level,stock.group_stock_manager,1,1,1,1
