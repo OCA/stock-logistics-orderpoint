@@ -4,7 +4,7 @@
 {
     "name": "Stock Orderpoint Variant MTO as MTS",
     "summary": "Stock Orderpoint Variant MTO as MTS",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.1.0",
     "development_status": "Alpha",
     "license": "AGPL-3",
     "maintainers": ["henrybackman", "jbaudoux"],
