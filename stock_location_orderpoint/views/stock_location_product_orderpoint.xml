@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 ACSONE SA/NV
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="stock_location_product_orderpoint_tree_view" model="ir.ui.view">
+        <field name="name">stock.location.product.orderpoint.tree</field>
+        <field name="model">stock.location.product.orderpoint</field>
+        <field name="arch" type="xml">
+            <tree
+                js_class="stock_location_product_orderpoint_list"
+                sample="1"
+                multi_edit="1"
+                editable="bottom"
+                export_xlsx="0"
+            >
+                <field name="stock_location_orderpoint_id" />
+                <field name="trigger" optional="hide" />
+                <field name="replenish_method" optional="hide" />
+                <field name="horizon" optional="hide" />
+                <field name="product_id" />
+                <field name="qty_demand" />
+                <field name="qty_available" />
+                <button
+                    name="action_open_quants"
+                    string="Locations"
+                    type="object"
+                    class="btn-link"
+                    attrs="{'invisible': [('qty_available', '=', 0)]}"
+                />
+                <field name="qty_procurement" />
+                <button
+                    name="action_replenish"
+                    string="Replenish"
+                    type="object"
+                    class="o_replenish_buttons"
+                    icon="fa-solid fa-truck"
+                    attrs="{'invisible': [('qty_procurement', '&lt;=', 0.0)]}"
+                />
+                <field name="create_date" optional="show" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="stock_location_product_orderpoint_search_view" model="ir.ui.view">
+        <field name="name">stock.location.product.orderpoint.search</field>
+        <field name="model">stock.location.product.orderpoint</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id" />
+                <field name="stock_location_orderpoint_id" />
+                <field name="trigger" />
+                <filter
+                    name="manual_trigger"
+                    string="Manual Trigger"
+                    domain="[('trigger', '=', 'manual')]"
+                />
+                <separator />
+                <filter
+                    name="replenishable"
+                    string="Replenishable"
+                    domain="[('qty_procurement', '&gt;', 0)]"
+                />
+                <group string="Group By" name="groupby">
+                    <filter
+                        name="orderpoint_groupby"
+                        string="Location Orderpoint"
+                        context="{'group_by': 'stock_location_orderpoint_id'}"
+                    />
+                    <filter
+                        name="trigger_groupby"
+                        string="Trigger"
+                        context="{'group_by': 'trigger'}"
+                    />
+                    <filter
+                        name="replenish_method_groupby"
+                        string="Replenish Method"
+                        context="{'group_by': 'replenish_method'}"
+                    />
+                </group>
+                <searchpanel>
+                    <field name="trigger" string="Trigger" />
+                    <field name="replenish_method" string="Replenish Method" />
+                </searchpanel>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="action_stock_location_product_orderpoint" model="ir.actions.act_window">
+        <field name="name">Stock Location Replenishment</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.location.product.orderpoint</field>
+        <field name="view_mode">tree,search</field>
+        <field name="view_id" ref="stock_location_product_orderpoint_tree_view" />
+        <field name="context">{
+            "searchpanel_default_trigger": "manual",
+            "search_default_replenishable": "1",
+            "search_default_manual_trigger": "1",
+        }</field>
+    </record>
+</odoo>

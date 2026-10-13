@@ -154,7 +154,9 @@ class StockLocationReplenishmentComputer(models.TransientModel):
             self.location, self.horizon, self.product_domain, products
         )
 
-    def _compute_procurement_qty(self, demand_data, job_logs=None):
+    def _compute_procurement_qty(
+        self, demand_data, qty_available_data=None, job_logs=None
+    ):
         """
         Cap demand to available quantity at the source location.
 
@@ -166,6 +168,9 @@ class StockLocationReplenishmentComputer(models.TransientModel):
         If replenish_limit_to_free_qty is False, returns demand_data as-is.
 
         :param demand_data: dict {product_id: demand_qty}
+        :param qty_available_data: optional dict {product_id: qty_available} to
+            avoid recomputing availability when this method is called after a compute
+            if the availability data is already available.
         :return: dict {product_id: qty_to_procure}
         """
         self.ensure_one()
@@ -173,7 +178,8 @@ class StockLocationReplenishmentComputer(models.TransientModel):
             return demand_data
 
         product_ids = list(demand_data.keys())
-        qty_available_data = self._compute_available_quantities(product_ids)
+        if qty_available_data is None:
+            qty_available_data = self._compute_available_quantities(product_ids)
 
         # prefetch product_ids for uom_id access in float_compare
         self.env["product.product"].browse(qty_available_data.keys())

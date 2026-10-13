@@ -16,6 +16,7 @@
         "data/queue_job_channel.xml",
         "data/queue_job_function.xml",
         "views/stock_location_orderpoint_views.xml",
+        "views/stock_location_product_orderpoint.xml",
         "views/stock_location.xml",
         "views/menu.xml",
     ],
@@ -26,10 +27,16 @@
         "demo/stock_location_orderpoint.xml",
     ],
     "depends": [
+        "base_partition",
         "stock_available_base_exclude_location",
         "stock_helper",
         "queue_job",
     ],
+    "assets": {
+        "web.assets_backend": [
+            "stock_location_orderpoint/static/src/views/**/*",
+        ],
+    },
     "license": "AGPL-3",
     "maintainers": ["mt-software-de", "lmignon"],
     "website": "https://github.com/OCA/stock-logistics-orderpoint",

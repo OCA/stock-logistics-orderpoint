@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates id="template" xml:space="preserve">
+    <t
+        t-name="stock_location_orderpoint.StockLocationProductOrderpointSearchPanel.Regular"
+        t-inherit="web.SearchPanel.Regular"
+        owl="1"
+    >
+    <xpath expr="//div/section[1]" position="before">
+        <section
+                t-if="orderpoints.length > 0"
+                class="o_search_panel_section o_search_panel_orderpoint"
+            >
+            <header
+                    class="o_search_panel_section_header pt-4 pb-2 text-uppercase o_cursor_default"
+                >
+                <i
+                        t-attf-class="fa fa-filter o_search_panel_section_icon text-warning me-2"
+                    />
+                <b>Orderpoints</b>
+            </header>
+            <ul class="list-group d-block o_search_panel_field">
+                <li
+                        t-if="orderpoints.length > 1"
+                        class="o_search_panel_filter_value list-group-item p-0 mb-1 border-0 o_cursor_pointer"
+                    >
+                    <span
+                            t-on-click="ev => this.clearOrderpointFilter(ev)"
+                            t-att-class="{'fw-bolder': !selectedOrderpoint, 'o_search_panel_label_title':true}"
+                        >All orderpoints</span>
+                </li>
+                <li
+                        class="o_search_panel_filter_value list-group-item p-0 mb-1 border-0 o_cursor_pointer"
+                        t-foreach="orderpoints"
+                        t-as="orderpoint"
+                        t-key="orderpoint.id"
+                    >
+                    <span
+                            t-out="orderpoint.name"
+                            t-on-click="ev => this.selectOrderpoint(orderpoint.id, ev)"
+                            t-att-class="{'fw-bolder': selectedOrderpoint === orderpoint.id, 'o_search_panel_label_title':true}"
+                        />
+                    <button
+                            class="btn btn-sm btn-link p-0 ms-2"
+                            t-on-click="ev => this.recomputeProductOrderpoints(orderpoint.id, ev)"
+                            title="Recompute orderpoints"
+                        >
+                        <i class="fa fa-refresh" />
+                    </button>
+                </li>
+            </ul>
+        </section>
+        </xpath>
+    </t>
+
+    <t
+        t-name="stock_location_orderpoint.StockLocationProductOrderpointSearchPanel"
+        t-inherit="web.SearchPanel"
+        t-inherit-mode="primary"
+        owl="1"
+    >
+        <xpath expr="//t[@t-call='web.SearchPanel.Regular']" position="replace">
+            <t
+                t-call="stock_location_orderpoint.StockLocationProductOrderpointSearchPanel.Regular"
+            />
+        </xpath>
+    </t>
+</templates>

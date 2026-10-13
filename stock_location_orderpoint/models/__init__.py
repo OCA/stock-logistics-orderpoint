@@ -6,3 +6,4 @@ from . import product_product
 from . import stock_location_orderpoint_strategy
 from . import stock_location_orderpoint_strategy_fill_up
 from . import stock_location_replenishment_computer
+from . import stock_location_product_orderpoint

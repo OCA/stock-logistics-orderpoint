@@ -6,4 +6,11 @@
         <field eval="True" name="global" />
         <field name="domain_force">[('company_id', 'in', company_ids)]</field>
     </record>
+
+    <record id="stock_location_product_orderpoint_comp_rule" model="ir.rule">
+        <field name="name">Stock Location Product Orderpoint multi company rule</field>
+        <field name="model_id" ref="model_stock_location_product_orderpoint" />
+        <field eval="True" name="global" />
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
 </odoo>
