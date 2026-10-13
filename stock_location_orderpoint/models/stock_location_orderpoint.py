@@ -129,6 +129,13 @@ class StockLocationOrderpoint(models.Model):
         readonly=False,
         precompute=True,
     )
+    escalate_replenishment_priority = fields.Boolean(
+        string="Escalate replenishment priority",
+        help="If enabled, lower-priority replenishment moves that are incoming to this "
+        "orderpoint's location may be escalated if excluding them from the forecast "
+        "would leave this orderpoint with unmet demand.",
+        default=True,
+    )
 
     _sql_constraints = [
         (
@@ -528,20 +535,35 @@ class StockLocationOrderpoint(models.Model):
                 if self._processed_key(pid) not in processed
             }
 
+        # Candidate products left out of procurement_data have their demand
+        # already covered — possibly by a lower-priority orderpoint's pending
+        # replenishment move sharing this orderpoint's location. Escalate
+        # those (when enabled) once, up front, so every exit point below
+        # only has to flush what it already has.
+        escalated_moves = self._get_escalated_moves(
+            products, procurement_data, job_logs
+        )
+
         if not procurement_data:
-            if job_logs is not None:
-                job_logs.append(
-                    _(
-                        "No demand to replenish for orderpoint %(orderpoint)s",
-                        orderpoint=self.display_name,
+            if not escalated_moves:
+                if job_logs is not None:
+                    job_logs.append(
+                        _(
+                            "No demand to replenish for orderpoint %(orderpoint)s",
+                            orderpoint=self.display_name,
+                        )
                     )
-                )
-            return result
+                return result
+            return self._after_replenishment(escalated_moves)
 
         if is_delayed:
             for product_id, demand_qty in procurement_data.items():
                 self._enqueue_fulfill_procurement(product_id, demand_qty).delay()
-            return result
+            return (
+                self._after_replenishment(escalated_moves)
+                if escalated_moves
+                else result
+            )
 
         if job_logs is not None:
             job_logs.append(
@@ -555,10 +577,137 @@ class StockLocationOrderpoint(models.Model):
 
         procurements = self._build_procurements(procurement_data)
         if not procurements:
-            return result
+            return (
+                self._after_replenishment(escalated_moves)
+                if escalated_moves
+                else result
+            )
 
-        result = self._execute_run_procurements(procurements)
+        result = self._execute_run_procurements(procurements) | escalated_moves
         return self._after_replenishment(result)
+
+    # -------------------------------------------------------------------------
+    # Escalation of shared replenishment moves to a higher priority
+    # -------------------------------------------------------------------------
+    def _is_escalation_enabled(self):
+        """Check if escalation of replenishment moves is enabled for this orderpoint."""
+        self.ensure_one()
+        should_escalate = self.escalate_replenishment_priority
+        if should_escalate:
+            priorities = self._selection_move_priorities()
+            # check that our priority is not the lowest one
+            if self.priority == priorities[0][0]:
+                should_escalate = False
+        return should_escalate
+
+    def _get_escalated_moves(self, products, procurement_data, job_logs=None):
+        """
+        Escalate, when enabled on this orderpoint, the lower-priority
+        replenishment moves covering the candidate products left out of
+        procurement_data..
+
+        :param products: candidate product.product recordset for this run
+        :param procurement_data: dict {product_id: qty} already computed for
+            this run
+        :param job_logs: optional list to collect trace messages
+        :return: recordset of escalated stock.move (possibly empty)
+        """
+        self.ensure_one()
+        if not products or not self._is_escalation_enabled():
+            return self.env["stock.move"]
+        covered_products = products.filtered(lambda p: p.id not in procurement_data)
+        if not covered_products:
+            return self.env["stock.move"]
+        escalated_moves = self._escalate_covering_replenishment_moves(covered_products)
+        if escalated_moves and job_logs is not None:
+            job_logs.append(
+                _(
+                    "Escalated %(count)s existing replenishment move(s) to "
+                    "orderpoint %(orderpoint)s priority.",
+                    count=len(escalated_moves),
+                    orderpoint=self.display_name,
+                )
+            )
+        return escalated_moves
+
+    def _escalate_covering_replenishment_moves(self, products):
+        """
+        Look for not-yet-started replenishment moves for the given products
+        that are incoming to this orderpoint's location and have a lower
+        priority than this orderpoint.
+
+        Only escalate a move if excluding it from the forecast would leave
+        this orderpoint with unmet demand. An incoming move is not enough:
+        the orderpoint may already be covered by stock on hand or other
+        incoming moves.
+
+        :param products: product.product recordset with demand already covered
+        :return: recordset of escalated stock.move
+        """
+        self.ensure_one()
+        moves = self._get_covering_replenishment_moves(products)
+        if not moves:
+            return moves
+        moves = self._filter_actually_needed_covering_moves(moves)
+        if not moves:
+            return moves
+        moves.write({"location_orderpoint_id": self.id, "origin": self.name})
+        return moves
+
+    def _filter_actually_needed_covering_moves(self, moves):
+        """
+        Keep only the moves that genuinely stand between this orderpoint's
+        location and a shortfall, according to this orderpoint's own
+        replenishment condition (its strategy / replenish_method).
+
+        Mirrors _get_remaining_demand: there, a not-yet-started move's own
+        quantity is excluded from the forecast to check whether something
+        else already fulfills the demand it was created for (used to decide
+        whether to cancel it). Here, a candidate covering move (created by a
+        different, lower-priority orderpoint) is excluded from the forecast
+        to check whether this orderpoint would still have demand without it
+        — i.e. whether the move is actually needed, as opposed to this
+        orderpoint's own stock (or other incoming moves) already covering it
+        regardless of the candidate move's existence.
+
+        :param moves: candidate stock.move recordset to check
+        :return: subset of moves that are genuinely needed
+        """
+        self.ensure_one()
+        computer = self._get_replenishment_computer()
+        products = moves.product_id.with_context(
+            additional_incoming_moves_domain=[("id", "not in", moves.ids)]
+        )
+        demand_data = computer.compute(products=products, demand_only=True)
+        return moves.filtered(lambda m: m.product_id.id in demand_data)
+
+    def _get_covering_replenishment_moves(self, products):
+        """Not-yet-started moves already incoming to this orderpoint's
+        location for the given products, generated by a lower-priority
+        orderpoint sharing that location."""
+        self.ensure_one()
+        if not products:
+            return self.env["stock.move"]
+        return self.env["stock.move"].search(
+            self._get_covering_replenishment_moves_domain(products)
+        )
+
+    def _get_covering_replenishment_moves_domain(self, products):
+        """Return the domain to search for not-yet-started replenishment
+        moves, generated by a lower-priority orderpoint, that are already
+        incoming to this orderpoint's location for the given products."""
+        self.ensure_one()
+        return expression.AND(
+            [
+                [
+                    ("location_dest_id", "=", self.location_id.id),
+                    ("product_id", "in", products.ids),
+                    ("state", "not in", ("waiting", "done", "cancel")),
+                    ("location_orderpoint_id.priority", "<", self.priority or "0"),
+                ],
+                self._get_pending_replenishment_sourcing_process_domain(products),
+            ]
+        )
 
     # -------------------------------------------------------------------------
     # Replenishment execution pipeline (orderpoint-bound)

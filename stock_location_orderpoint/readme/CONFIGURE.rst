@@ -49,12 +49,25 @@ Location Orderpoint configuration
    the route value.
 #. Define a procurement group if you want to group some movements together.
 #. Define a priority for the created moves.
+#. 'Escalate replenishment priority' is enabled by default and controls whether this
+   orderpoint may claim, as described below, a pending replenishment move created by
+   a lower-priority orderpoint sharing its location. Disable it if this orderpoint
+   should never take over another orderpoint's moves this way.
 #. If you want to filter the stock locations that should be taken in consideration
-   for product available quantities when triggering a replenishment (e.g.: Supplier locations - 
-   to avoid confirmed receptions taken into account), fill in the 
+   for product available quantities when triggering a replenishment (e.g.: Supplier locations -
+   to avoid confirmed receptions taken into account), fill in the
    'Domain to filter locations' field.
 
 When different orderpoints are defined on the same location, it could result in the creation of several
 replenishment moves for the same product. When this happens, if the moves are merged together, the
-resulting move will be linked to the orderpoint with the highest priority, ensuring that the move 
+resulting move will be linked to the orderpoint with the highest priority, ensuring that the move
 inherits the correct priority and is processed accordingly.
+
+Two orderpoints sharing a location can also end up with only one of them actually
+creating a move, if the other one's need is already covered by it (e.g.: a low-priority
+orderpoint scheduled by cron has already planned a replenishment ahead of time, and a
+high-priority, auto-triggered orderpoint later finds it has nothing left to replenish
+because that move already covers it). In that case, the existing move is reassigned to
+the higher-priority orderpoint so it is processed with the right urgency, but only if it
+is genuinely needed: if stock already on hand would cover the demand even without that
+move, it is left untouched instead of being escalated for no reason.
