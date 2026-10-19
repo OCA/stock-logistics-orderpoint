@@ -275,6 +275,20 @@ class StockLocationOrderpoint(models.Model):
             ids = set().union(*ids_by_parent_paths.values())
         return self.browse(list(ids)).sorted()
 
+    def _filter_moves(self, moves, location_field):
+        """Moves whose `location_field` is inside this orderpoint's location
+        and whose product passes this orderpoint's product domain"""
+        self.ensure_one()
+        path = self.location_id.parent_path
+        moves = moves.filtered(
+            lambda move: move[location_field].parent_path.startswith(path)
+        )
+        product_domain = self._get_product_domain()
+        if product_domain:
+            allowed = moves.product_id.filtered_domain(product_domain)
+            moves = moves.filtered(lambda move: move.product_id in allowed)
+        return moves
+
     @api.model
     def _get_orderpoints_from_moves(self, moves, trigger="auto"):
         """Return orderpoints impacted by the given move set."""
