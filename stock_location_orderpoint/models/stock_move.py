@@ -2,6 +2,8 @@
 # Copyright 2026 ACSONE SA/NV (https://www.acsone.eu)
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+from collections import defaultdict
+
 from odoo import _, api, fields, models
 from odoo.tools import ormcache
 
@@ -101,6 +103,75 @@ class StockMove(models.Model):
         delayable = orderpoint.delayable(**job_options)
         return delayable.run_replenishment(product)
 
+    def _prepare_auto_replenishment_for_rerouted_arrivals(self, new_location_dest_id):
+        """Replenish the locations these moves stop bringing stock to
+
+        Must be called before the write applying `new_location_dest_id`.
+
+        The orderpoint's own move domain must not filter these moves: an
+        arrival is harmless while it stays on course, and only becomes a
+        shortage once its destination is rewritten. The trigger is the change,
+        not the move.
+        """
+        # The stock these moves were bringing will never arrive at their
+        # former destination: what was waiting for it there has to be
+        # replenished from somewhere else.
+        # => Read the former destination before the write replaces it.
+        rerouted = self.filtered(
+            lambda move: move.location_dest_id.id != new_location_dest_id
+            and move.state not in ("draft", "done", "cancel")
+        )
+        if not rerouted:
+            return
+        orderpoint_obj = self.env["stock.location.orderpoint"]
+        orderpoints = orderpoint_obj._get_orderpoints(
+            "auto", locations=rerouted.location_dest_id, location_field="location_id"
+        )
+        if not orderpoints:
+            return
+        # the former destination is the location the orderpoint fills
+        products_by_orderpoint = defaultdict(self.env["product.product"].browse)
+        for orderpoint in orderpoints:
+            path = orderpoint.location_id.parent_path
+            moves = rerouted.filtered(
+                lambda move, path=path: move.location_dest_id.parent_path.startswith(
+                    path
+                )
+            )
+            product_domain = orderpoint._get_product_domain()
+            if product_domain:
+                allowed = moves.product_id.filtered_domain(product_domain)
+                moves = moves.filtered(
+                    lambda move, allowed=allowed: move.product_id in allowed
+                )
+            if moves:
+                products_by_orderpoint[orderpoint] |= moves.product_id
+        # NOTE: jobs won't run before the write
+        self._prepare_run_replenishment(products_by_orderpoint)
+
+    def write(self, vals):
+        # `_action_assign` and `_action_done` evaluate the replenishment on the
+        # locations the move had at that time. Any later rewrite of those
+        # locations would otherwise leave the new ones untriggered.
+        if "location_dest_id" in vals:
+            self._prepare_auto_replenishment_for_rerouted_arrivals(
+                vals["location_dest_id"]
+            )
+
+        MovesTouchTracker.add_ids(self.ids)
+        res = super().write(vals)
+
+        if "location_dest_id" in vals:
+            self.filtered(
+                lambda move: move.state == "done"
+            )._prepare_auto_replenishment_for_incoming_moves()
+
+        if "location_id" in vals:
+            self.filtered(
+                lambda move: move.state not in ("draft", "done", "cancel")
+            )._prepare_auto_replenishment_for_outgoing_moves()
+        return res
+
     def _action_assign(self, *args, **kwargs):
         """This triggers the replenishment for new moves which are waiting for stock"""
         res = super()._action_assign(*args, **kwargs)
@@ -142,7 +213,3 @@ class StockMove(models.Model):
         res = super().create(vals_list)
         MovesTouchTracker.add_ids(res.ids)
         return res
-
-    def write(self, vals):
-        MovesTouchTracker.add_ids(self.ids)
-        return super().write(vals)
