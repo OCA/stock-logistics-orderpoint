@@ -150,7 +150,7 @@ class StockMove(models.Model):
         self._prepare_run_replenishment(products_by_orderpoint)
 
     def write(self, vals):
-        # `_action_assign` and `_action_done` evaluate the replenishment on the
+        # `_action_confirm` and `_action_done` evaluate the replenishment on the
         # locations the move had at that time. Any later rewrite of those
         # locations would otherwise leave the new ones untriggered.
         if "location_dest_id" in vals:
@@ -172,16 +172,16 @@ class StockMove(models.Model):
             )._prepare_auto_replenishment_for_outgoing_moves()
         return res
 
-    def _action_assign(self, *args, **kwargs):
-        """This triggers the replenishment for new moves which are waiting for stock"""
-        res = super()._action_assign(*args, **kwargs)
-        # When a move is assigned, it means that the stock is available on the
-        # location is decreased. So we need to trigger a check for replenishment
-        # on this location IOW if an orderpoint exists for this location as
-        # target location and the move has the expected characteristics (state, ...)
-        if self:
-            self._prepare_auto_replenishment_for_outgoing_moves()
-        return res
+    def _action_confirm(self, *args, **kwargs):
+        """This triggers the replenishment for newly confirmed moves"""
+        moves = super()._action_confirm(*args, **kwargs)
+        # A confirmed move is a need
+        # -> it decreases the forecasted stock of its source location.
+        # An orderpoint replenishes the forecast, not the reservation
+        # -> the check belongs here and not in `_action_assign`.
+        # NOTE: confirm may merge moves, so trigger on the returned records.
+        moves._prepare_auto_replenishment_for_outgoing_moves()
+        return moves
 
     def _action_done(self, *args, **kwargs):
         """
