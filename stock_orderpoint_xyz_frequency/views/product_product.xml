@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="product_product_form_view" model="ir.ui.view">
+        <field name="name">product.product.form.inherit.xyz.classification</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view" />
+        <field name="arch" type="xml">
+            <field name="xyz_classification_product_level_ids" position="attributes">
+                <attribute name="readonly" />
+            </field>
+        </field>
+    </record>
+</odoo>

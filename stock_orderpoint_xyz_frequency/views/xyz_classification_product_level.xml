@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="xyz_classification_product_level_form_view" model="ir.ui.view">
+        <field name="name">xyz.classification.product.level.form</field>
+        <field name="model">xyz.classification.product.level</field>
+        <field name="arch" type="xml">
+            <form string="XYZ Classification">
+                <sheet>
+                    <widget
+                        name="web_ribbon"
+                        title="Archived"
+                        bg_color="text-bg-danger"
+                        invisible="active"
+                    />
+                    <group>
+                        <field name="active" invisible="1" />
+                        <field name="allowed_level_ids" invisible="1" />
+                        <field name="product_id" />
+                        <field
+                            name="level_id"
+                            domain="[('id', 'in', allowed_level_ids)]"
+                        />
+                        <field name="company_id" groups="base.group_multi_company" />
+                        <field name="last_replenishment_date" />
+                        <field name="next_replenishment_date" />
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+    <record id="xyz_classification_product_level_list_view" model="ir.ui.view">
+        <field name="name">xyz.classification.product.level.list</field>
+        <field name="model">xyz.classification.product.level</field>
+        <field name="arch" type="xml">
+            <list
+                string="XYZ Classification"
+                editable="bottom"
+                decoration-muted="not active"
+            >
+                <field name="product_id" />
+                <field name="active" column_invisible="1" />
+                <field name="allowed_level_ids" column_invisible="1" />
+                <field
+                    name="level_id"
+                    domain="[('id', 'in', allowed_level_ids)]"
+                    width="160"
+                />
+                <field name="last_replenishment_date" string="Last run" width="130" />
+                <field
+                    name="days_to_next_replenishment"
+                    string="Days left"
+                    width="110"
+                />
+                <field name="next_replenishment_date" string="Next run" width="130" />
+                <field
+                    name="company_id"
+                    groups="base.group_multi_company"
+                    optional="hide"
+                    width="180"
+                />
+            </list>
+        </field>
+    </record>
+    <record model="ir.ui.view" id="xyz_classification_product_level_search_view">
+        <field name="name">xyz.classification.product.level.search</field>
+        <field name="model">xyz.classification.product.level</field>
+        <field name="arch" type="xml">
+            <search string="XYZ classification">
+                <field name="product_id" />
+                <field name="level_id" string="Level" />
+                <separator />
+                <filter
+                    string="Postponed"
+                    name="postponed"
+                    domain="[('next_replenishment_date', '&gt;', 'today')]"
+                />
+                <filter
+                    string="Due"
+                    name="due"
+                    domain="['|', ('next_replenishment_date', '=', False), ('next_replenishment_date', '&lt;=', 'today')]"
+                />
+                <separator />
+                <filter
+                    string="Archived"
+                    name="inactive"
+                    domain="[('active', '=', False)]"
+                />
+                <group name="group_by">
+                    <filter
+                        string="Level"
+                        name="group_by_level"
+                        domain="[]"
+                        context="{'group_by':'level_id'}"
+                    />
+                    <filter
+                        string="Company"
+                        name="group_by_company"
+                        domain="[]"
+                        context="{'group_by':'company_id'}"
+                        groups="base.group_multi_company"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="xyz_classification_product_level_action" model="ir.actions.act_window">
+        <field name="name">Products XYZ Classification</field>
+        <field name="res_model">xyz.classification.product.level</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_group_by_level': 1}</field>
+    </record>
+    <menuitem
+        action="xyz_classification_product_level_action"
+        id="menu_xyz_classification_product_level_config_stock"
+        parent="stock.menu_stock_inventory_control"
+        sequence="100"
+    />
+</odoo>
