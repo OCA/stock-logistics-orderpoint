@@ -6,5 +6,5 @@ from openupgradelib import openupgrade
 @openupgrade.migrate()
 def migrate(env, version):
     openupgrade.load_data(
-        env.cr, "stock_location_orderpoint", "data/queue_job_function.xml", mode="init"
+        env, "stock_location_orderpoint", "data/queue_job_function.xml", mode="init"
     )
