@@ -1,0 +1,7 @@
+- Lois Rilo Antelo \<lois.rilo@forgeflow.com\>
+- Bhavesh Odedra \<bodedra@opensourceintegrators.com\>
+- Kitti Upariphutthiphong \<kittiu@ecosoft.co.th\>
+- Pimolnat Suntian \<pimolnats@ecosoft.co.th\>
+- [NuoBiT Solutions SL](https://www.nuobit.com):
+  - Deniz Gallo \<dgallo@nuobit.com\>
+  - Eric Antones \<eantones@nuobit.com\>
