@@ -28,6 +28,11 @@
                             <field name="qty" />
                             <field name="qty_without_security" column_invisible="1" />
                             <field name="uom_id" groups="uom.group_uom" />
+                            <field
+                                name="uom_id"
+                                column_invisible="1"
+                                groups="!uom.group_uom"
+                            />
                             <field name="date_planned" />
                         </list>
                     </field>
@@ -72,6 +77,11 @@
                             <field name="qty" column_invisible="1" />
                             <field name="qty_without_security" readonly="1" />
                             <field name="uom_id" groups="uom.group_uom" />
+                            <field
+                                name="uom_id"
+                                column_invisible="1"
+                                groups="!uom.group_uom"
+                            />
                             <field name="date_planned" />
                         </list>
                     </field>
