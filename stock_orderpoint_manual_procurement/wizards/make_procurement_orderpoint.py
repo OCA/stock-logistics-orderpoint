@@ -27,19 +27,15 @@ class MakeProcurementOrderpoint(models.TransientModel):
         }
 
     @api.model
-    def fields_view_get(
-        self, view_id=None, view_type="form", toolbar=False, submenu=False
-    ):
-        if not self.env.user.has_group(
+    def get_view(self, view_id=None, view_type="form", **options):
+        if view_type == "form" and not self.env.user.has_group(
             "stock_orderpoint_manual_procurement.group_change_orderpoint_procure_qty"
-        ):  # noqa
+        ):
             # Redirect to readonly qty form view
             view_id = self.env.ref(
                 "stock_orderpoint_manual_procurement.view_make_procure_without_security"
-            ).id  # noqa
-        return super().fields_view_get(
-            view_id=view_id, view_type=view_type, toolbar=toolbar, submenu=submenu
-        )
+            ).id
+        return super().get_view(view_id, view_type, **options)
 
     @api.model
     def default_get(self, fields):

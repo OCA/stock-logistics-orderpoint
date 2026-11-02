@@ -183,3 +183,26 @@ class TestStockWarehouseOrderpoint(TransactionCase):
         """
         self.create_orderpoint_procurement()
         self.reorder.new(origin=self.reorder)._compute_procure_recommended()
+
+    def test_procure_qty_restricted_to_group(self):
+        """Only users in 'Change quantity in manual procurements from
+        reordering rules' can change the quantity to procure."""
+        user = self._create_user(
+            "user_2",
+            [self.group_stock_manager, self.group_purchase_manager],
+            self.company1,
+        )
+        wizard_model = self.make_procurement_orderpoint_model.with_user(
+            user
+        ).with_context(
+            active_model="stock.warehouse.orderpoint",
+            active_ids=self.reorder.ids,
+            active_id=self.reorder.id,
+        )
+        readonly_view = self.env.ref(
+            "stock_orderpoint_manual_procurement.view_make_procure_without_security"
+        )
+        views = wizard_model.get_views([(False, "form")])
+        self.assertEqual(views["views"]["form"]["id"], readonly_view.id)
+        views = wizard_model.with_user(self.user).get_views([(False, "form")])
+        self.assertNotEqual(views["views"]["form"]["id"], readonly_view.id)
