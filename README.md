@@ -30,7 +30,7 @@ addon | version | maintainers | summary
 [stock_location_orderpoint](stock_location_orderpoint/) | 18.0.2.0.0 | <a href='https://github.com/mt-software-de'><img src='https://github.com/mt-software-de.png' width='32' height='32' style='border-radius:50%;' alt='mt-software-de'/></a> <a href='https://github.com/jbaudoux'><img src='https://github.com/jbaudoux.png' width='32' height='32' style='border-radius:50%;' alt='jbaudoux'/></a> <a href='https://github.com/lmignon'><img src='https://github.com/lmignon.png' width='32' height='32' style='border-radius:50%;' alt='lmignon'/></a> | Declare orderpoint on a location allowing to replenish any product with the same criteria.
 [stock_orderpoint_default_location](stock_orderpoint_default_location/) | 18.0.1.0.1 |  | This module allows to define a different default location than the stock location
 [stock_orderpoint_generator](stock_orderpoint_generator/) | 18.0.1.0.0 |  | Mass configuration of stock order points
-[stock_orderpoint_manual_procurement](stock_orderpoint_manual_procurement/) | 18.0.1.0.0 |  | Allows to create procurement orders from orderpoints instead of relying only on the scheduler.
+[stock_orderpoint_manual_procurement](stock_orderpoint_manual_procurement/) | 18.0.1.0.1 |  | Allows to create procurement orders from orderpoints instead of relying only on the scheduler.
 [stock_orderpoint_move_link](stock_orderpoint_move_link/) | 18.0.1.0.0 |  | Link Reordering rules to stock moves
 [stock_orderpoint_mto_as_mts](stock_orderpoint_mto_as_mts/) | 18.0.1.3.0 |  | Materialize need from MTO route through orderpoint
 [stock_orderpoint_no_horizon](stock_orderpoint_no_horizon/) | 18.0.1.0.0 |  | Consider all future moves, do not limit horizon to the rule lead days.
