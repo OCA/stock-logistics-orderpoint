@@ -5,6 +5,7 @@
 from datetime import timedelta
 
 from odoo import fields
+from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
 
@@ -175,6 +176,25 @@ class TestStockWarehouseOrderpoint(TransactionCase):
         self.assertEqual(len(purchase_line), 1)
         pol_date = fields.Date.from_string(purchase_line.date_planned)
         self.assertEqual(pol_date, manual_date)
+
+    def test_manual_procurement_without_uom_group(self):
+        """Users who don't manage units of measure can request procurements:
+        the web client must send back the unit of measure of the items."""
+        self.assertFalse(self.user.has_group("uom.group_uom"))
+        wizard_form = Form(
+            self.make_procurement_orderpoint_model.with_user(self.user).with_context(
+                active_model="stock.warehouse.orderpoint",
+                active_ids=self.reorder.ids,
+                active_id=self.reorder.id,
+            )
+        )
+        wizard = wizard_form.save()
+        wizard.make_procurement()
+        purchase_line = self.purchase_line_model.search(
+            [("orderpoint_id", "=", self.reorder.id)]
+        )
+        self.assertEqual(purchase_line.product_qty, 480.0)
+        self.assertEqual(purchase_line.product_uom, self.product_uom)
 
     def test_compute_procure_recommended_with_newid(self):
         """'_compute_procure_recommended' method uses '_quantity_in_progress'
