@@ -135,6 +135,13 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
 
         cls.cfg.period_value = 12
         cls.cfg.location_id = cls.location_zone
+        cls.cfg.write(
+            {
+                "use_average_daily_strategy": True,
+                "use_average_consumption_strategy": True,
+                "average_consumption_factor": 2,
+            }
+        )
         cls._refresh()
 
     @classmethod
