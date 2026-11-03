@@ -25,16 +25,95 @@ class StockMove(models.Model):
             self.filtered(lambda move: move.product_id == product).mapped("date")
         )
 
+    def _get_demand_products_by_location_orderpoint(self, trigger="auto"):
+        """
+        Triggered when demand appears in orderpoint locations.
+        Return the products to replenish by orderpoint.
+        :param trigger: the trigger to consider to select the orderpoints to replenish
+        :return: dict {orderpoint: products}
+        """
+        # move from location consume order point location -> DO I've to replenish?
+        moves_by_orderpoint = self._group_by_location_orderpoints(
+            "location_id", "location_id", trigger=trigger
+        )
+        products_by_orderpoint = {}
+        for orderpoint, orderpoint_moves in moves_by_orderpoint.items():
+            orderpoint_moves = orderpoint_moves.filtered_domain(
+                orderpoint._get_consuming_moves_domain()
+            )
+            if orderpoint_moves:
+                products_by_orderpoint[orderpoint] = orderpoint_moves.product_id
+        return products_by_orderpoint
+
+    def _get_supply_products_by_location_orderpoint(self, trigger="auto"):
+        """
+        Triggered when supply arrives in orderpoint source locations.
+        Return the products to replenish by orderpoint.
+        :param trigger: the trigger to consider to select the orderpoints to replenish
+        :return: dict {orderpoint: products}
+        """
+        # move to src location replenish order point source location -> DO I've
+        # to replenish?
+        moves_by_orderpoint = self._group_by_location_orderpoints(
+            "location_dest_id", "location_src_id", trigger=trigger
+        )
+        products_by_orderpoint = {}
+        for orderpoint, orderpoint_moves in moves_by_orderpoint.items():
+            # We can ignore the unlimited case:
+            # Without the limit, the source handles all the demand
+            if not orderpoint.replenish_limit_to_free_qty:
+                continue
+            orderpoint_moves = orderpoint_moves.filtered_domain(
+                orderpoint._get_supplying_moves_domain()
+            )
+            if orderpoint_moves:
+                products_by_orderpoint[orderpoint] = orderpoint_moves.product_id
+        return products_by_orderpoint
+
+    def _get_rerouted_products_by_location_orderpoint(
+        self, new_location_dest_id, trigger="auto"
+    ):
+        """
+        Triggered when stock is rerouted out of orderpoint locations.
+        After the reroute, the orderpoint location misses the stock
+        these moves supplied.
+        Must be called before the write applying `new_location_dest_id`.
+        Return the products to replenish by orderpoint.
+        :param new_location_dest_id: the id of the new destination
+        :param trigger: the trigger to consider to select the orderpoints to replenish
+        :return: dict {orderpoint: products}
+        """
+        # The stock these moves were bringing will never arrive at their
+        # former destination: what was waiting for it there has to be
+        # replenished from somewhere else.
+        # => Read the former destination before the write replaces it.
+        # A new destination inside the former one still receives the stock.
+        new_path = self.env["stock.location"].browse(new_location_dest_id).parent_path
+        rerouted = self.filtered(
+            lambda move: not new_path.startswith(move.location_dest_id.parent_path)
+            and move.state not in ("draft", "done", "cancel")
+        )
+        if not rerouted:
+            return {}
+        # the former destination is the location the orderpoint fills
+        moves_by_orderpoint = rerouted._group_by_location_orderpoints(
+            "location_dest_id", "location_id", trigger=trigger
+        )
+        return {
+            orderpoint: moves.product_id
+            for orderpoint, moves in moves_by_orderpoint.items()
+        }
+
     def _prepare_auto_replenishment_for_outgoing_moves(self):
-        products_by_orderpoint = self.env[
-            "stock.location.orderpoint"
-        ]._get_from_move_demand(self, trigger="auto")
+        products_by_orderpoint = self._get_demand_products_by_location_orderpoint(
+            trigger="auto"
+        )
         self._prepare_run_replenishment(products_by_orderpoint)
 
     def _prepare_auto_replenishment_for_incoming_moves(self):
-        products_by_orderpoint = self.env[
-            "stock.location.orderpoint"
-        ]._get_from_move_supply(self, trigger="auto")
+        products_by_orderpoint = self._get_supply_products_by_location_orderpoint(
+            trigger="auto"
+        )
         self._prepare_run_replenishment(products_by_orderpoint)
 
     def _prepare_run_replenishment(self, products_by_orderpoint):
@@ -103,6 +182,28 @@ class StockMove(models.Model):
         delayable = orderpoint.delayable(**job_options)
         return delayable.run_replenishment(product)
 
+    def _group_by_location_orderpoints(
+        self, location_field, orderpoint_location_field, trigger="auto"
+    ):
+        """Group these moves by the orderpoints whose
+        `orderpoint_location_field` contains the moves' `location_field`"""
+        moves_by_orderpoint = defaultdict(self.browse)
+        if not self:
+            # without locations, _get_orderpoints returns all the orderpoints
+            return moves_by_orderpoint
+        orderpoints = self.env["stock.location.orderpoint"]._get_orderpoints(
+            trigger,
+            locations=self[location_field],
+            location_field=orderpoint_location_field,
+        )
+        for orderpoint in orderpoints:
+            moves = orderpoint._filter_moves(
+                self, location_field, orderpoint_location_field
+            )
+            if moves:
+                moves_by_orderpoint[orderpoint] |= moves
+        return moves_by_orderpoint
+
     def _prepare_auto_replenishment_for_rerouted_arrivals(self, new_location_dest_id):
         """Replenish the locations these moves stop bringing stock to
 
@@ -113,27 +214,9 @@ class StockMove(models.Model):
         shortage once its destination is rewritten. The trigger is the change,
         not the move.
         """
-        # The stock these moves were bringing will never arrive at their
-        # former destination: what was waiting for it there has to be
-        # replenished from somewhere else.
-        # => Read the former destination before the write replaces it.
-        rerouted = self.filtered(
-            lambda move: move.location_dest_id.id != new_location_dest_id
-            and move.state not in ("draft", "done", "cancel")
+        products_by_orderpoint = self._get_rerouted_products_by_location_orderpoint(
+            new_location_dest_id, trigger="auto"
         )
-        if not rerouted:
-            return
-        orderpoints = self.env["stock.location.orderpoint"]._get_orderpoints(
-            "auto", locations=rerouted.location_dest_id, location_field="location_id"
-        )
-        if not orderpoints:
-            return
-        # the former destination is the location the orderpoint fills
-        products_by_orderpoint = defaultdict(self.env["product.product"].browse)
-        for orderpoint in orderpoints:
-            moves = orderpoint._filter_moves(rerouted, "location_dest_id")
-            if moves:
-                products_by_orderpoint[orderpoint] |= moves.product_id
         # NOTE: jobs won't run before the write
         self._prepare_run_replenishment(products_by_orderpoint)
 
@@ -148,11 +231,6 @@ class StockMove(models.Model):
 
         MovesTouchTracker.add_ids(self.ids)
         res = super().write(vals)
-
-        if "location_dest_id" in vals:
-            self.filtered(
-                lambda move: move.state == "done"
-            )._prepare_auto_replenishment_for_incoming_moves()
 
         if "location_id" in vals:
             self.filtered(
