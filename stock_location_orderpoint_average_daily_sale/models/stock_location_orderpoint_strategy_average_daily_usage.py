@@ -49,7 +49,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         :param horizon: datetime, time horizon to consider for the replenishment
         :param products: product.product recordset
         """
-        # --- STOCK AVERAGE DAILY SALE ---
+        # --- STOCK AVERAGE DAILY USAGE ---
 
         stock_location_obj = self.env["stock.location"]
         location_domain = location._get_daily_usage_products_location_domain(
@@ -63,14 +63,14 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         if products is not None:
             domain.append(("product_id", "in", products.ids))
 
-        stock_avg_daily_sale_obj = self.env["stock.average.daily.sale"]
-        stock_avg_daily_sale_obj._flush_search(domain)
-        adu_query = stock_avg_daily_sale_obj._where_calc(domain)
-        stock_avg_daily_sale_obj._apply_ir_rules(adu_query, "read")
+        stock_avg_daily_usage_obj = self.env["stock.average.daily.usage"]
+        stock_avg_daily_usage_obj._flush_search(domain)
+        adu_query = stock_avg_daily_usage_obj._where_calc(domain)
+        stock_avg_daily_usage_obj._apply_ir_rules(adu_query, "read")
 
         # join location
         loc_alias = adu_query.join(
-            stock_avg_daily_sale_obj._table,
+            stock_avg_daily_usage_obj._table,
             "location_id",
             stock_location_obj._table,
             "id",
@@ -81,7 +81,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         # Retrieve candidate ADU records to compute recommended_qty via the ORM
         adu_from, adu_where, adu_params = adu_query.get_sql()
         adu_fetch_sql = f"""
-            SELECT {stock_avg_daily_sale_obj._table}.id
+            SELECT {stock_avg_daily_usage_obj._table}.id
             FROM {adu_from}
             WHERE {adu_where}
         """
@@ -90,7 +90,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         if not adu_ids:
             return {}
 
-        adu_records = stock_avg_daily_sale_obj.browse(adu_ids)
+        adu_records = stock_avg_daily_usage_obj.browse(adu_ids)
 
         # Aggregate recommended quantities per product
         product_recommended_qtys = {}
@@ -104,7 +104,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         if not product_recommended_qtys:
             return {}
 
-        # Build dynamic VALUES clause for the avg_daily_sale CTE
+        # Build dynamic VALUES clause for the avg_daily_usage CTE
         adu_placeholders = ", ".join(
             ["(%s::integer, %s::numeric)"] * len(product_recommended_qtys)
         )
@@ -116,7 +116,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
             adu_params.extend([product_id, product_qty])
 
         # --- STOCK MOVE (OUTGOING) with condition on products ---
-        # --- for which we have an average daily sale at the location ---
+        # --- for which we have an average daily usage at the location ---
 
         outgoing_moves_domain = location._get_consuming_moves_domain()
         outgoing_moves_domain = expression.AND(
@@ -136,14 +136,14 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
                 {stock_move_obj._table}.product_id,
                 SUM({stock_move_obj._table}.product_uom_qty) AS qty
             FROM {move_tables}
-            JOIN avg_daily_sale ON avg_daily_sale.product_id =
+            JOIN avg_daily_usage ON avg_daily_usage.product_id =
                 {stock_move_obj._table}.product_id
             WHERE {move_where}
             GROUP BY {stock_move_obj._table}.product_id
         """
 
         # -- STOCK MOVE (INCOMING) with condition on products ---
-        # --- for which we have an average daily sale at the location ---
+        # --- for which we have an average daily usage at the location ---
         incoming_moves_domain = location._get_replenishing_moves_domain()
         incoming_moves_domain = expression.AND(
             [incoming_moves_domain, [("date", "<=", horizon)]]
@@ -159,14 +159,14 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
                 {stock_move_obj._table}.product_id,
                 - SUM({stock_move_obj._table}.product_uom_qty) AS qty
             FROM {move_in_tables}
-            JOIN avg_daily_sale ON avg_daily_sale.product_id =
+            JOIN avg_daily_usage ON avg_daily_usage.product_id =
                 {stock_move_obj._table}.product_id
             WHERE {move_in_where}
             GROUP BY {stock_move_obj._table}.product_id
         """
 
         # --- STOCK QUANT with condition on products ---
-        # --- for which we have an average daily sale at the location ---
+        # --- for which we have an average daily usage at the location ---
 
         stock_quant_obj = self.env["stock.quant"]
         domain_quant, _im, _om = location._get_stock_domains()
@@ -183,7 +183,7 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
                 {stock_quant_obj._table}.product_id,
                 - SUM({stock_quant_obj._table}.quantity) AS qty
             FROM {quant_tables}
-            JOIN avg_daily_sale ON avg_daily_sale.product_id =
+            JOIN avg_daily_usage ON avg_daily_usage.product_id =
                 {stock_quant_obj._table}.product_id
             WHERE {quant_where}
             GROUP BY {stock_quant_obj._table}.product_id
@@ -192,10 +192,10 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         # --- FINAL UNION ---
 
         final_sql = f"""
-            WITH avg_daily_sale AS ({adu_sql})
+            WITH avg_daily_usage AS ({adu_sql})
             SELECT product_id, SUM(qty) AS qty
             FROM (
-                SELECT * FROM avg_daily_sale
+                SELECT * FROM avg_daily_usage
                 UNION ALL
                 {move_sql}
                 UNION ALL

@@ -33,7 +33,7 @@ Stock Location Orderpoint Average Daily Sale
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
 This module extends the stock_location_orderpoint module in order to
-take into account average daily sale as quantity to replenish.
+take into account average daily usage as quantity to replenish.
 
 **Table of contents**
 
@@ -44,7 +44,7 @@ Configuration
 =============
 
 * Go to Inventory > Configuration > Stock Location Orderpoint
-* Create an orderpoint choosing the 'Average Daily Sale' replenish method. For
+* Create an orderpoint choosing the 'Average Daily Usage' replenish method. For
   other parameters, see stock_location_orderpoint module documentation.
 
 Bug Tracker
