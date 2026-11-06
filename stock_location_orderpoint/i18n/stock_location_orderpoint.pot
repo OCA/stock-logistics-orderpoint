@@ -312,6 +312,11 @@ msgid "Product Domain"
 msgstr ""
 
 #. module: stock_location_orderpoint
+#: model:ir.model,name:stock_location_orderpoint.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr ""
+
+#. module: stock_location_orderpoint
 #: model:ir.model.fields,field_description:stock_location_orderpoint.field_stock_location_orderpoint__product_domain_char
 msgid "Product domain"
 msgstr ""
