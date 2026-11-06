@@ -51,6 +51,13 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         """
         # --- STOCK AVERAGE DAILY USAGE ---
 
+        stock_avg_daily_usage_obj = self.env["stock.average.daily.usage"]
+        self.env.cr.execute(
+            f"SELECT relispopulated FROM pg_class WHERE relname = '{stock_avg_daily_usage_obj._table}';"
+        )
+        if not (self.env.cr.fetchone()[0]):
+            return {}
+
         stock_location_obj = self.env["stock.location"]
         location_domain = location._get_daily_usage_products_location_domain(
             location.id
@@ -63,7 +70,6 @@ class StockLocationOrderpointStrategyAverageDailyUsage(models.AbstractModel):
         if products is not None:
             domain.append(("product_id", "in", products.ids))
 
-        stock_avg_daily_usage_obj = self.env["stock.average.daily.usage"]
         stock_avg_daily_usage_obj._flush_search(domain)
         adu_query = stock_avg_daily_usage_obj._where_calc(domain)
         stock_avg_daily_usage_obj._apply_ir_rules(adu_query, "read")
