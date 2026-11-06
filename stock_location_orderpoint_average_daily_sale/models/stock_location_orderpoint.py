@@ -34,7 +34,7 @@ class StockLocationOrderpoint(models.Model):
     @tools.ormcache("orderpoint_id")
     def _get_daily_usage_products_location_domain(self, orderpoint_id):
         """
-        In the average daily sale strategy, we want to consider all the products that
+        In the average daily usage strategy, we want to consider all the products that
         have an average daily usage at the destination location of the orderpoint as
         candidates to compute the demand for.
 

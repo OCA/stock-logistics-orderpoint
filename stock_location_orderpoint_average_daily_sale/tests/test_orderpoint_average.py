@@ -6,13 +6,13 @@ from freezegun import freeze_time
 from odoo.fields import Date
 from odoo.tools.date_utils import relativedelta
 
-from odoo.addons.stock_average_daily_sale.tests.common import CommonAverageSaleTest
+from odoo.addons.stock_average_daily_sale.tests.common import CommonAverageUsageTest
 from odoo.addons.stock_location_orderpoint.tests.common import (
     TestLocationOrderpointCommon,
 )
 
 
-class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon):
+class TestOrderpointAverage(CommonAverageUsageTest, TestLocationOrderpointCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -135,6 +135,13 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
 
         cls.cfg.period_value = 12
         cls.cfg.location_id = cls.location_zone
+        cls.cfg.write(
+            {
+                "use_average_daily_strategy": True,
+                "use_average_consumption_strategy": True,
+                "average_consumption_factor": 2,
+            }
+        )
         cls._refresh()
 
     @classmethod
@@ -153,7 +160,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         # Run the orderpoint
         #
         # Check there is a replenishment move with the missing quantity
-        avg_product_1 = self.env["stock.average.daily.sale"].search(
+        avg_product_1 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_1.id)]
         )
         self.assertTrue(avg_product_1)
@@ -201,7 +208,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         self.assertNotIn(self.product_1.id, demand)
 
     def test_orderpoint_average_horizon(self):
-        avg_product_1 = self.env["stock.average.daily.sale"].search(
+        avg_product_1 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_1.id)]
         )
         self.assertTrue(avg_product_1)
@@ -250,15 +257,15 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         # Run the orderpoint
         #
         # Check there is a replenishment move with the missing quantity
-        avg_product_1 = self.env["stock.average.daily.sale"].search(
+        avg_product_1 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_1.id)]
         )
         self.assertTrue(avg_product_1)
-        avg_product_3 = self.env["stock.average.daily.sale"].search(
+        avg_product_3 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_3.id)]
         )
         self.assertTrue(avg_product_3)
-        avg_product_4 = self.env["stock.average.daily.sale"].search(
+        avg_product_4 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_4.id)]
         )
         self.assertFalse(avg_product_4)
@@ -331,7 +338,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         self.assertEqual(missing_quantity_3, replenish_move_3.product_uom_qty)
 
     def test_orderpoint_average_less(self):
-        avg_product_1 = self.env["stock.average.daily.sale"].search(
+        avg_product_1 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_1.id)]
         )
         self.assertTrue(avg_product_1)
@@ -366,7 +373,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
 
         When the cron run, it should create a replenishment move.
         """
-        avg_product_1 = self.env["stock.average.daily.sale"].search(
+        avg_product_1 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_1.id)]
         )
         self.assertTrue(avg_product_1)
@@ -393,7 +400,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
     def test_compute_demand_only_include_product_in_avg_table(self):
         """Test that only products in the average daily sale table are included in
         the computation."""
-        avg_product_1 = self.env["stock.average.daily.sale"].search(
+        avg_product_1 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_1.id)]
         )
         self.assertTrue(avg_product_1)
@@ -462,7 +469,7 @@ class TestOrderpointAverage(CommonAverageSaleTest, TestLocationOrderpointCommon)
         self.assertEqual({self.product_1.id}, set(product_ids))
 
     def test_orderpoint_product_domain(self):
-        avg_product_1 = self.env["stock.average.daily.sale"].search(
+        avg_product_1 = self.env["stock.average.daily.usage"].search(
             [("product_id", "=", self.product_1.id)]
         )
         self.assertTrue(avg_product_1)

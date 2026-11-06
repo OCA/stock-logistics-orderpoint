@@ -5,7 +5,7 @@
     "name": "Stock Location Orderpoint Average Daily Sale",
     "summary": """
         This module allows to base replenishments quantities (on stock locations)
-        on average daily sales""",
+        on average daily usage""",
     "version": "16.0.1.0.0",
     "license": "AGPL-3",
     "author": "ACSONE SA/NV, BCIM, Odoo Community Association (OCA)",
