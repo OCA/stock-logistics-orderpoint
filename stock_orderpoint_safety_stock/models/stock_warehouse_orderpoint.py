@@ -25,7 +25,6 @@ class StockWarehouseOrderpoint(models.Model):
     )
     cycle_service_level_id = fields.Many2one(
         "stock.cycle.service.level",
-        string="Cycle Service Level",
         ondelete="restrict",
     )
     csl = fields.Float(
