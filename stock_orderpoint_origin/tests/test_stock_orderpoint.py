@@ -1,7 +1,7 @@
-from odoo.tests import common
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestOrderpointPurchaseLink(common.TransactionCase):
+class TestOrderpointPurchaseLink(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -25,7 +25,6 @@ class TestOrderpointPurchaseLink(common.TransactionCase):
         cls.stock_location_id = cls.warehouse.lot_stock_id.id
 
     def test_ao(self):
-        # import wdb; wdb.set_trace()
         op = self.env["stock.warehouse.orderpoint"].create(
             {
                 "name": self.product.name,

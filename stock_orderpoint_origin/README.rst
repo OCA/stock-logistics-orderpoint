@@ -28,18 +28,18 @@ Stock Orderpoint Replenishment demand origin details
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-The Inventory Replenishment menu alows to choose a route and create
-orders to replenish the needed quantities of a Product.
+The Inventory > Operations > Procurement > Replenishment menu allows to
+choose a route and create orders to replenish the needed quantities of a
+Product.
 
 However the Purchase Orders created do not have the information about
 the documents that generated that demand. The Purchase Order "Origin"
 field will only identify the replenishment/reorder rule that generated
 it.
 
-This feature updates the Purchase Order "Origin" field with the
-documents that generated the demand, generating the demand, such as
-Sales Orders or Manufacturing Orders. This is done based on the
-information provided by the Forecast report.
+This module updates the Purchase Order "Origin" field with the documents
+that generated the demand, such as Sales Orders or Manufacturing Orders.
+This is done based on the information provided by the Forecast report.
 
 The source demand Sales Orders are added to the Purchase Order smart
 button, allowing to navigate directly to them.
@@ -52,8 +52,8 @@ button, allowing to navigate directly to them.
 Usage
 =====
 
-- Create order from the Replenishment menu, for example, using the
-  "Order Once" button.
+- In the Inventory > Operations > Procurement > Replenishment menu,
+  create an order, for example using the "Order" button.
 - Verify the Origin field of the created orders. It should include the
   references to the orders generating this demand at the time of
   replenishment creation.
@@ -83,6 +83,9 @@ Contributors
 
 - Daniel Reis <dreis@opensourceintegrators.com> `Open Source
   Integrators <https://opensourceintegrators.com>`__:
+- `PyTech <https://www.pytech.it>`__:
+
+  - Simone Rubino <simone.rubino@pytech.it>
 
 Maintainers
 -----------
@@ -96,6 +99,14 @@ This module is maintained by the OCA.
 OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
+
+.. |maintainer-SirPyTech| image:: https://github.com/SirPyTech.png?size=40px
+    :target: https://github.com/SirPyTech
+    :alt: SirPyTech
+
+Current `maintainer <https://odoo-community.org/page/maintainer-role>`__:
+
+|maintainer-SirPyTech| 
 
 This module is part of the `OCA/stock-logistics-orderpoint <https://github.com/OCA/stock-logistics-orderpoint/tree/18.0/stock_orderpoint_origin>`_ project on GitHub.
 
