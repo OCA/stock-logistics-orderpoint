@@ -28,38 +28,14 @@ Stock Orderpoint Replenishment MRP demand origin details
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-The Inventory Replenishment menu alows to choose a route and create
-orders to replenish the needed quantities of a Product.
-
-However the Purchase Orders created do not have the information about
-the documents that generated that demand. The Purchase Order "Origin"
-field will only identify the replenishment/reorder rule that generated
-it.
-
-This feature updates the Purchase Order "Origin" field with the
-documents that generated the demand, generating the demand, such as
-Sales Orders or Manufacturing Orders. This is done based on the
-information provided by the Forecast report.
-
-This particular extension also adds the source demand Manufacturing
-Orders to the Purchase Order smart button, allowing to navigate directly
-to them.
+The Manufacturing Orders that concurred in the Purchase Order generation
+are available in the Purchase Order's form by clicking on the
+"Manufacturing" smart button.
 
 **Table of contents**
 
 .. contents::
    :local:
-
-Usage
-=====
-
-- Create order from the Replenishment menu, for example, using the
-  "Order Once" button.
-- Verify the Origin field of the created orders. It should include the
-  references to the orders generating this demand at the time of
-  replenishment creation.
-- If demand was generated from Manufacturing Orders, the "Manufacturin"
-  smart button should be available.
 
 Bug Tracker
 ===========
@@ -84,6 +60,9 @@ Contributors
 
 - Daniel Reis <dreis@opensourceintegrators.com> `Open Source
   Integrators <https://opensourceintegrators.com>`__:
+- `PyTech <https://www.pytech.it>`__:
+
+  - Simone Rubino <simone.rubino@pytech.it>
 
 Maintainers
 -----------
