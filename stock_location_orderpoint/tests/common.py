@@ -189,12 +189,17 @@ class TestLocationOrderpointCommon(BaseCommon):
     @classmethod
     def _get_replenishment_move(cls, orderpoints, product=None):
         product = product or cls.product
-        return cls.env["stock.move"].search(
-            [
-                ("origin", "in", orderpoints.mapped("name")),
-                ("product_id", "=", product.id),
-                ("state", "!=", "cancel"),
-            ]
+        return (
+            cls.env["stock.move"]
+            .search(
+                [
+                    ("product_id", "=", product.id),
+                    ("state", "!=", "cancel"),
+                ]
+            )
+            .filtered(
+                lambda move: any(op.name in (move.origin or "") for op in orderpoints)
+            )
         )
 
     @classmethod
