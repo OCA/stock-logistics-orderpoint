@@ -28,9 +28,8 @@ Stock Orderpoint Route
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-This module allows to restrict a specific route to be used in the
-reordering rules. This route will be used instead of the default
-determined by default.
+This module restricts the Route that can be selected in a Replenishment:
+only the replenished Product's Routes can be selected.
 
 **Table of contents**
 
@@ -40,8 +39,8 @@ determined by default.
 Usage
 =====
 
-Go to the reordering rule and change the route. Only the routes
-applicable for this location or locations above it can be selected.
+Open Inventory > Operations > Procurement > Replenishment and set a
+Route in a Replenishment.
 
 Bug Tracker
 ===========
@@ -71,6 +70,10 @@ Contributors
 - `Trobz <https://trobz.com>`__:
 
   - Dung Tran <dungtd@trobz.com>
+
+- `PyTech <https://www.pytech.it>`__:
+
+  - Simone Rubino <simone.rubino@pytech.it>
 
 Other credits
 -------------

@@ -3,3 +3,5 @@
 - Guewen Baconnier \<guewen.baconnier@camptocamp.com\>
 - [Trobz](https://trobz.com):
   - Dung Tran \<dungtd@trobz.com\>
+- [PyTech](https://www.pytech.it):
+  - Simone Rubino \<<simone.rubino@pytech.it>\>

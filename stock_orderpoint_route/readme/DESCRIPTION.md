@@ -1,3 +1,1 @@
-This module allows to restrict a specific route to be used in the
-reordering rules. This route will be used instead of the default
-determined by default.
+This module restricts the Route that can be selected in a Replenishment: only the replenished Product's Routes can be selected.

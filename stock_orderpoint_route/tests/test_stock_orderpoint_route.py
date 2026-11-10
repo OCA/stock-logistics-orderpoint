@@ -1,10 +1,12 @@
 # Copyright 2017 ForgeFlow S.L.
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl-3.0).
 
-from odoo.tests.common import TransactionCase
+from odoo import fields
+
+from odoo.addons.base.tests.common import BaseCommon
 
 
-class TestStockOrderpointRoute(TransactionCase):
+class TestStockOrderpointRoute(BaseCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -14,20 +16,16 @@ class TestStockOrderpointRoute(TransactionCase):
         cls.orderpoint_model = cls.env["stock.warehouse.orderpoint"]
         cls.procurement_group_model = cls.env["procurement.group"]
         # refs
-        cls.stock_manager_group = cls.env.ref("stock.group_stock_manager")
-        cls.stock_multi_locations_group_group = cls.env.ref(
-            "stock.group_stock_multi_locations"
-        )
         cls.main_company = cls.env.ref("base.main_company")
         cls.warehouse = cls.env.ref("stock.warehouse0")
-        cls.categ_unit = cls.env.ref("uom.product_uom_categ_unit")
-        cls.virtual_loc = cls.env.ref("stock.stock_location_customers")
 
         # common data
-        cls.stock_manager = cls._create_user(
-            "stock_manager",
-            [cls.stock_manager_group.id, cls.stock_multi_locations_group_group.id],
-            [cls.main_company.id],
+        cls.stock_manager = cls._create_new_internal_user(
+            login="stock_manager",
+            groups=",".join(
+                ("stock.group_stock_manager", "stock.group_stock_multi_locations")
+            ),
+            company_ids=cls.main_company.ids,
         )
         cls.product = cls._create_product("SH", "Shoes", False)
 
@@ -58,59 +56,31 @@ class TestStockOrderpointRoute(TransactionCase):
             }
         )
 
-        cls.uom_dozen = cls.env["uom.uom"].create(
-            {
-                "name": "Test-DozenA",
-                "category_id": cls.categ_unit.id,
-                "factor_inv": 12,
-                "uom_type": "bigger",
-                "rounding": 0.001,
-            }
-        )
-
         cls.env["stock.rule"].create(
-            {
-                "name": "Transfer",
-                "route_id": cls.route.id,
-                "location_src_id": cls.ressuply_loc.id,
-                "location_dest_id": cls.warehouse.lot_stock_id.id,
-                "action": "pull",
-                "picking_type_id": cls.warehouse.int_type_id.id,
-                "procure_method": "make_to_stock",
-                "warehouse_id": cls.warehouse.id,
-                "company_id": cls.main_company.id,
-            }
-        )
-
-        cls.env["stock.rule"].create(
-            {
-                "name": "Transfer 2",
-                "route_id": cls.route2.id,
-                "location_src_id": cls.ressuply_loc2.id,
-                "location_dest_id": cls.warehouse.lot_stock_id.id,
-                "action": "pull",
-                "picking_type_id": cls.warehouse.int_type_id.id,
-                "procure_method": "make_to_stock",
-                "warehouse_id": cls.warehouse.id,
-                "company_id": cls.main_company.id,
-            }
-        )
-
-    @classmethod
-    def _create_user(cls, name, group_ids, company_ids):
-        return (
-            cls.env["res.users"]
-            .with_context(no_reset_password=True)
-            .create(
+            [
                 {
-                    "name": name,
-                    "password": "demo",
-                    "login": name,
-                    "email": "@".join([name, "@test.com"]),
-                    "groups_id": [(6, 0, group_ids)],
-                    "company_ids": [(6, 0, company_ids)],
-                }
-            )
+                    "name": "Transfer",
+                    "route_id": cls.route.id,
+                    "location_src_id": cls.ressuply_loc.id,
+                    "location_dest_id": cls.warehouse.lot_stock_id.id,
+                    "action": "pull",
+                    "picking_type_id": cls.warehouse.int_type_id.id,
+                    "procure_method": "make_to_stock",
+                    "warehouse_id": cls.warehouse.id,
+                    "company_id": cls.main_company.id,
+                },
+                {
+                    "name": "Transfer 2",
+                    "route_id": cls.route2.id,
+                    "location_src_id": cls.ressuply_loc2.id,
+                    "location_dest_id": cls.warehouse.lot_stock_id.id,
+                    "action": "pull",
+                    "picking_type_id": cls.warehouse.int_type_id.id,
+                    "procure_method": "make_to_stock",
+                    "warehouse_id": cls.warehouse.id,
+                    "company_id": cls.main_company.id,
+                },
+            ]
         )
 
     @classmethod
@@ -121,13 +91,13 @@ class TestStockOrderpointRoute(TransactionCase):
                 default_code=default_code,
                 uom_id=cls.env.ref("uom.product_uom_unit").id,
                 company_id=company_id,
-                type="product",
+                is_storable=True,
                 **vals,
             )
         )
 
     def test_orderpoint_route_01(self):
-        self.product.route_ids = [(6, 0, [self.route.id, self.route2.id])]
+        self.product.route_ids = [fields.Command.set([self.route.id, self.route2.id])]
         vals = {
             "product_id": self.product.id,
             "product_min_qty": 10.0,
@@ -153,7 +123,7 @@ class TestStockOrderpointRoute(TransactionCase):
         self.assertEqual(len(move), 1)
 
     def test_orderpoint_route_02(self):
-        self.product.route_ids = [(6, 0, [self.route.id, self.route2.id])]
+        self.product.route_ids = [fields.Command.set([self.route.id, self.route2.id])]
         vals = {
             "product_id": self.product.id,
             "product_min_qty": 10.0,

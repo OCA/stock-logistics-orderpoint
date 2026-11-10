@@ -46,8 +46,3 @@ class StockWarehouseOrderpoint(models.Model):
         return self.env["stock.location"].search(
             [("id", "parent_of", self.location_id.id)]
         )
-
-    def _prepare_procurement_values(self, date=False, group=False):
-        res = super()._prepare_procurement_values(date=date, group=group)
-        res["route_ids"] = self.route_id
-        return res
