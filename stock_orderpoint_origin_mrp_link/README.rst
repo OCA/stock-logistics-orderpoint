@@ -1,7 +1,3 @@
-.. image:: https://odoo-community.org/readme-banner-image
-   :target: https://odoo-community.org/get-involved?utm_source=readme
-   :alt: Odoo Community Association
-
 ========================================================
 Stock Orderpoint Replenishment MRP demand origin details
 ========================================================
@@ -17,35 +13,37 @@ Stock Orderpoint Replenishment MRP demand origin details
 .. |badge1| image:: https://img.shields.io/badge/maturity-Beta-yellow.png
     :target: https://odoo-community.org/page/development-status
     :alt: Beta
-.. |badge2| image:: https://img.shields.io/badge/license-LGPL--3-blue.png
+.. |badge2| image:: https://img.shields.io/badge/licence-LGPL--3-blue.png
     :target: http://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
 .. |badge3| image:: https://img.shields.io/badge/github-OCA%2Fstock--logistics--orderpoint-lightgray.png?logo=github
-    :target: https://github.com/OCA/stock-logistics-orderpoint/tree/16.0/stock_orderpoint_origin_mrp_link
+    :target: https://github.com/OCA/stock-logistics-orderpoint/tree/18.0/stock_orderpoint_origin_mrp_link
     :alt: OCA/stock-logistics-orderpoint
 .. |badge4| image:: https://img.shields.io/badge/weblate-Translate%20me-F47D42.png
-    :target: https://translation.odoo-community.org/projects/stock-logistics-orderpoint-16-0/stock-logistics-orderpoint-16-0-stock_orderpoint_origin_mrp_link
+    :target: https://translation.odoo-community.org/projects/stock-logistics-orderpoint-18-0/stock-logistics-orderpoint-18-0-stock_orderpoint_origin_mrp_link
     :alt: Translate me on Weblate
 .. |badge5| image:: https://img.shields.io/badge/runboat-Try%20me-875A7B.png
-    :target: https://runboat.odoo-community.org/builds?repo=OCA/stock-logistics-orderpoint&target_branch=16.0
+    :target: https://runboat.odoo-community.org/builds?repo=OCA/stock-logistics-orderpoint&target_branch=18.0
     :alt: Try me on Runboat
 
 |badge1| |badge2| |badge3| |badge4| |badge5|
 
-The Inventory Replenishment menu alows to choose a route and create orders to
-replenish the needed quantities of a Product.
+The Inventory Replenishment menu alows to choose a route and create
+orders to replenish the needed quantities of a Product.
 
-However the Purchase Orders created do not have the information
-about the documents that generated that demand.
-The Purchase Order "Origin" field will only
-identify the replenishment/reorder rule that generated it.
+However the Purchase Orders created do not have the information about
+the documents that generated that demand. The Purchase Order "Origin"
+field will only identify the replenishment/reorder rule that generated
+it.
 
-This feature updates the Purchase Order "Origin" field with the documents
-that generated the demand, generating the demand, such as Sales Orders or Manufacturing Orders.
-This is done based on the information provided by the Forecast report.
+This feature updates the Purchase Order "Origin" field with the
+documents that generated the demand, generating the demand, such as
+Sales Orders or Manufacturing Orders. This is done based on the
+information provided by the Forecast report.
 
-This particular extension also adds the source demand Manufacturing Orders
-to the Purchase Order smart button, allowing to navigate directly to them.
+This particular extension also adds the source demand Manufacturing
+Orders to the Purchase Order smart button, allowing to navigate directly
+to them.
 
 **Table of contents**
 
@@ -55,11 +53,13 @@ to the Purchase Order smart button, allowing to navigate directly to them.
 Usage
 =====
 
-- Create order from the Replenishment menu, for example, using the "Order Once" button.
-- Verify the Origin field of the created orders. It should include the references to the
-  orders generating this demand at the time of replenishment creation.
-- If demand was generated from Manufacturing Orders, the "Manufacturin" smart button
-  should be available.
+- Create order from the Replenishment menu, for example, using the
+  "Order Once" button.
+- Verify the Origin field of the created orders. It should include the
+  references to the orders generating this demand at the time of
+  replenishment creation.
+- If demand was generated from Manufacturing Orders, the "Manufacturin"
+  smart button should be available.
 
 Bug Tracker
 ===========
@@ -67,7 +67,7 @@ Bug Tracker
 Bugs are tracked on `GitHub Issues <https://github.com/OCA/stock-logistics-orderpoint/issues>`_.
 In case of trouble, please check there if your issue has already been reported.
 If you spotted it first, help us to smash it by providing a detailed and welcomed
-`feedback <https://github.com/OCA/stock-logistics-orderpoint/issues/new?body=module:%20stock_orderpoint_origin_mrp_link%0Aversion:%2016.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
+`feedback <https://github.com/OCA/stock-logistics-orderpoint/issues/new?body=module:%20stock_orderpoint_origin_mrp_link%0Aversion:%2018.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**>`_.
 
 Do not contact contributors directly about support or help with technical issues.
 
@@ -75,17 +75,18 @@ Credits
 =======
 
 Authors
-~~~~~~~
+-------
 
 * Open Source Integrators
 
 Contributors
-~~~~~~~~~~~~
+------------
 
-* Daniel Reis <dreis@opensourceintegrators.com> `Open Source Integrators <https://opensourceintegrators.com>`_:
+- Daniel Reis <dreis@opensourceintegrators.com> `Open Source
+  Integrators <https://opensourceintegrators.com>`__:
 
 Maintainers
-~~~~~~~~~~~
+-----------
 
 This module is maintained by the OCA.
 
@@ -97,6 +98,6 @@ OCA, or the Odoo Community Association, is a nonprofit organization whose
 mission is to support the collaborative development of Odoo features and
 promote its widespread use.
 
-This module is part of the `OCA/stock-logistics-orderpoint <https://github.com/OCA/stock-logistics-orderpoint/tree/16.0/stock_orderpoint_origin_mrp_link>`_ project on GitHub.
+This module is part of the `OCA/stock-logistics-orderpoint <https://github.com/OCA/stock-logistics-orderpoint/tree/18.0/stock_orderpoint_origin_mrp_link>`_ project on GitHub.
 
 You are welcome to contribute. To learn how please visit https://odoo-community.org/page/Contribute.
