@@ -1,0 +1,86 @@
+from odoo import tests
+
+from odoo.addons.base.tests.common import BaseCommon
+
+
+class TestOrderpointPurchaseLink(BaseCommon):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.PurchaseOrder = cls.env["purchase.order"]
+        cls.PurchaseOrderLine = cls.env["purchase.order.line"]
+        cls.StockLocation = cls.env["stock.location"]
+        cls.StockRoute = cls.env["stock.route"]
+        cls.StockWarehouse = cls.env["stock.warehouse"]
+        cls.StockWarehouseOrderpoint = cls.env["stock.warehouse.orderpoint"]
+
+        cls.partner = cls.env["res.partner"].create(
+            {
+                "name": "John Odoo",
+            }
+        )
+        cls.product = cls.env.ref("product.product_product_5")
+        cls.warehouse = cls.env["stock.warehouse"].search(
+            [("company_id", "=", cls.env.company.id)], limit=1
+        )
+        cls.stock_location_id = cls.warehouse.lot_stock_id.id
+
+    def test_ao(self):
+        op = self.env["stock.warehouse.orderpoint"].create(
+            {
+                "name": self.product.name,
+                "location_id": self.stock_location_id,
+                "product_id": self.product.id,
+                "product_min_qty": 1,
+                "product_max_qty": 8,
+                "qty_to_order": 3,
+                "trigger": "manual",
+            }
+        )
+        op.action_replenish()
+        purchase_order_line = self.env["purchase.order.line"].search(
+            [("product_id", "=", self.product.id)], order="id desc", limit=1
+        )
+        self.assertTrue(bool(purchase_order_line))
+        purchase_order = purchase_order_line.order_id
+        origin = purchase_order.origin
+        self.assertIn(self.product.name, origin)
+        sale_orders = purchase_order._get_sale_orders()
+        self.assertIn(purchase_order.order_line.source_group_ids.sale_id, sale_orders)
+        so_name = sale_orders.mapped("name")[0]
+        self.assertIn(so_name, origin)
+
+    def test_picking_empty_procurement(self):
+        """If a picking has no procurement, the source groups are listed."""
+        # Arrange
+        picking_form = tests.Form(self.env["stock.picking"])
+        picking_form.picking_type_id = self.env.ref("stock.picking_type_out")
+        with picking_form.move_ids_without_package.new() as move:
+            move.product_id = self.product
+            move.product_uom_qty = 1
+        picking = picking_form.save()
+        picking.action_confirm()
+        # pre-condition
+        self.assertFalse(picking.group_id)
+
+        # Act
+        op = self.env["stock.warehouse.orderpoint"].create(
+            {
+                "name": self.product.name,
+                "location_id": self.stock_location_id,
+                "product_id": self.product.id,
+                "product_min_qty": 1,
+                "product_max_qty": 8,
+                "qty_to_order": 3,
+                "trigger": "manual",
+            }
+        )
+        op.action_replenish()
+
+        # Assert
+        purchase_order_line = self.env["purchase.order.line"].search(
+            [("product_id", "=", self.product.id)], order="id desc", limit=1
+        )
+        self.assertTrue(purchase_order_line)
+        self.assertEqual(len(purchase_order_line.source_group_ids), 1)
