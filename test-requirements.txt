@@ -1,0 +1,2 @@
+# https://github.com/OCA/stock-logistics-orderpoint/pull/110
+odoo-addon-stock_orderpoint_origin @ git+https://github.com/OCA/stock-logistics-orderpoint.git@refs/pull/110/head#subdirectory=stock_orderpoint_origin
